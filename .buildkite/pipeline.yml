@@ -1,0 +1,4 @@
+steps:
+  - label: "Do nothing"
+    command: |
+      echo "No code, no bugs"
