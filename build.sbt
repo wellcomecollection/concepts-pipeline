@@ -27,6 +27,12 @@ def setupProject(
     .settings(libraryDependencies ++= externalDependencies)
 }
 
+lazy val ingestor = setupProject(
+  project,
+  folder = "ingestor",
+  externalDependencies = Nil
+)
+
 // AWS Credentials to read from S3
 s3CredentialsProvider := { _ =>
   val builder = new STSAssumeRoleSessionCredentialsProvider.Builder(
