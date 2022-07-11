@@ -30,7 +30,7 @@ def setupProject(
 lazy val ingestor = setupProject(
   project,
   folder = "ingestor",
-  externalDependencies = Nil
+  externalDependencies = ServiceDependencies.ingestor
 )
 
 // AWS Credentials to read from S3
