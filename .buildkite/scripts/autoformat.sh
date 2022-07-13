@@ -3,13 +3,16 @@
 SCALAFMT_VERSION=3.5.8
 ROOT=$(git rev-parse --show-toplevel)
 
+# Install the formatter if it's not already present on the agent
 if [[ ! -x "$(command -v scalafmt-native)" || "$(scalafmt-native --version)" != "$SCALAFMT_VERSION" ]]; then
   curl https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/install-scalafmt-native.sh | \
     bash -s -- $SCALAFMT_VERSION /usr/local/bin/scalafmt-native
 fi
 
+# Run the formatter
 scalafmt-native --non-interactive $ROOT
 
+# Commit any changes
 if [[ `git status --porcelain` ]]; then
   git config user.name "Buildkite on behalf of Wellcome Collection"
   git config user.email "wellcomedigitalplatform@wellcome.ac.uk"
