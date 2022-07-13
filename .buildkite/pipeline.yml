@@ -1,4 +1,8 @@
 steps:
+  - label: "autoformat"
+    command: .buildkite/scripts/autoformat.sh
+    agents:
+      queue: "nano"
   - label: "ingestor"
     command: |
       .buildkite/scripts/sbt.sh "project ingestor" "test"
