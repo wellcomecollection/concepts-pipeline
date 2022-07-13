@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -o errexit
 
 SCALAFMT_VERSION=3.5.8
 ROOT=$(git rev-parse --show-toplevel)
@@ -17,9 +18,9 @@ if [[ `git status --porcelain` ]]; then
   git config user.name "Buildkite on behalf of Wellcome Collection"
   git config user.email "wellcomedigitalplatform@wellcome.ac.uk"
 
-  git remote add ssh-origin $BUILDKITE_REPO
+  git remote add ssh-origin $BUILDKITE_REPO || true
   git fetch ssh-origin
-  git checkout --track ssh-origin/$BUILDKITE_BRANCH
+  git checkout --track ssh-origin/$BUILDKITE_BRANCH || true
 
   git add --verbose --update
   git commit -m "Apply auto-formatting rules"
