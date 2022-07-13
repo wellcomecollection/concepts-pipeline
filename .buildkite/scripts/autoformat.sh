@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-set -o errexit
+set -euo pipefail
 
 SCALAFMT_VERSION=3.5.8
 ROOT=$(git rev-parse --show-toplevel)
 
+echo $PATH
 # Install the formatter if it's not already present on the agent
 if [[ ! -x "$(command -v scalafmt-native)" || "$(scalafmt-native --version)" != "$SCALAFMT_VERSION" ]]; then
   curl https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/install-scalafmt-native.sh | \
