@@ -7,6 +7,7 @@ PATH=$HOME/.local/bin:$PATH
 
 # Install the formatter if it's not already present on the agent
 if [[ ! -x "$(command -v scalafmt-native)" || "$(scalafmt-native --version)" != "$SCALAFMT_VERSION" ]]; then
+  mkdir -p $HOME/.local/bin
   curl https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/install-scalafmt-native.sh | \
     bash -s -- $SCALAFMT_VERSION $HOME/.local/bin/scalafmt-native
 fi
