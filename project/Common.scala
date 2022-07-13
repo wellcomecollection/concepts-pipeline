@@ -22,7 +22,6 @@ object Common {
       "-Xfatal-warnings",
       "-feature",
       "-language:postfixOps",
-      "-Ypartial-unification",
       "-Xcheckinit"
     ),
     updateOptions := updateOptions.value.withCachedResolution(true),
