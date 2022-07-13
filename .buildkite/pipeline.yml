@@ -1,4 +1,6 @@
 steps:
-  - label: "Do nothing"
+  - label: "ingestor"
     command: |
-      echo "No code, no bugs"
+      .buildkite/scripts/sbt.sh "project ingestor" "test"
+    agents:
+      queue: "scala"
