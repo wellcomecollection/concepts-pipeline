@@ -12,3 +12,12 @@ project/plugins/project/
 .cache
 .lib/
 .bsp
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
