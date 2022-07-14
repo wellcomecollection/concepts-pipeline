@@ -8,9 +8,6 @@ def setupProject(
   localDependencies: Seq[Project] = Seq(),
   externalDependencies: Seq[ModuleID] = Seq()
 ): Project = {
-
-  Metadata.write(project, folder, localDependencies)
-
   val dependsOn = localDependencies
     .map { project: Project =>
       ClasspathDependency(
