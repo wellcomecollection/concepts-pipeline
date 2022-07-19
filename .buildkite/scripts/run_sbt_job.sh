@@ -14,7 +14,7 @@ if [ "$BUILDKITE_BRANCH" == "ingestor-ecr" ]; then
   PROJECT_DIR=$($SBT -error "project $PROJECT" "stage; print baseDirectory")
   IMAGE_TAG="$PROJECT:ref.$BUILDKITE_COMMIT"
 
-  docker build "$ROOT/$PROJECT_DIR" --tag $IMAGE_TAG
+  docker build $PROJECT_DIR --tag $IMAGE_TAG
   docker tag $IMAGE_TAG "$CATALOGUE_ECR_REPO/$IMAGE_TAG"
   docker tag $IMAGE_TAG "$CATALOGUE_ECR_REPO/$PROJECT:latest"
   docker push --all-tags "$CATALOGUE_ECR_REPO/$PROJECT"
