@@ -5,6 +5,6 @@ steps:
       queue: "nano"
   - label: "ingestor"
     command: |
-      .buildkite/scripts/sbt.sh "project ingestor" "test"
+      .buildkite/scripts/run_sbt_job.sh ingestor
     agents:
       queue: "scala"
