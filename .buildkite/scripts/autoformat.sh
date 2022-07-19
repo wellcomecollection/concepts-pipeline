@@ -12,10 +12,10 @@ if [[ ! -x "$(command -v scalafmt-native)" || "$(scalafmt-native --version)" != 
   curl https://raw.githubusercontent.com/scalameta/scalafmt/master/bin/install-scalafmt-native.sh | \
     bash -s -- $SCALAFMT_VERSION $HOME/.local/bin/scalafmt-native
 fi
-if [[ ! -x "$(command -v terraform)" || "$(terraform --version)" != "$TERRAFORM_VERSION" ]]; then
+if [[ ! -x "$(command -v terraform)" || "$(terraform version -json | jq -r .terraform_version)" != "$TERRAFORM_VERSION" ]]; then
   mkdir -p $HOME/.local/bin
   wget -O /tmp/terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-  unzip -q -d $HOME/.local/bin /tmp/terraform.zip
+  unzip -q -o /tmp/terraform.zip -d $HOME/.local/bin
 fi
 
 # Run the formatters
