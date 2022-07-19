@@ -1,3 +1,9 @@
-FROM 760097843905.dkr.ecr.eu-west-1.amazonaws.com/wellcome/sbt_wrapper:1.7.1 as sbt_wrapper
+FROM public.ecr.aws/docker/library/eclipse-temurin:11-jre-alpine
 
-RUN /run_sbt.sh
+LABEL maintainer = "Wellcome Collection <digital@wellcomecollection.org>"
+
+RUN apk add --no-cache bash
+
+ADD target/universal/stage /opt/docker
+
+ENTRYPOINT ["/opt/docker/bin/ingestor"]
