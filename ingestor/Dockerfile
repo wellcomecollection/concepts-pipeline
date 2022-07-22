@@ -7,7 +7,6 @@ COPY ./build.sbt ./
 COPY ./project ./project
 COPY ./ingestor ./ingestor
 
-# See https://docs.docker.com/engine/reference/builder/#run---mounttypecache
 RUN /run_sbt.sh "project ingestor" "stage"
 
 ENTRYPOINT ["/run_sbt.sh", "project ingestor"]
