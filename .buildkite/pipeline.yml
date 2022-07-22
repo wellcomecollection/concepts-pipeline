@@ -5,19 +5,23 @@ steps:
       queue: "nano"
 
   - label: "test: ingestor"
-    command: "test"
     plugins:
       - docker-compose#v3.10.0:
           config:
             - docker-compose.yml
             - docker-compose.test.yml
           run: ingestor
+          command: ["test"]
     agents:
       queue: "scala"
+
+  - wait
 
   - label: "publish: ingestor"
     branches: "ingestor-ecr" # Change to main
     plugins:
+      - wellcomecollection/aws-assume-role#v0.2.2:
+          role: "arn:aws:iam::756629837203:role/catalogue-ci"
       - ecr#v2.5.0:
           login: true
       - docker-compose#v3.10.0:
