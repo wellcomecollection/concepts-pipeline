@@ -1,0 +1,6 @@
+version: "3.4"
+services:
+  ingestor:
+    build:
+      context: .
+      dockerfile: ./ingestor/Dockerfile
