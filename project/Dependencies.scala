@@ -17,7 +17,7 @@ object ExternalDependencies {
     "org.clapper" %% "grizzled-slf4j" % versions.grizzledSlf4j,
     "ch.qos.logback" % "logback-access" % versions.logback,
     "ch.qos.logback" % "logback-classic" % versions.logback,
-    "ch.qos.logback" % "logback-core" % versions.logback,
+    "ch.qos.logback" % "logback-core" % versions.logback
   )
 
   val config = Seq(
