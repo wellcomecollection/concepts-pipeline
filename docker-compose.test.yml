@@ -3,3 +3,7 @@ services:
   ingestor:
     build:
       target: sbt
+
+  aggregator:
+    build:
+      target: sbt

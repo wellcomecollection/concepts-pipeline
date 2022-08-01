@@ -30,6 +30,12 @@ lazy val ingestor = setupProject(
   externalDependencies = ServiceDependencies.ingestor
 )
 
+lazy val aggregator = setupProject(
+  project,
+  folder = "aggregator",
+  externalDependencies = ServiceDependencies.aggregator
+)
+
 // AWS Credentials to read from S3
 s3CredentialsProvider := { _ =>
   val builder = new STSAssumeRoleSessionCredentialsProvider.Builder(

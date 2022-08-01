@@ -30,4 +30,5 @@ object ServiceDependencies {
   import ExternalDependencies._
 
   val ingestor: Seq[ModuleID] = scalatest ++ logging ++ config
+  val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config
 }

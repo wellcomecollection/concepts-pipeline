@@ -15,6 +15,17 @@ steps:
     agents:
       queue: "scala"
 
+  - label: "test: aggregator"
+    plugins:
+      - docker-compose#v3.10.0:
+          config:
+            - docker-compose.yml
+            - docker-compose.test.yml
+          run: aggregator
+          command: ["test"]
+    agents:
+      queue: "scala"
+
   - wait
 
   - label: "publish: ingestor"

@@ -4,3 +4,7 @@ services:
     build:
       context: .
       dockerfile: ./ingestor/Dockerfile
+  aggregator:
+    build:
+      context: .
+      dockerfile: ./aggregator/Dockerfile
