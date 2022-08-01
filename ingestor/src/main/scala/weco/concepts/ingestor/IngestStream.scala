@@ -2,12 +2,18 @@ package weco.concepts.ingestor
 
 import akka.Done
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.Sink
 import grizzled.slf4j.Logging
+import weco.concepts.ingestor.stages.Fetcher
 
 import scala.concurrent.Future
 
-object IngestStream extends Logging {
-  def run(dataUrl: String)(implicit as: ActorSystem): Future[Done] =
-    Source.single(dataUrl).runForeach(url => info(s"Fetching URL: $url"))
+class IngestStream(dataUrl: String)(implicit actorSystem: ActorSystem)
+    extends Logging {
+  lazy val fetcher = new Fetcher()
+
+  def run: Future[Done] =
+    fetcher
+      .fetchFromUrl(dataUrl)
+      .runWith(Sink.ignore)
 }

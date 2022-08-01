@@ -3,6 +3,8 @@ import sbt._
 object ExternalDependencies {
   val versions = new {
     val akka = "2.6.19"
+    val akkaHttp =
+      "10.2.9" // This is a separate library to the rest of the akka-* world
     val ficus = "1.5.2"
     val grizzledSlf4j = "1.3.4"
     val logback = "1.2.11"
@@ -29,11 +31,13 @@ object ExternalDependencies {
   def akka(libraryNames: String*): Seq[ModuleID] = libraryNames.map(library =>
     "com.typesafe.akka" %% s"akka-$library" % versions.akka
   )
+
+  val akkaHttp = Seq("com.typesafe.akka" %% "akka-http" % versions.akkaHttp)
 }
 
 object ServiceDependencies {
   import ExternalDependencies._
 
   val ingestor: Seq[ModuleID] =
-    scalatest ++ logging ++ config ++ akka("actor-typed", "stream")
+    scalatest ++ logging ++ config ++ akka("actor-typed", "stream") ++ akkaHttp
 }

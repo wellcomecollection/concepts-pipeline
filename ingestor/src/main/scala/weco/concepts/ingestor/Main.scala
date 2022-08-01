@@ -14,5 +14,8 @@ object Main extends App with Logging {
   implicit val actorSystem: ActorSystem = ActorSystem("main")
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
 
-  IngestStream.run(lcshUrl).onComplete(_ => actorSystem.terminate())
+  val ingestStream = new IngestStream(lcshUrl)
+  ingestStream.run
+    .recover(err => error(err.getMessage))
+    .onComplete(_ => actorSystem.terminate())
 }
