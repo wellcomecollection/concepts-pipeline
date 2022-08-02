@@ -2,6 +2,7 @@ package weco.concepts.ingestor
 
 import akka.Done
 import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
 import akka.stream.scaladsl.Sink
 import akka.util.ByteString
 import grizzled.slf4j.Logging
@@ -13,7 +14,7 @@ class IngestStream(dataUrl: String)(implicit actorSystem: ActorSystem)
     extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
 
-  lazy val fetcher = new Fetcher()
+  lazy val fetcher = new Fetcher(Http().superPool())
 
   def run: Future[Done] =
     fetcher

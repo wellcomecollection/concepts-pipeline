@@ -1,17 +1,16 @@
 package weco.concepts.ingestor.stages
 
 import akka.NotUsed
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl._
 import akka.util.ByteString
 import grizzled.slf4j.Logging
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
-class Fetcher(implicit actorSystem: ActorSystem) extends Logging {
-  private lazy val httpFlow = Http().superPool[String]()
+class Fetcher(
+  private val httpFlow: Fetcher.HttpFlow
+) extends Logging {
 
   def fetchFromUrl(url: String): Source[ByteString, NotUsed] =
     Source
@@ -45,4 +44,12 @@ class Fetcher(implicit actorSystem: ActorSystem) extends Logging {
     entity.contentLengthOption
       .map(length => s"${length.toString} bytes")
       .getOrElse("unknown size")
+}
+
+object Fetcher {
+  type HttpFlow = Flow[
+    (HttpRequest, String),
+    (Try[HttpResponse], String),
+    NotUsed
+  ]
 }

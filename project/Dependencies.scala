@@ -13,7 +13,7 @@ object ExternalDependencies {
   }
 
   val scalatest = Seq(
-    "org.scalatest" %% "scalatest" % versions.scalatest % "test"
+    "org.scalatest" %% "scalatest" % versions.scalatest % Test
   )
 
   val logging = Seq(
@@ -39,5 +39,9 @@ object ServiceDependencies {
   import ExternalDependencies._
 
   val ingestor: Seq[ModuleID] =
-    scalatest ++ logging ++ config ++ akka("actor-typed", "stream") ++ akkaHttp
+    scalatest ++ logging ++ config ++ akka(
+      "actor-typed",
+      "stream",
+      "stream-testkit"
+    ) ++ akkaHttp
 }
