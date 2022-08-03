@@ -3,7 +3,7 @@ FROM 760097843905.dkr.ecr.eu-west-1.amazonaws.com/wellcome/sbt_wrapper:1.7.1 as 
 LABEL maintainer = "Wellcome Collection <digital@wellcomecollection.org>"
 
 WORKDIR /app
-COPY README.md ./
+
 COPY ./build.sbt ./
 COPY ./project ./project
 COPY ./aggregator ./aggregator
