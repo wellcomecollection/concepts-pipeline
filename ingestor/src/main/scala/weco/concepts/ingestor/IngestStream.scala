@@ -4,9 +4,8 @@ import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.scaladsl.Sink
-import akka.util.ByteString
 import grizzled.slf4j.Logging
-import weco.concepts.ingestor.stages.Fetcher
+import weco.concepts.ingestor.stages.{Fetcher, Scroll}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -19,17 +18,12 @@ class IngestStream(dataUrl: String)(implicit actorSystem: ActorSystem)
   def run: Future[Done] =
     fetcher
       .fetchFromUrl(dataUrl)
+      .via(Scroll.apply)
       .runWith(
-        // Count the number of bytes we've seen
-        // This is just while future stages don't exist
-        Sink.fold[(Int, Long), ByteString]((0, 0L)) {
-          case ((nChunks, total), byteString) =>
-            val length = byteString.length
-            (nChunks + 1, total + length)
-        }
+        Sink.fold(0L)((nLines, _) => nLines + 1)
       )
-      .map { case (nChunks, totalBytes) =>
-        info(s"Streamed $totalBytes bytes in $nChunks chunks")
+      .map(nLines => {
+        info(s"Read $nLines lines from decompressed $dataUrl")
         Done
-      }
+      })
 }
