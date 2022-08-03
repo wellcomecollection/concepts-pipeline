@@ -14,7 +14,10 @@ class Fetcher(
 
   def fetchFromUrl(url: String): Source[ByteString, NotUsed] =
     Source
-      .single(HttpRequest(method = HttpMethods.GET, uri = Uri(url)) -> url)
+      .single({
+        info(s"Fetching stream from $url")
+        HttpRequest(method = HttpMethods.GET, uri = Uri(url)) -> url
+      })
       .via(httpFlow)
       .flatMapConcat {
         case (Success(HttpResponse(StatusCodes.OK, _, entity, _)), _) =>
