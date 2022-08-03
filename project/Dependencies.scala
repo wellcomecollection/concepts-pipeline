@@ -28,20 +28,21 @@ object ExternalDependencies {
     "com.iheart" %% "ficus" % versions.ficus
   )
 
-  def akka(libraryNames: String*): Seq[ModuleID] = libraryNames.map(library =>
-    "com.typesafe.akka" %% s"akka-$library" % versions.akka
-  )
-
-  val akkaHttp = Seq("com.typesafe.akka" %% "akka-http" % versions.akkaHttp)
+  val akka = new {
+    val actorTyped = "com.typesafe.akka" %% s"akka-actor-typed" % versions.akka
+    val http = "com.typesafe.akka" %% "akka-http" % versions.akkaHttp
+    val stream = "com.typesafe.akka" %% s"akka-stream" % versions.akka
+    val streamTestkit =
+      "com.typesafe.akka" %% s"akka-stream-testkit" % versions.akka
+  }
 }
 
 object ServiceDependencies {
   import ExternalDependencies._
 
   val ingestor: Seq[ModuleID] =
-    scalatest ++ logging ++ config ++ akka(
-      "actor-typed",
-      "stream",
-      "stream-testkit"
-    ) ++ akkaHttp
+    scalatest ++
+      logging ++
+      config ++
+      Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 }
