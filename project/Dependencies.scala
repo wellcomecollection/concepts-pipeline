@@ -45,4 +45,6 @@ object ServiceDependencies {
       logging ++
       config ++
       Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
+
+  val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config
 }
