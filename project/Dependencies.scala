@@ -35,6 +35,10 @@ object ExternalDependencies {
     val streamTestkit =
       "com.typesafe.akka" %% s"akka-stream-testkit" % versions.akka
   }
+
+  val uPickle = Seq(
+    "com.lihaoyi" %% "upickle" % "2.0.0"
+  )
 }
 
 object ServiceDependencies {
@@ -44,6 +48,7 @@ object ServiceDependencies {
     scalatest ++
       logging ++
       config ++
+      uPickle ++
       Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 
   val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config
