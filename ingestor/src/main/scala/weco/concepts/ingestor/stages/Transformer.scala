@@ -46,6 +46,8 @@ object Transformer extends Logging {
         altLabelValues = altLabels.map(_.opt[String]("@value"))
       } yield Concept(
         identifier = Identifier(
+          // As above, this is initially a path: the leaf is all we care about,
+          // because our IdentifierType tells us the relevant context
           value = conceptId.split('/').last,
           identifierType = IdentifierType.LCSubjects
         ),
