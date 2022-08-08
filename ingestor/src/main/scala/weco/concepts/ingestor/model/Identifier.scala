@@ -15,4 +15,7 @@ object IdentifierType {
   case object LCSubjects extends IdentifierType {
     val id = "lc-subjects"
   }
+  case object LCNames extends IdentifierType {
+    val id = "lc-names"
+  }
 }
