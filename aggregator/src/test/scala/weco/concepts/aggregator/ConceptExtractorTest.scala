@@ -5,7 +5,42 @@ import org.scalatest.GivenWhenThen
 import org.scalatest.LoneElement.convertToCollectionLoneElementWrapper
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.prop.TableDrivenPropertyChecks
+import ujson.ParseException
 
+/*
+* Utility object to generate concepts in the form in which they are
+* presented in the Works API.  This is the form in which they arrive
+* into the ConceptExtractor
+*/
+object SourceConcept {
+  def apply(
+   authority: String,
+   identifier: String,
+   label: String,
+   canonicalId: String,
+   ontologyType: String
+  ): String = {
+    s"""
+       |{
+       |  "id": "$canonicalId",
+       |  "identifiers": [
+       |    {
+       |      "identifierType": {
+       |        "id": "$authority",
+       |        "label": "This field is ignored",
+       |        "type": "IdentifierType"
+       |      },
+       |      "value": "$identifier",
+       |      "type": "Identifier"
+       |    }
+       |  ],
+       |  "label": "$label",
+       |  "type": "$ontologyType"
+       |}
+       |""".stripMargin
+  }
+  
+}
 
 class ConceptExtractorTest
   extends AnyFeatureSpec
@@ -15,10 +50,10 @@ class ConceptExtractorTest
   Feature("The Concept Extractor") {
     info("The concept extractor extracts concepts from a single json document")
     info("The resulting content from this process consists of the following")
-    info("the authority")
-    info("the authority's identifier")
-    info("the name used in the original document")
-    info("the wellcome canonical identifier")
+    info("- the authority")
+    info("- the authority's identifier")
+    info("- the name used in the original document")
+    info("- the wellcome canonical identifier")
 
     Scenario("A document with no Concepts"){
       Given("a json document with no concepts in it")
@@ -31,24 +66,29 @@ class ConceptExtractorTest
       Given("an invalid document")
       val notJSON = "<hello>world</hello>"
       Then("an exception is raised")
-      a [RuntimeException] should be thrownBy ConceptExtractor(notJSON)
+      a [ParseException] should be thrownBy ConceptExtractor(notJSON)
     }
 
     Scenario("An unknown Identifier type"){
       info("The type (authority) of an identifier is a controlled vocabulary")
       Given("A document with a concept with an unknown identifier type")
       val doc =
-        """
+        s"""
           |{
           |"concepts": [
-          |{
-          |
-          |}
+          |${SourceConcept(
+            authority="deadbeef",
+            identifier="hello",
+            label="world",
+            canonicalId="92345678",
+            ontologyType="Concept")
+          }
           |]
           |}
           |""".stripMargin
       Then("an exception is raised")
       a [BadIdentifierException] should be thrownBy ConceptExtractor(doc)
+      //TODO: Check that the exception is actually useful.
       pending
     }
 
@@ -66,7 +106,18 @@ class ConceptExtractorTest
           And(s"an identifier of $identifier")
           And(s"a label $label")
           And(s"a canonical identifier $canonicalId")
-          val json = ""
+          val json =
+            s"""{
+          |"concepts":[
+            ${SourceConcept(
+              authority=identifierType,
+              identifier=identifier,
+              label=label,
+              canonicalId=canonicalId,
+              ontologyType=ontologyType)
+            }
+          |]
+          |}""".stripMargin
 
           Then("there is one resulting concept")
           val concept = ConceptExtractor(json).loneElement
@@ -106,8 +157,8 @@ class ConceptExtractorTest
   }
 
   Feature("Ignoring things that are not Concepts"){
-    info("A concept in a work is represented by a sourceIdentifier object")
-    info("These objects also represent other things, such as an id for the Work itself")
+    info("A concept in a work is represented by an object containing a sourceIdentifier object")
+    info("These objects may also represent other things. If it is not a concept, it should be ignored")
     Scenario("Unknown ontology types"){
       Given("a document with both concepts and non-concept identifiers")
 

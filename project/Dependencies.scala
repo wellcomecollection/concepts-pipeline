@@ -51,5 +51,5 @@ object ServiceDependencies {
       uPickle ++
       Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 
-  val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config
+  val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config ++ uPickle
 }
