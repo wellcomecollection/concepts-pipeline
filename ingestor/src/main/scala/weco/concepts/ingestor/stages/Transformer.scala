@@ -3,8 +3,9 @@ package weco.concepts.ingestor.stages
 import akka.NotUsed
 import akka.stream.scaladsl._
 import grizzled.slf4j.Logging
-import weco.concepts.ingestor.json.JsonOps._
-import weco.concepts.ingestor.model._
+import weco.concepts.common.json.JsonOps._
+import weco.concepts.common.model._
+
 
 trait Transformer[SourceType <: IdentifierType] {
   def transform(sourceString: String): Option[Concept]

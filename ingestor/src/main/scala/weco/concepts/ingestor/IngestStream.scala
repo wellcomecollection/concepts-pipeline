@@ -5,7 +5,7 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.scaladsl._
 import grizzled.slf4j.Logging
-import weco.concepts.ingestor.model.{Concept, IdentifierType}
+import weco.concepts.common.model._
 import weco.concepts.ingestor.stages.{Fetcher, Scroll, Transformer}
 
 import scala.concurrent.{ExecutionContext, Future}
