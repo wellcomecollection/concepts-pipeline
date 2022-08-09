@@ -26,7 +26,8 @@ def setupProject(
 lazy val common = setupProject(
   project,
   "common",
-  externalDependencies = ServiceDependencies.common)
+  externalDependencies = ServiceDependencies.common
+)
 
 lazy val ingestor = setupProject(
   project,

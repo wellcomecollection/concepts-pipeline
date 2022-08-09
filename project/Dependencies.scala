@@ -49,7 +49,7 @@ object ServiceDependencies {
     uPickle
 
   val ingestor: Seq[ModuleID] =
-      Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
+    Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 
   val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config
 }

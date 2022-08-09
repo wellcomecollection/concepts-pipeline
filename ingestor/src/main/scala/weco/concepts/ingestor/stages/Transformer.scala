@@ -6,7 +6,6 @@ import grizzled.slf4j.Logging
 import weco.concepts.common.json.JsonOps._
 import weco.concepts.common.model._
 
-
 trait Transformer[SourceType <: IdentifierType] {
   def transform(sourceString: String): Option[Concept]
 }
