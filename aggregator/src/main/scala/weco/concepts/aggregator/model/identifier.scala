@@ -1,9 +1,9 @@
 package weco.concepts.aggregator.model
 //TODO: Harmonise with ingestor models
 case class Identifier(
- value: String,
- identifierType: IdentifierType,
- ontologyType: "Identifier" = "Identifier"
+  value: String,
+  identifierType: IdentifierType,
+  ontologyType: "Identifier" = "Identifier"
 )
 
 sealed trait IdentifierType {
