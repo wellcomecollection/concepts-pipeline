@@ -39,6 +39,7 @@ lazy val ingestor = setupProject(
 lazy val aggregator = setupProject(
   project,
   folder = "aggregator",
+  localDependencies = Seq(common),
   externalDependencies = ServiceDependencies.aggregator
 )
 
