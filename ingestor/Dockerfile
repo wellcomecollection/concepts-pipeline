@@ -6,6 +6,7 @@ WORKDIR /app
 COPY ./build.sbt ./
 COPY ./project ./project
 COPY ./ingestor ./ingestor
+COPY ./common ./common
 
 RUN /run_sbt.sh "project ingestor" "stage"
 
