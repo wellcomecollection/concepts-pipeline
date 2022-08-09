@@ -23,16 +23,23 @@ def setupProject(
     .dependsOn(dependsOn: _*)
     .settings(libraryDependencies ++= externalDependencies)
 }
+lazy val common = setupProject(
+  project,
+  "common",
+  externalDependencies = ServiceDependencies.common
+)
 
 lazy val ingestor = setupProject(
   project,
   folder = "ingestor",
+  localDependencies = Seq(common),
   externalDependencies = ServiceDependencies.ingestor
 )
 
 lazy val aggregator = setupProject(
   project,
   folder = "aggregator",
+  localDependencies = Seq(common),
   externalDependencies = ServiceDependencies.aggregator
 )
 

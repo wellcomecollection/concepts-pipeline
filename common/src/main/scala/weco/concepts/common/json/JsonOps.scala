@@ -1,4 +1,4 @@
-package weco.concepts.ingestor.json
+package weco.concepts.common.json
 
 import scala.util.Try
 

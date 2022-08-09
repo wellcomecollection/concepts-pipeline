@@ -5,6 +5,7 @@ LABEL maintainer = "Wellcome Collection <digital@wellcomecollection.org>"
 WORKDIR /app
 COPY ./build.sbt ./
 COPY ./project ./project
+COPY ./common ./common
 COPY ./ingestor ./ingestor
 
 RUN /run_sbt.sh "project ingestor" "stage"

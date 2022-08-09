@@ -2,7 +2,7 @@ package weco.concepts.ingestor.stages
 
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
-import weco.concepts.ingestor.model._
+import weco.concepts.common.model._
 
 class TransformerTest extends AnyFunSpec with Matchers {
   describe("LoC transformer") {
