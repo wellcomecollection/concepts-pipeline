@@ -43,15 +43,15 @@ object ExternalDependencies {
 
 object ServiceDependencies {
   import ExternalDependencies._
-  
+
   val common: Seq[ModuleID] =
     uPickle
 
   val ingestor: Seq[ModuleID] =
     scalatest ++
-    logging ++
-    config ++
-    Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
+      logging ++
+      config ++
+      Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 
   val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config
 }
