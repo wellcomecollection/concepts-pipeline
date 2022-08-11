@@ -4,10 +4,10 @@ import weco.concepts.common.model._
 import weco.concepts.common.json.JsonOps._
 
 object ConceptExtractor {
-  val conceptTypes = Seq("Concept", "Person", "Organisation", "Meeting", "Period")
+  val conceptTypes =
+    Seq("Concept", "Person", "Organisation", "Meeting", "Period")
   def apply(jsonString: String): List[UsedConcept] =
     allConcepts(ujson.read(jsonString)).distinctBy(_.identifier)
-
 
   private def allConcepts(json: Value): List[UsedConcept] =
     json match {
@@ -18,8 +18,8 @@ object ConceptExtractor {
     }
 
   private def isConcept(json: Value): Boolean = {
-    json.opt[String]("type") match{
-      case None => false
+    json.opt[String]("type") match {
+      case None              => false
       case Some(conceptType) => conceptTypes.contains(conceptType)
     }
   }
@@ -35,7 +35,7 @@ object JSONConcept {
         identifierType = identifierTypeFromAuthority(authority)
       ),
       label = json.opt[String]("label").get,
-      canonicalId = json.opt[String]("id").get,
+      canonicalId = json.opt[String]("id").get
     )
   }
 

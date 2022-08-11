@@ -5,4 +5,3 @@ case class UsedConcept(
   label: String,
   canonicalId: String
 )
-

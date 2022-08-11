@@ -18,15 +18,21 @@ trait ValueGenerators {
     keys(Random.nextInt(keys.length))
 
   private val terms = List(
-    "Lorem", "Ipsum", "Dolor", "Sit", "Amet", "Consectetur"
+    "Lorem",
+    "Ipsum",
+    "Dolor",
+    "Sit",
+    "Amet",
+    "Consectetur"
   )
 
   def aLabel: String =
     terms(Random.nextInt(terms.length))
 
   def aType: String =
-    ConceptExtractor.conceptTypes(Random.nextInt(ConceptExtractor.conceptTypes.length))
-
+    ConceptExtractor.conceptTypes(
+      Random.nextInt(ConceptExtractor.conceptTypes.length)
+    )
 
   def anExternalId: String =
     "EXT_" + Random.alphanumeric.take(10).mkString
@@ -41,12 +47,12 @@ trait ValueGenerators {
  * into the ConceptExtractor
  */
 case class SourceConcept(
-                          authority: String,
-                          identifier: String,
-                          label: String,
-                          canonicalId: String,
-                          ontologyType: String
-                        ) {
+  authority: String,
+  identifier: String,
+  label: String,
+  canonicalId: String,
+  ontologyType: String
+) {
   override def toString: String =
     s"""
        |{
@@ -70,19 +76,23 @@ case class SourceConcept(
 
 object SourceConcept extends ValueGenerators {
   def apply(
-             authority: String = anAuthority,
-             identifier: String = anExternalId,
-             label: String = aLabel,
-             canonicalId: String = aCanonicalId,
-             ontologyType: String = aType
-           ): SourceConcept = new SourceConcept(
-    authority, identifier, label, canonicalId, ontologyType
+    authority: String = anAuthority,
+    identifier: String = anExternalId,
+    label: String = aLabel,
+    canonicalId: String = aCanonicalId,
+    ontologyType: String = aType
+  ): SourceConcept = new SourceConcept(
+    authority,
+    identifier,
+    label,
+    canonicalId,
+    ontologyType
   )
 
 }
 
 class ConceptExtractorTest
-  extends AnyFeatureSpec
+    extends AnyFeatureSpec
     with Matchers
     with GivenWhenThen
     with TableDrivenPropertyChecks {
@@ -113,15 +123,13 @@ class ConceptExtractorTest
       val jsonString = s"""
                           |{
                           |"concepts": [
-                          |${
-        SourceConcept(
-          authority = "deadbeef",
-          identifier = "hello",
-          label = "world",
-          canonicalId = "92345678",
-          ontologyType = "Concept"
-        )
-      },
+                          |${SourceConcept(
+                           authority = "deadbeef",
+                           identifier = "hello",
+                           label = "world",
+                           canonicalId = "92345678",
+                           ontologyType = "Concept"
+                         )},
                           |
                           |]
                           |}
@@ -138,15 +146,13 @@ class ConceptExtractorTest
         s"""
            |{
            |"concepts": [
-           |${
-          SourceConcept(
+           |${SourceConcept(
             authority = "deadbeef",
             identifier = "hello",
             label = "world",
             canonicalId = "92345678",
             ontologyType = "Concept"
-          )
-        }
+          )}
            |]
            |}
            |""".stripMargin
@@ -176,15 +182,13 @@ class ConceptExtractorTest
         val json =
           s"""{
              |"concepts":[
-            ${
-            SourceConcept(
+            ${SourceConcept(
               authority = identifierType,
               identifier = identifier,
               label = label,
               canonicalId = canonicalId,
               ontologyType = ontologyType
-            )
-          }
+            )}
              |]
              |}""".stripMargin
 
@@ -215,7 +219,7 @@ class ConceptExtractorTest
     // in an object in a list
     // in an object in an object
     val json =
-    s"""{
+      s"""{
        |"thing": ${SourceConcept()},
        |"things":[${SourceConcept()}, ${SourceConcept()}, {"wossname": ${SourceConcept()}}],
        |"thingy":{
