@@ -1,6 +1,6 @@
 package weco.concepts.aggregator
 
-object BadIdentifierTypeException{
+object BadIdentifierTypeException {
   def apply(identifier: String) =
     new BadIdentifierTypeException(s"Unknown identifierType $identifier")
 }

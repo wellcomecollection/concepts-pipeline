@@ -3,7 +3,7 @@ package weco.concepts.common.model
 case class Identifier(
   value: String,
   identifierType: IdentifierType,
-  ontologyType: "Identifier" = "Identifier",
+  ontologyType: "Identifier" = "Identifier"
 )
 
 sealed trait IdentifierType {
@@ -24,5 +24,6 @@ object IdentifierType {
   case object LabelDerived extends IdentifierType {
     val id = "label-derived"
   }
-  val typeMap: Map[String, IdentifierType] = Seq(LCSubjects, LCNames, MeSH, LabelDerived).map(i => i.id -> i).toMap
+  val typeMap: Map[String, IdentifierType] =
+    Seq(LCSubjects, LCNames, MeSH, LabelDerived).map(i => i.id -> i).toMap
 }
