@@ -87,9 +87,7 @@ class ConceptExtractorTest
           |}
           |""".stripMargin
       Then("an exception is raised")
-      a[BadIdentifierException] should be thrownBy ConceptExtractor(doc)
-      // TODO: Check that the exception is actually useful.
-      pending
+      a[BadIdentifierTypeException] should be thrownBy ConceptExtractor(doc)
     }
 
     val t = Table(
@@ -134,7 +132,7 @@ class ConceptExtractorTest
         concept.identifier.value shouldBe identifierType
 
         And(s"the concept's canonicalIdentifier is $canonicalId")
-        concept.canonicalIdentifier shouldBe canonicalId
+        concept.canonicalId shouldBe canonicalId
 
         And(s"the concept's label is $label")
         concept.label shouldBe label

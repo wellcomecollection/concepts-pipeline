@@ -10,6 +10,7 @@ object ExternalDependencies {
     val logback = "1.2.11"
     val scalatest = "3.2.12"
     val typesafeConfig = "1.4.2"
+    val jsonpath = "2.7.0"
   }
 
   val scalatest = Seq(
@@ -39,6 +40,10 @@ object ExternalDependencies {
   val uPickle = Seq(
     "com.lihaoyi" %% "upickle" % "2.0.0"
   )
+
+  val jsonpath = Seq(
+    "com.jayway.jsonpath" % "json-path" % versions.jsonpath
+  )
 }
 
 object ServiceDependencies {
@@ -52,5 +57,5 @@ object ServiceDependencies {
       config ++
       Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 
-  val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config
+  val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config ++ jsonpath
 }
