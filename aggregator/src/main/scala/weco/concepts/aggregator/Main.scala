@@ -27,6 +27,8 @@ object Main extends App with Logging {
     info(concepts)
   }
   else {
+    // The differentiator for now is that if you give it some ids, it will fetch those records,
+    // If you don't it will fetch the snapshot.
     info(s"Snapshot URL: $snapshotUrl")
   }
 }
