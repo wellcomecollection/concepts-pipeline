@@ -17,7 +17,7 @@ object Main extends App with Logging {
     // and it has access to databases, it may be better to pull it out from there
     // instead to avoid load on the API.
     info(workId)
-    val concepts = Using(Source.fromURL(workUrlTemplate.format(workId))){
+    val concepts = Using(Source.fromURL(workUrlTemplate.format(workId))) {
       source => source.mkString
     } match {
       case Success(jsonString) =>
@@ -25,7 +25,8 @@ object Main extends App with Logging {
       case _ => Nil
     }
     info(concepts)
-  } else {
+  }
+  else {
     info(s"Snapshot URL: $snapshotUrl")
   }
 }
