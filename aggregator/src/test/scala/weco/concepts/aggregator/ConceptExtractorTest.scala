@@ -96,7 +96,7 @@ class ConceptExtractorTest
     with Matchers
     with GivenWhenThen
     with TableDrivenPropertyChecks {
-  Feature("The Concept Extractor") {
+  Feature("Extracting Concepts from a document") {
     info("The concept extractor extracts concepts from a single json document")
     info("The resulting content from this process consists of the following")
     info("- the authority")
@@ -104,62 +104,7 @@ class ConceptExtractorTest
     info("- the name used in the original document")
     info("- the wellcome canonical identifier")
 
-    Scenario("A document with no Concepts") {
-      Given("a json document with no concepts in it")
-      val concepts = ConceptExtractor("""{"hello": "world"}""")
-      Then("the concept list is empty")
-      concepts shouldBe Nil
-    }
-
-    Scenario("A document that is not JSON") {
-      Given("an invalid document")
-      val notJSON = "<hello>world</hello>"
-      Then("an exception is raised")
-      a[ParseException] should be thrownBy ConceptExtractor(notJSON)
-    }
-
-    Scenario("A malformed concept") {
-      Given("a document with an invalid concept")
-      val jsonString = s"""
-                          |{
-                          |"concepts": [
-                          |${SourceConcept(
-                           authority = "deadbeef",
-                           identifier = "hello",
-                           label = "world",
-                           canonicalId = "92345678",
-                           ontologyType = "Concept"
-                         )},
-                          |
-                          |]
-                          |}
-                          |""".stripMargin
-      Then("that concept is excluded")
-      ConceptExtractor(jsonString)
-      pending
-    }
-
-    Scenario("An unknown Identifier type") {
-      info("The type (authority) of an identifier is a controlled vocabulary")
-      Given("A document with a concept with an unknown identifier type")
-      val doc =
-        s"""
-           |{
-           |"concepts": [
-           |${SourceConcept(
-            authority = "deadbeef",
-            identifier = "hello",
-            label = "world",
-            canonicalId = "92345678",
-            ontologyType = "Concept"
-          )}
-           |]
-           |}
-           |""".stripMargin
-      Then("an exception is raised")
-      a[BadIdentifierTypeException] should be thrownBy ConceptExtractor(doc)
-    }
-
+    //TODO: also all identifiertypes.
     val t = Table(
       "ontologyType",
       "Concept",
@@ -169,7 +114,7 @@ class ConceptExtractorTest
       "Period"
     )
     forAll(t) { ontologyType =>
-      Scenario(s"Extracts the data from a $ontologyType concept") {
+      Scenario(s"Extracts the data from a concept of type $ontologyType ") {
         val identifierType = "lc-subjects"
         val identifier = "12345678900"
         val label = "Quirkafleeg"
@@ -266,9 +211,152 @@ class ConceptExtractorTest
   Scenario("Source Concept with multiple identifiers") {
     // If a source concept has multiple identifiers, then this
     // results in multiple concepts in the output.
-    pending
+    Given("a document with one concept object")
+    And("the concept object has two identifiers")
+    val identifierType1 = "lc-subjects"
+    val identifier1 = "sh85120937"
+    val identifierType2 = "lc-names"
+    val identifier2 = "no2017146789"
+    val json = s"""
+       |{
+       |  "id": "z6m7z2uz",
+       |  "identifiers": [
+       |    {
+       |      "identifierType": {
+       |        "id": "$identifierType1",
+       |        "label": "This field is ignored",
+       |        "type": "IdentifierType"
+       |      },
+       |      "value": "$identifier1",
+       |      "type": "Identifier"
+       |    },
+       |    {
+       |      "identifierType": {
+       |        "id": "$identifierType2",
+       |        "label": "This field is ignored",
+       |        "type": "IdentifierType"
+       |      },
+       |      "value": "$identifier2",
+       |      "type": "Identifier"
+       |    }
+       |  ],
+       |  "label": "William Shakespeare",
+       |  "type": "Person"
+       |}
+       |""".stripMargin
+    val concepts = ConceptExtractor(json)
+    Then("two Concepts are returned")
+    And("the first Concept contains the canonicalid and the first identifier")
+    concepts.head.canonicalId shouldBe "z6m7z2uz"
+    concepts.head.identifier.identifierType.id shouldBe identifierType1
+    concepts.head.identifier.value shouldBe identifier1
+    And("the second Concept contains thecanonicalid and the second identifier")
+    concepts(1).canonicalId shouldBe "z6m7z2uz"
+    concepts(1).identifier.identifierType.id shouldBe identifierType2
+    concepts(1).identifier.value shouldBe identifier2
   }
 
+
+  Feature("Handling bad input"){
+
+    Scenario("A document with no Concepts") {
+      Given("a json document with no concepts in it")
+      val concepts = ConceptExtractor("""{"hello": "world"}""")
+      Then("the concept list is empty")
+      concepts shouldBe Nil
+    }
+
+    Scenario("A document that is not JSON") {
+      Given("an invalid document")
+      val notJSON = "<hello>world</hello>"
+      Then("an exception is raised")
+      a[ParseException] should be thrownBy ConceptExtractor(notJSON)
+    }
+    val t = Table(
+      ("malformation", "badJson"),
+      ("an unknown identifier type", SourceConcept(
+        authority = "deadbeef",
+        identifier = "hello",
+        label = "world",
+        canonicalId = "92345678",
+        ontologyType = "Concept"
+      )),
+      ("no identifier property", """{
+                                   |  "label": "Oh No! I have no identifiers",
+                                   |  "type": "Concept",
+                                   |  "id": "baadf00d"
+                                   |}""".stripMargin),
+      ("no canonical id", """{
+                            |  "label": "Oh No! I have no canonicalid",
+                            |"identifiers": [
+                            |    {
+                            |      "identifierType": {
+                            |        "id": "lc-names",
+                            |        "label": "This field is ignored",
+                            |        "type": "IdentifierType"
+                            |      },
+                            |      "value": "deadbeef",
+                            |      "type": "Identifier"
+                            |    }
+                            |  ],
+                            |  "type": "Concept"
+                            |}""".stripMargin),
+      ("no label", """{
+                     |"identifiers": [
+                     |    {
+                     |      "identifierType": {
+                     |        "id": "lc-names",
+                     |        "label": "This field is ignored",
+                     |        "type": "IdentifierType"
+                     |      },
+                     |      "value": "abadcafe",
+                     |      "type": "Identifier"
+                     |    }
+                     |  ],
+                     |  "id": "nolabel",
+                     |  "type": "Concept"
+                     |}""".stripMargin),
+      ("a malformed identifier", """{
+                                   |  "label": "Oh No! my identifiers are dodgy",
+                                   |"identifiers": [
+                                   |    {
+                                   |      "value": "deadbeef",
+                                   |      "type": "Identifier"
+                                   |    }
+                                   |  ],
+                                   |  "type": "Concept"
+                                   |}""".stripMargin)
+
+
+
+    )
+    forAll(t) { (malformation, badJson) =>
+
+    Scenario(s"Malformed concept - $malformation") {
+      Given("a document with a valid concept and an invalid concept")
+      val jsonString = s"""
+        |{
+        |"concepts": [
+        |$badJson,
+        |${
+        SourceConcept(
+          authority = "lc-subjects",
+          identifier = "hello",
+          label = "world",
+          canonicalId = "92345678",
+          ontologyType = "Concept"
+        )
+      }
+      |]
+      |}
+      |""".stripMargin
+      val concepts = ConceptExtractor(jsonString)
+      Then("the good concept is included")
+      And("the malformed concept is excluded")
+      concepts.loneElement.canonicalId shouldBe "92345678"
+    }
+    }
+  }
   Feature("Storing it (this is somewhere else)") {
 
     // How do we handle upserts, when there may be alternative labels
