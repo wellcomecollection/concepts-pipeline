@@ -11,27 +11,29 @@ object ConceptExtractor {
   val conceptTypes =
     Seq("Concept", "Person", "Organisation", "Meeting", "Period")
   def apply(jsonString: String): Seq[UsedConcept] =
-    allConcepts(List(ujson.read(jsonString)), Nil).toList.distinctBy(_.identifier)
+    allConcepts(List(ujson.read(jsonString)), Nil).toList
+      .distinctBy(_.identifier)
 
-  /**
-   * Extract concepts from wherever they may be in a JSON document.
-   * This makes the assumption that a concept cannot be within a concept
-   */
+  /** Extract concepts from wherever they may be in a JSON document. This makes
+    * the assumption that a concept cannot be within a concept
+    */
   @tailrec
-  private def allConcepts(jsons: List[Value], acc:Seq[UsedConcept]): Seq[UsedConcept] = {
+  private def allConcepts(
+    jsons: List[Value],
+    acc: Seq[UsedConcept]
+  ): Seq[UsedConcept] = {
     jsons match {
       case Nil => acc
       case _ =>
         val results = jsons.map {
           case obj: ujson.Obj if isConcept(obj) => (Nil, UsedConcepts(obj))
-          case arr: ujson.Arr => (arr.arr, Nil)
-          case obj: ujson.Obj => (obj.obj.values, Nil)
-          case _ => (Nil, Nil)
+          case arr: ujson.Arr                   => (arr.arr, Nil)
+          case obj: ujson.Obj                   => (obj.obj.values, Nil)
+          case _                                => (Nil, Nil)
         }.unzip
         allConcepts(results._1.flatten, acc ++ results._2.flatten)
     }
   }
-
 
   /** Determines whether a given block of JSON represents a Concept as returned
     * from the Catalogue API. A Concept is a block of JSON with a type property
@@ -54,15 +56,14 @@ object ConceptExtractor {
 }
 
 object UsedConcepts extends Logging {
-  /**
-   * Transform a block of JSON representing a Concept from the Catalogue API
-   * into one or more UsedConcepts
-   *
-   * A Catalogue API Concept contains a list of identifiers from one or more
-   * authorities, whereas a UsedConcept contains just one. So a catalogue
-   * concept may produce more than one UsedConcept.
-   *
-   */
+
+  /** Transform a block of JSON representing a Concept from the Catalogue API
+    * into one or more UsedConcepts
+    *
+    * A Catalogue API Concept contains a list of identifiers from one or more
+    * authorities, whereas a UsedConcept contains just one. So a catalogue
+    * concept may produce more than one UsedConcept.
+    */
   def apply(conceptJson: ujson.Obj): Seq[UsedConcept] = {
     // straight to get, it should have been verified before now
     // that identifiers exists.
