@@ -105,7 +105,7 @@ class ConceptExtractorTest
     info("- the name used in the original document")
     info("- the wellcome canonical identifier")
 
-    //TODO: also all identifiertypes.
+    // TODO: also all identifiertypes.
     val t = Table(
       "ontologyType",
       "Concept",
@@ -206,7 +206,7 @@ class ConceptExtractorTest
   Scenario("A real example") {
     // Choose an actual document from the API output and
     // prove that it works.
-    val json= Source.fromResource("uk4kymkq.json").getLines().mkString("\n")
+    val json = Source.fromResource("uk4kymkq.json").getLines().mkString("\n")
     val concepts = ConceptExtractor(json)
     // The more precisely defined tests here show what should be
     // extracted.  This is just to demonstrate that it can successfully
@@ -262,8 +262,7 @@ class ConceptExtractorTest
     concepts(1).identifier.value shouldBe identifier2
   }
 
-
-  Feature("Handling bad input"){
+  Feature("Handling bad input") {
 
     Scenario("A document with no Concepts") {
       Given("a json document with no concepts in it")
@@ -280,19 +279,27 @@ class ConceptExtractorTest
     }
     val t = Table(
       ("malformation", "badJson"),
-      ("an unknown identifier type", SourceConcept(
-        authority = "deadbeef",
-        identifier = "hello",
-        label = "world",
-        canonicalId = "92345678",
-        ontologyType = "Concept"
-      )),
-      ("no identifier property", """{
+      (
+        "an unknown identifier type",
+        SourceConcept(
+          authority = "deadbeef",
+          identifier = "hello",
+          label = "world",
+          canonicalId = "92345678",
+          ontologyType = "Concept"
+        )
+      ),
+      (
+        "no identifier property",
+        """{
                                    |  "label": "Oh No! I have no identifiers",
                                    |  "type": "Concept",
                                    |  "id": "baadf00d"
-                                   |}""".stripMargin),
-      ("no canonical id", """{
+                                   |}""".stripMargin
+      ),
+      (
+        "no canonical id",
+        """{
                             |  "label": "Oh No! I have no canonicalid",
                             |"identifiers": [
                             |    {
@@ -306,8 +313,11 @@ class ConceptExtractorTest
                             |    }
                             |  ],
                             |  "type": "Concept"
-                            |}""".stripMargin),
-      ("no label", """{
+                            |}""".stripMargin
+      ),
+      (
+        "no label",
+        """{
                      |"identifiers": [
                      |    {
                      |      "identifierType": {
@@ -321,8 +331,11 @@ class ConceptExtractorTest
                      |  ],
                      |  "id": "nolabel",
                      |  "type": "Concept"
-                     |}""".stripMargin),
-      ("a malformed identifier", """{
+                     |}""".stripMargin
+      ),
+      (
+        "a malformed identifier",
+        """{
                                    |  "label": "Oh No! my identifiers are dodgy",
                                    |"identifiers": [
                                    |    {
@@ -331,36 +344,31 @@ class ConceptExtractorTest
                                    |    }
                                    |  ],
                                    |  "type": "Concept"
-                                   |}""".stripMargin)
-
-
-
+                                   |}""".stripMargin
+      )
     )
     forAll(t) { (malformation, badJson) =>
-
-    Scenario(s"Malformed concept - $malformation") {
-      Given("a document with a valid concept and an invalid concept")
-      val jsonString = s"""
+      Scenario(s"Malformed concept - $malformation") {
+        Given("a document with a valid concept and an invalid concept")
+        val jsonString = s"""
         |{
         |"concepts": [
         |$badJson,
-        |${
-        SourceConcept(
-          authority = "lc-subjects",
-          identifier = "hello",
-          label = "world",
-          canonicalId = "92345678",
-          ontologyType = "Concept"
-        )
-      }
+        |${SourceConcept(
+                             authority = "lc-subjects",
+                             identifier = "hello",
+                             label = "world",
+                             canonicalId = "92345678",
+                             ontologyType = "Concept"
+                           )}
       |]
       |}
       |""".stripMargin
-      val concepts = ConceptExtractor(jsonString)
-      Then("the good concept is included")
-      And("the malformed concept is excluded")
-      concepts.loneElement.canonicalId shouldBe "92345678"
-    }
+        val concepts = ConceptExtractor(jsonString)
+        Then("the good concept is included")
+        And("the malformed concept is excluded")
+        concepts.loneElement.canonicalId shouldBe "92345678"
+      }
     }
   }
   Feature("Storing it (this is somewhere else)") {

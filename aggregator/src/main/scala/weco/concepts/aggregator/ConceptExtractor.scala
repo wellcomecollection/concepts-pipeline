@@ -6,7 +6,8 @@ import weco.concepts.common.model._
 import weco.concepts.common.json.JsonOps._
 
 object ConceptExtractor {
-  val conceptTypes = Seq("Concept", "Person", "Organisation", "Meeting", "Period")
+  val conceptTypes =
+    Seq("Concept", "Person", "Organisation", "Meeting", "Period")
   def apply(jsonString: String): Seq[UsedConcept] =
     allConcepts(ujson.read(jsonString)).distinctBy(_.identifier)
 
@@ -18,29 +19,27 @@ object ConceptExtractor {
       case _              => Nil
     }
 
-  /**
-   * Determines whether a given block of JSON represents a Concept
-   * as returned from the Catalogue API.
-   * A Concept is a block of JSON with a type property containing
-   * one of the "Concept" types (Person, Concept, etc.),
-   * and a list of identifiers.
-   *
-   * There are other properties that are vital to the extraction of
-   * a Concept from such a JSON block, but these are the minimal
-   * conditions that differentiate a concept from a non-concept.
-   * The absence or malformation of those other properties represents
-   * a concept that is itself malformed, and should be notified.
-   */
+  /** Determines whether a given block of JSON represents a Concept as returned
+    * from the Catalogue API. A Concept is a block of JSON with a type property
+    * containing one of the "Concept" types (Person, Concept, etc.), and a list
+    * of identifiers.
+    *
+    * There are other properties that are vital to the extraction of a Concept
+    * from such a JSON block, but these are the minimal conditions that
+    * differentiate a concept from a non-concept. The absence or malformation of
+    * those other properties represents a concept that is itself malformed, and
+    * should be notified.
+    */
   private def isConcept(json: Value): Boolean = {
     json.opt[String]("type") match {
-      case None              => false
+      case None => false
       case Some(conceptType) =>
         conceptTypes.contains(conceptType) && json.obj.contains("identifiers")
     }
   }
 }
 
-object UsedConcepts extends Logging{
+object UsedConcepts extends Logging {
   def apply(conceptJson: ujson.Obj): Seq[UsedConcept] = {
     // straight to get, it should have been verified before now
     // that identifiers exists.
@@ -49,20 +48,27 @@ object UsedConcepts extends Logging{
     }
   }
 
-  private def conceptWithSource(conceptJson: Obj, sourceIdentifier: Value): Option[UsedConcept] = {
+  private def conceptWithSource(
+    conceptJson: Obj,
+    sourceIdentifier: Value
+  ): Option[UsedConcept] = {
     try {
       val authority = sourceIdentifier.opt[Value]("identifierType").get
-      Some(UsedConcept(
-        identifier = Identifier(
-          value = sourceIdentifier.opt[String]("value").get,
-          identifierType = identifierTypeFromAuthority(authority)
-        ),
-        label = conceptJson.opt[String]("label").get,
-        canonicalId = conceptJson.opt[String]("id").get,
-      ))
+      Some(
+        UsedConcept(
+          identifier = Identifier(
+            value = sourceIdentifier.opt[String]("value").get,
+            identifierType = identifierTypeFromAuthority(authority)
+          ),
+          label = conceptJson.opt[String]("label").get,
+          canonicalId = conceptJson.opt[String]("id").get
+        )
+      )
     } catch {
       case exception: Exception =>
-        warn(s"Malformed Concept encountered: $exception ${conceptJson.render(indent=2)}")
+        warn(
+          s"Malformed Concept encountered: $exception ${conceptJson.render(indent = 2)}"
+        )
         None
     }
   }
