@@ -19,19 +19,19 @@ object ConceptExtractor {
     */
   @tailrec
   private def allConcepts(
-    jsons: List[Value],
+    jsons: Seq[Value],
     acc: Seq[UsedConcept]
   ): Seq[UsedConcept] = {
     jsons match {
       case Nil => acc
       case _ =>
-        val results = jsons.map {
+        val nodes = jsons.map {
           case obj: ujson.Obj if isConcept(obj) => (Nil, UsedConcepts(obj))
           case arr: ujson.Arr                   => (arr.arr, Nil)
           case obj: ujson.Obj                   => (obj.obj.values, Nil)
           case _                                => (Nil, Nil)
         }.unzip
-        allConcepts(results._1.flatten, acc ++ results._2.flatten)
+        allConcepts(nodes._1.flatten, acc ++ nodes._2.flatten)
     }
   }
 
