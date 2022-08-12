@@ -6,21 +6,11 @@ import weco.concepts.common.model._
 import weco.concepts.common.json.JsonOps._
 
 object ConceptExtractor {
-<<<<<<< HEAD
-  val conceptTypes =
-    Seq("Concept", "Person", "Organisation", "Meeting", "Period")
-  def apply(jsonString: String): List[UsedConcept] =
-    allConcepts(ujson.read(jsonString)).distinctBy(_.identifier)
-
-  private def allConcepts(json: Value): List[UsedConcept] =
-=======
   val conceptTypes = Seq("Concept", "Person", "Organisation", "Meeting", "Period")
   def apply(jsonString: String): Seq[UsedConcept] =
     allConcepts(ujson.read(jsonString)).distinctBy(_.identifier)
 
-
   private def allConcepts(json: Value): Seq[UsedConcept] =
->>>>>>> 5eb421d (extract from document is feature-complete)
     json match {
       case arr: ujson.Arr => arr.arr.flatMap(allConcepts).toList
       case obj: ujson.Obj if isConcept(obj) => UsedConcepts(obj)
@@ -28,23 +18,34 @@ object ConceptExtractor {
       case _              => Nil
     }
 
+  /**
+   * Determines whether a given block of JSON represents a Concept
+   * as returned from the Catalogue API.
+   * A Concept is a block of JSON with a type property containing
+   * one of the "Concept" types (Person, Concept, etc.),
+   * and a list of identifiers.
+   *
+   * There are other properties that are vital to the extraction of
+   * a Concept from such a JSON block, but these are the minimal
+   * conditions that differentiate a concept from a non-concept.
+   * The absence or malformation of those other properties represents
+   * a concept that is itself malformed, and should be notified.
+   */
   private def isConcept(json: Value): Boolean = {
     json.opt[String]("type") match {
       case None              => false
-      case Some(conceptType) => conceptTypes.contains(conceptType)
+      case Some(conceptType) =>
+        conceptTypes.contains(conceptType) && json.obj.contains("identifiers")
     }
   }
 }
 
 object UsedConcepts extends Logging{
   def apply(conceptJson: ujson.Obj): Seq[UsedConcept] = {
-    conceptJson.optSeq("identifiers") match {
-      case Some(sourceIdentifiers) => sourceIdentifiers flatMap {
-        conceptWithSource(conceptJson, _)
-      }
-      case None =>
-        warn(s"Malformed Concept encountered, identifiers property missing ${conceptJson.render(indent=2)}")
-        Nil
+    // straight to get, it should have been verified before now
+    // that identifiers exists.
+    conceptJson.optSeq("identifiers").get.flatMap {
+      conceptWithSource(conceptJson, _)
     }
   }
 
@@ -63,7 +64,6 @@ object UsedConcepts extends Logging{
       case exception: Exception =>
         warn(s"Malformed Concept encountered: $exception ${conceptJson.render(indent=2)}")
         None
-
     }
   }
 

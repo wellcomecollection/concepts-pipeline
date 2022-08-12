@@ -1,4 +1,5 @@
 package weco.concepts.aggregator
+import scala.io.Source
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.GivenWhenThen
@@ -205,7 +206,12 @@ class ConceptExtractorTest
   Scenario("A real example") {
     // Choose an actual document from the API output and
     // prove that it works.
-    pending
+    val json= Source.fromResource("uk4kymkq.json").getLines().mkString("\n")
+    val concepts = ConceptExtractor(json)
+    // The more precisely defined tests here show what should be
+    // extracted.  This is just to demonstrate that it can successfully
+    // find the concepts in a real document from the catalogue api.
+    concepts.length shouldBe 6
   }
 
   Scenario("Source Concept with multiple identifiers") {
