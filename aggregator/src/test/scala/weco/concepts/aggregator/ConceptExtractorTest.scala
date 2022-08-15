@@ -1,4 +1,5 @@
 package weco.concepts.aggregator
+
 import scala.io.Source
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.GivenWhenThen
@@ -9,7 +10,7 @@ import ujson.ParseException
 import weco.concepts.aggregator.testhelpers.SourceConcept
 
 class ConceptExtractorTest
-    extends AnyFeatureSpec
+  extends AnyFeatureSpec
     with Matchers
     with GivenWhenThen
     with TableDrivenPropertyChecks {
@@ -48,13 +49,15 @@ class ConceptExtractorTest
       val json =
         s"""{
            |"concepts":[
-            ${SourceConcept(
+            ${
+          SourceConcept(
             authority = identifierType,
             identifier = identifier,
             label = label,
             canonicalId = canonicalId,
             ontologyType = ontologyType
-          )}
+          )
+        }
            |]
            |}""".stripMargin
 
@@ -122,10 +125,10 @@ class ConceptExtractorTest
         )
         val json =
           s"""{
-           |"concepts":[
+             |"concepts":[
             $sourceConcept
-           |]
-           |}""".stripMargin
+             |]
+             |}""".stripMargin
 
         Then("that concept is extracted")
         val concept = ConceptExtractor(json).loneElement
@@ -146,17 +149,17 @@ class ConceptExtractorTest
       // in an object in a list
       // in an object in an object
       val json =
-        s"""{
-       |"thing": ${SourceConcept()},
-       |"things":[${SourceConcept()}, ${SourceConcept()}, {"wossname": ${SourceConcept()}}],
-       |"thingy":{
-       |  "wotsit": {
-       |    "thingummy": ${SourceConcept()},
-       |    "wotsit": ${SourceConcept()},
-       |    "stuff":[${SourceConcept()}, ${SourceConcept()}]
-       |  }
-       |}
-       |}""".stripMargin
+      s"""{
+         |"thing": ${SourceConcept()},
+         |"things":[${SourceConcept()}, ${SourceConcept()}, {"wossname": ${SourceConcept()}}],
+         |"thingy":{
+         |  "wotsit": {
+         |    "thingummy": ${SourceConcept()},
+         |    "wotsit": ${SourceConcept()},
+         |    "stuff":[${SourceConcept()}, ${SourceConcept()}]
+         |  }
+         |}
+         |}""".stripMargin
       Then("all the concepts are returned")
       val concepts = ConceptExtractor(json)
       concepts.length shouldBe 8
@@ -175,8 +178,8 @@ class ConceptExtractorTest
       val concept2 = concept1.copy(label = "Zack Neutron")
       val json =
         s"""{
-         |"concepts":[$concept1, $concept2]
-         |}""".stripMargin
+           |"concepts":[$concept1, $concept2]
+           |}""".stripMargin
       val concepts = ConceptExtractor(json)
       Then("one Concept is returned")
       And("the label is that of the first concept")
@@ -192,33 +195,34 @@ class ConceptExtractorTest
       val identifier1 = "sh85120937"
       val identifierType2 = "lc-names"
       val identifier2 = "no2017146789"
-      val json = s"""
-       |{
-       |  "id": "z6m7z2uz",
-       |  "identifiers": [
-       |    {
-       |      "identifierType": {
-       |        "id": "$identifierType1",
-       |        "label": "This field is ignored",
-       |        "type": "IdentifierType"
-       |      },
-       |      "value": "$identifier1",
-       |      "type": "Identifier"
-       |    },
-       |    {
-       |      "identifierType": {
-       |        "id": "$identifierType2",
-       |        "label": "This field is ignored",
-       |        "type": "IdentifierType"
-       |      },
-       |      "value": "$identifier2",
-       |      "type": "Identifier"
-       |    }
-       |  ],
-       |  "label": "William Shakespeare",
-       |  "type": "Person"
-       |}
-       |""".stripMargin
+      val json =
+        s"""
+           |{
+           |  "id": "z6m7z2uz",
+           |  "identifiers": [
+           |    {
+           |      "identifierType": {
+           |        "id": "$identifierType1",
+           |        "label": "This field is ignored",
+           |        "type": "IdentifierType"
+           |      },
+           |      "value": "$identifier1",
+           |      "type": "Identifier"
+           |    },
+           |    {
+           |      "identifierType": {
+           |        "id": "$identifierType2",
+           |        "label": "This field is ignored",
+           |        "type": "IdentifierType"
+           |      },
+           |      "value": "$identifier2",
+           |      "type": "Identifier"
+           |    }
+           |  ],
+           |  "label": "William Shakespeare",
+           |  "type": "Person"
+           |}
+           |""".stripMargin
       val concepts = ConceptExtractor(json)
       Then("two Concepts are returned")
       And("the first Concept contains the canonicalid and the first identifier")
@@ -264,78 +268,81 @@ class ConceptExtractorTest
       (
         "no identifier property",
         """{
-                                   |  "label": "Oh No! I have no identifiers",
-                                   |  "type": "Concept",
-                                   |  "id": "baadf00d"
-                                   |}""".stripMargin
+          |  "label": "Oh No! I have no identifiers",
+          |  "type": "Concept",
+          |  "id": "baadf00d"
+          |}""".stripMargin
       ),
       (
         "no canonical id",
         """{
-                            |  "label": "Oh No! I have no canonicalid",
-                            |"identifiers": [
-                            |    {
-                            |      "identifierType": {
-                            |        "id": "lc-names",
-                            |        "label": "This field is ignored",
-                            |        "type": "IdentifierType"
-                            |      },
-                            |      "value": "deadbeef",
-                            |      "type": "Identifier"
-                            |    }
-                            |  ],
-                            |  "type": "Concept"
-                            |}""".stripMargin
+          |  "label": "Oh No! I have no canonicalid",
+          |"identifiers": [
+          |    {
+          |      "identifierType": {
+          |        "id": "lc-names",
+          |        "label": "This field is ignored",
+          |        "type": "IdentifierType"
+          |      },
+          |      "value": "deadbeef",
+          |      "type": "Identifier"
+          |    }
+          |  ],
+          |  "type": "Concept"
+          |}""".stripMargin
       ),
       (
         "no label",
         """{
-                     |"identifiers": [
-                     |    {
-                     |      "identifierType": {
-                     |        "id": "lc-names",
-                     |        "label": "This field is ignored",
-                     |        "type": "IdentifierType"
-                     |      },
-                     |      "value": "abadcafe",
-                     |      "type": "Identifier"
-                     |    }
-                     |  ],
-                     |  "id": "nolabel",
-                     |  "type": "Concept"
-                     |}""".stripMargin
+          |"identifiers": [
+          |    {
+          |      "identifierType": {
+          |        "id": "lc-names",
+          |        "label": "This field is ignored",
+          |        "type": "IdentifierType"
+          |      },
+          |      "value": "abadcafe",
+          |      "type": "Identifier"
+          |    }
+          |  ],
+          |  "id": "nolabel",
+          |  "type": "Concept"
+          |}""".stripMargin
       ),
       (
         "a malformed identifier",
         """{
-                                   |  "label": "Oh No! my identifiers are dodgy",
-                                   |"identifiers": [
-                                   |    {
-                                   |      "value": "deadbeef",
-                                   |      "type": "Identifier"
-                                   |    }
-                                   |  ],
-                                   |  "type": "Concept"
-                                   |}""".stripMargin
+          |  "label": "Oh No! my identifiers are dodgy",
+          |"identifiers": [
+          |    {
+          |      "value": "deadbeef",
+          |      "type": "Identifier"
+          |    }
+          |  ],
+          |  "type": "Concept"
+          |}""".stripMargin
       )
     )
     forAll(malformations) { (malformation, badJson) =>
       Scenario(s"encountering a malformed concept - $malformation") {
         Given("a document with a valid concept and an invalid concept")
-        val jsonString = s"""
-        |{
-        |"concepts": [
-        |$badJson,
-        |${SourceConcept(
-                             authority = "lc-subjects",
-                             identifier = "hello",
-                             label = "world",
-                             canonicalId = "92345678",
-                             ontologyType = "Concept"
-                           )}
-      |]
-      |}
-      |""".stripMargin
+        val jsonString =
+          s"""
+             |{
+             |"concepts": [
+             |$badJson,
+             |${
+            SourceConcept(
+              authority = "lc-subjects",
+              identifier = "hello",
+              label = "world",
+              canonicalId = "92345678",
+              ontologyType = "Concept"
+            )
+          }
+             |]
+             |}
+             |""".stripMargin
         val concepts = ConceptExtractor(jsonString)
         Then("the good concept is included")
         And("the malformed concept is excluded")

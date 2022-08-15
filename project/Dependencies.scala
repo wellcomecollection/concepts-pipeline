@@ -10,7 +10,6 @@ object ExternalDependencies {
     val logback = "1.2.11"
     val scalatest = "3.2.12"
     val typesafeConfig = "1.4.2"
-    val jsonpath = "2.7.0"
   }
 
   val scalatest = Seq(
