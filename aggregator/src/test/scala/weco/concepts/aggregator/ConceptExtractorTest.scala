@@ -10,7 +10,7 @@ import ujson.ParseException
 import weco.concepts.aggregator.testhelpers.SourceConcept
 
 class ConceptExtractorTest
-  extends AnyFeatureSpec
+    extends AnyFeatureSpec
     with Matchers
     with GivenWhenThen
     with TableDrivenPropertyChecks {
@@ -49,15 +49,13 @@ class ConceptExtractorTest
       val json =
         s"""{
            |"concepts":[
-            ${
-          SourceConcept(
+            ${SourceConcept(
             authority = identifierType,
             identifier = identifier,
             label = label,
             canonicalId = canonicalId,
             ontologyType = ontologyType
-          )
-        }
+          )}
            |]
            |}""".stripMargin
 
@@ -149,7 +147,7 @@ class ConceptExtractorTest
       // in an object in a list
       // in an object in an object
       val json =
-      s"""{
+        s"""{
          |"thing": ${SourceConcept()},
          |"things":[${SourceConcept()}, ${SourceConcept()}, {"wossname": ${SourceConcept()}}],
          |"thingy":{
@@ -331,15 +329,13 @@ class ConceptExtractorTest
              |{
              |"concepts": [
              |$badJson,
-             |${
-            SourceConcept(
+             |${SourceConcept(
               authority = "lc-subjects",
               identifier = "hello",
               label = "world",
               canonicalId = "92345678",
               ontologyType = "Concept"
-            )
-          }
+            )}
              |]
              |}
              |""".stripMargin
