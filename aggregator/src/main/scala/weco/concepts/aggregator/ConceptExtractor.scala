@@ -47,9 +47,11 @@ object ConceptExtractor {
     * should be notified.
     */
   private def isConcept(json: Value): Boolean = {
-    json.opt[String]("type").exists(conceptType => 
-      conceptTypes.contains(conceptType) && json.obj.contains("identifiers")
-    )
+    json
+      .opt[String]("type")
+      .exists(conceptType =>
+        conceptTypes.contains(conceptType) && json.obj.contains("identifiers")
+      )
   }
 }
 
