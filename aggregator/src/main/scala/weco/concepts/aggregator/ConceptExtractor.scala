@@ -100,10 +100,10 @@ object UsedConcepts extends Logging {
   private def identifierTypeFromAuthority(
     sourceType: ujson.Value
   ): IdentifierType = {
-    val sourceTyepId = sourceType.opt[String]("id").get
+    val sourceTypeId = sourceType.opt[String]("id").get
     IdentifierType.typeMap.getOrElse(
-      sourceTyepId,
-      throw BadIdentifierTypeException(sourceTyepId)
+      sourceTypeId,
+      throw BadIdentifierTypeException(sourceTypeId)
     )
   }
 }
