@@ -40,9 +40,6 @@ object ExternalDependencies {
     "com.lihaoyi" %% "upickle" % "2.0.0"
   )
 
-  val jsonpath = Seq(
-    "com.jayway.jsonpath" % "json-path" % versions.jsonpath
-  )
 }
 
 object ServiceDependencies {
@@ -56,5 +53,5 @@ object ServiceDependencies {
       config ++
       Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 
-  val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config ++ jsonpath
+  val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config
 }
