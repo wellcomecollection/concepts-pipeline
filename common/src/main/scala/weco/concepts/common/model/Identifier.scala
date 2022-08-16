@@ -32,5 +32,7 @@ object IdentifierType {
   }
 
   val typeMap: Map[String, IdentifierType] =
-    Seq(Fihrist, LabelDerived, LCNames, LCSubjects, MeSH, Viaf).map(i => i.id -> i).toMap
+    Seq(Fihrist, LabelDerived, LCNames, LCSubjects, MeSH, Viaf)
+      .map(i => i.id -> i)
+      .toMap
 }

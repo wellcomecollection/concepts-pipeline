@@ -123,9 +123,13 @@ class ConceptExtractorTest
 
     Scenario("extract a Concept from within another Concept") {
       info("a document may contain compound concepts")
-      info("in which a concept or list of concepts may be nested within a parent concept")
+      info(
+        "in which a concept or list of concepts may be nested within a parent concept"
+      )
       info("in real examples, Subjects are a kind of Concept operate this way")
-      Given("a document with a concept object nested within another concept object")
+      Given(
+        "a document with a concept object nested within another concept object"
+      )
       val json =
         s"""
            |{
@@ -407,7 +411,9 @@ class ConceptExtractorTest
     )
     forAll(malformations) { (malformation, badJson) =>
       Scenario(s"encountering a malformed concept - $malformation") {
-        Given(s"a document with a valid concept and a concept with $malformation")
+        Given(
+          s"a document with a valid concept and a concept with $malformation"
+        )
         val jsonString =
           s"""
              |{
