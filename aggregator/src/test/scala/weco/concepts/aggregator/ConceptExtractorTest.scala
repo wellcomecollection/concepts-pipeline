@@ -339,7 +339,9 @@ class ConceptExtractorTest
     )
     forAll(malformations) { (malformation, badJson) =>
       Scenario(s"encountering a malformed concept - $malformation") {
-        Given(s"a document with a valid concept and a concept with $malformation")
+        Given(
+          s"a document with a valid concept and a concept with $malformation"
+        )
         val jsonString =
           s"""
              |{

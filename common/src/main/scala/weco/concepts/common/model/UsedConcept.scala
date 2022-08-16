@@ -7,6 +7,7 @@ case class UsedConcept(
   identifier: Identifier,
   label: String,
   canonicalId: String
-){
-  override def toString():String = s"\n$canonicalId\t${identifier.toString.padTo(70, ' ')}$label"
+) {
+  override def toString(): String =
+    s"\n$canonicalId\t${identifier.toString.padTo(70, ' ')}$label"
 }
