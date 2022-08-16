@@ -1,0 +1,310 @@
+{
+  "succeededBy": [],
+  "production": [
+    {
+      "label": "London : Great Seal Patent Office, 1872 (London : George E. Eyre and William Spottiswoode)",
+      "agents": [
+        {
+          "label": "Great Seal Patent Office",
+          "type": "Agent"
+        },
+        {
+          "label": "George E. Eyre and William Spottiswoode)",
+          "type": "Agent"
+        }
+      ],
+      "dates": [
+        {
+          "label": "1872",
+          "type": "Period"
+        }
+      ],
+      "function": {
+        "label": "Manufacture",
+        "type": "Concept"
+      },
+      "type": "ProductionEvent",
+      "places": [
+        {
+          "label": "London",
+          "type": "Place"
+        },
+        {
+          "label": "(London",
+          "type": "Place"
+        }
+      ]
+    }
+  ],
+  "physicalDescription": "2 pages ; 28 cm",
+  "subjects": [
+    {
+      "label": "Surgical Instruments",
+      "concepts": [
+        {
+          "id": "d3zqg9c6",
+          "identifiers": [
+            {
+              "identifierType": {
+                "id": "nlm-mesh",
+                "label": "Medical Subject Headings (MESH) identifier",
+                "type": "IdentifierType"
+              },
+              "value": "D013525",
+              "type": "Identifier"
+            }
+          ],
+          "label": "Surgical Instruments",
+          "type": "Concept"
+        }
+      ],
+      "identifiers": [
+        {
+          "identifierType": {
+            "id": "nlm-mesh",
+            "label": "Medical Subject Headings (MESH) identifier",
+            "type": "IdentifierType"
+          },
+          "value": "D013525",
+          "type": "Identifier"
+        }
+      ],
+      "id": "ryhu7h3m",
+      "type": "Subject"
+    },
+    {
+      "label": "Administration, Oral",
+      "concepts": [
+        {
+          "id": "dwa5qdfr",
+          "identifiers": [
+            {
+              "identifierType": {
+                "id": "nlm-mesh",
+                "label": "Medical Subject Headings (MESH) identifier",
+                "type": "IdentifierType"
+              },
+              "value": "D000284",
+              "type": "Identifier"
+            }
+          ],
+          "label": "Administration, Oral",
+          "type": "Concept"
+        }
+      ],
+      "identifiers": [
+        {
+          "identifierType": {
+            "id": "nlm-mesh",
+            "label": "Medical Subject Headings (MESH) identifier",
+            "type": "IdentifierType"
+          },
+          "value": "D000284",
+          "type": "Identifier"
+        }
+      ],
+      "id": "scb7pzqa",
+      "type": "Subject"
+    },
+    {
+      "label": "Veterinary Drugs - administration & dosage",
+      "concepts": [
+        {
+          "id": "njvs54mh",
+          "identifiers": [
+            {
+              "identifierType": {
+                "id": "label-derived",
+                "label": "Identifier derived from the label of the referent",
+                "type": "IdentifierType"
+              },
+              "value": "veterinary drugs",
+              "type": "Identifier"
+            }
+          ],
+          "label": "Veterinary Drugs",
+          "type": "Concept"
+        },
+        {
+          "id": "e7hbfj6e",
+          "identifiers": [
+            {
+              "identifierType": {
+                "id": "label-derived",
+                "label": "Identifier derived from the label of the referent",
+                "type": "IdentifierType"
+              },
+              "value": "administration & dosage",
+              "type": "Identifier"
+            }
+          ],
+          "label": "administration & dosage",
+          "type": "Concept"
+        }
+      ],
+      "identifiers": [
+        {
+          "identifierType": {
+            "id": "nlm-mesh",
+            "label": "Medical Subject Headings (MESH) identifier",
+            "type": "IdentifierType"
+          },
+          "value": "D019155Q000008",
+          "type": "Identifier"
+        }
+      ],
+      "id": "yu48as8s",
+      "type": "Subject"
+    },
+    {
+      "label": "Great Britain",
+      "concepts": [
+        {
+          "id": "pk26juzz",
+          "identifiers": [
+            {
+              "identifierType": {
+                "id": "lc-subjects",
+                "label": "Library of Congress Subject Headings (LCSH)",
+                "type": "IdentifierType"
+              },
+              "value": "n79023147",
+              "type": "Identifier"
+            }
+          ],
+          "label": "Great Britain",
+          "type": "Place"
+        }
+      ],
+      "identifiers": [
+        {
+          "identifierType": {
+            "id": "lc-subjects",
+            "label": "Library of Congress Subject Headings (LCSH)",
+            "type": "IdentifierType"
+          },
+          "value": "n79023147",
+          "type": "Identifier"
+        }
+      ],
+      "id": "n4fvtc49",
+      "type": "Subject"
+    }
+  ],
+  "items": [],
+  "workType": {
+    "id": "a",
+    "label": "Books",
+    "type": "Format"
+  },
+  "identifiers": [
+    {
+      "identifierType": {
+        "id": "sierra-system-number",
+        "label": "Sierra system number",
+        "type": "IdentifierType"
+      },
+      "value": "b30750726",
+      "type": "Identifier"
+    },
+    {
+      "identifierType": {
+        "id": "sierra-identifier",
+        "label": "Sierra identifier",
+        "type": "IdentifierType"
+      },
+      "value": "3075072",
+      "type": "Identifier"
+    },
+    {
+      "identifierType": {
+        "id": "wellcome-digcode",
+        "label": "Wellcome digcode",
+        "type": "IdentifierType"
+      },
+      "value": "digpatent",
+      "type": "Identifier"
+    }
+  ],
+  "alternativeTitles": [],
+  "id": "uk4kymkq",
+  "precededBy": [],
+  "partOf": [],
+  "genres": [
+    {
+      "label": "Electronic books",
+      "concepts": [
+        {
+          "id": "yd3s738r",
+          "identifiers": [
+            {
+              "identifierType": {
+                "id": "label-derived",
+                "label": "Identifier derived from the label of the referent",
+                "type": "IdentifierType"
+              },
+              "value": "electronic books",
+              "type": "Identifier"
+            }
+          ],
+          "label": "Electronic books",
+          "type": "Concept"
+        }
+      ],
+      "type": "Genre"
+    },
+    {
+      "label": "Patents",
+      "concepts": [
+        {
+          "id": "v5adpeg4",
+          "identifiers": [
+            {
+              "identifierType": {
+                "id": "label-derived",
+                "label": "Identifier derived from the label of the referent",
+                "type": "IdentifierType"
+              },
+              "value": "patents",
+              "type": "Identifier"
+            }
+          ],
+          "label": "Patents",
+          "type": "Concept"
+        }
+      ],
+      "type": "Genre"
+    }
+  ],
+  "notes": [
+    {
+      "contents": [
+        "At head of title: A.D. 1872, 7th March. No. 699.",
+        "\"James Arnold, of West Smithfield, in the county of Middlesex, surgical instrument maker\"."
+      ],
+      "noteType": {
+        "id": "general-note",
+        "label": "Notes",
+        "type": "NoteType"
+      },
+      "type": "Note"
+    }
+  ],
+  "holdings": [],
+  "title": "Specification of James Arnold : instrument for administering horse balls, &c.",
+  "type": "Work",
+  "contributors": [
+    {
+      "agent": {
+        "label": "Arnold, James",
+        "type": "Person"
+      },
+      "roles": [],
+      "primary": true,
+      "type": "Contributor"
+    }
+  ],
+  "images": [],
+  "availabilities": [],
+  "parts": []
+}

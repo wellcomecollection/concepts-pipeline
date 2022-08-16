@@ -39,11 +39,11 @@ object ExternalDependencies {
   val uPickle = Seq(
     "com.lihaoyi" %% "upickle" % "2.0.0"
   )
+
 }
 
 object ServiceDependencies {
   import ExternalDependencies._
-
   val common: Seq[ModuleID] =
     uPickle
 
