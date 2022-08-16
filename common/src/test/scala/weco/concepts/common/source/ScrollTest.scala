@@ -1,4 +1,4 @@
-package weco.concepts.ingestor.stages
+package weco.concepts.common.source
 
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source

@@ -1,7 +1,7 @@
-package weco.concepts.ingestor.stages
+package weco.concepts.common.source
 
 import akka.NotUsed
-import akka.stream.scaladsl._
+import akka.stream.scaladsl.{Compression, Flow, Framing}
 import akka.util.ByteString
 
 object Scroll {
