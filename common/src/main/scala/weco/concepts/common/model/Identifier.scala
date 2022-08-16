@@ -12,6 +12,9 @@ sealed trait IdentifierType {
 }
 
 object IdentifierType {
+  case object Fihrist extends IdentifierType {
+    val id = "fihrist"
+  }
   case object LabelDerived extends IdentifierType {
     val id = "label-derived"
   }
@@ -24,6 +27,10 @@ object IdentifierType {
   case object MeSH extends IdentifierType {
     val id = "nlm-mesh"
   }
+  case object Viaf extends IdentifierType {
+    val id = "viaf"
+  }
+
   val typeMap: Map[String, IdentifierType] =
-    Seq(LCSubjects, LCNames, MeSH, LabelDerived).map(i => i.id -> i).toMap
+    Seq(Fihrist, LabelDerived, LCNames, LCSubjects, MeSH, Viaf).map(i => i.id -> i).toMap
 }
