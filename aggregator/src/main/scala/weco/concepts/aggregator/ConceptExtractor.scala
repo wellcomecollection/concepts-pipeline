@@ -14,8 +14,7 @@ object ConceptExtractor {
     allConcepts(List(ujson.read(jsonString)), Nil).toList
       .distinctBy(_.identifier)
 
-  /** Extract concepts from wherever they may be in a JSON document. This makes
-    * the assumption that a concept cannot be within a concept
+  /** Extract concepts from wherever they may be in a JSON document.
     */
   @tailrec
   private def allConcepts(
