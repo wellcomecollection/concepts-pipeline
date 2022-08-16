@@ -68,11 +68,11 @@ class ConceptExtractorTest
       And(s"the concept's identifier is $identifier")
       concept.identifier.value shouldBe identifier
 
-      And(s"the concept's canonicalIdentifier is $canonicalId")
-      concept.canonicalId shouldBe canonicalId
-
       And(s"the concept's label is $label")
       concept.label shouldBe label
+
+      And(s"the concept's canonicalIdentifier is $canonicalId")
+      concept.canonicalId shouldBe canonicalId
     }
 
     val ontologyTypes = Table(
@@ -249,6 +249,22 @@ class ConceptExtractorTest
       val notJSON = "<hello>world</hello>"
       Then("an exception is raised")
       a[ParseException] should be thrownBy ConceptExtractor(notJSON)
+    }
+
+    Scenario(s"ignore concept-like objects") {
+      Given(s"a document containing a concept-shaped object of type 'Banana'")
+      val sourceConcept = SourceConcept(
+        ontologyType = "Banana"
+      )
+      val json =
+        s"""{
+           |"concepts":[
+            $sourceConcept
+           |]
+           |}""".stripMargin
+      val concepts = ConceptExtractor(json)
+      Then("the concept list is empty")
+      concepts shouldBe Nil
     }
 
     val malformations = Table(
