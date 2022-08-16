@@ -32,7 +32,7 @@ class ConceptExtractorTest
       // extracted.  This is just to demonstrate that it can successfully
       // find the concepts in a real document from the catalogue api.
       Then("all the concepts in the work are returned")
-      concepts.length shouldBe 6
+      concepts.length shouldBe 8
     }
 
     Scenario(s"extract the data from a concept") {
@@ -91,7 +91,7 @@ class ConceptExtractorTest
          |  "wotsit": {
          |    "thingummy": ${SourceConcept()},
          |    "wotsit": ${SourceConcept()},
-         |    "stuff":[${SourceConcept()}, ${SourceConcept()}],
+         |    "stuff":[${SourceConcept()}, ${SourceConcept()}]
          |  }
          |}
          |}""".stripMargin
@@ -120,7 +120,70 @@ class ConceptExtractorTest
       And("the label is that of the first concept")
       concepts.loneElement.label shouldBe "Isaac Newton"
     }
-    
+
+    Scenario("extract a Concept from within another Concept") {
+      info("a document may contain compound concepts")
+      info("in which a concept or list of concepts may be nested within a parent concept")
+      info("in real examples, Subjects are a kind of Concept operate this way")
+      Given("a document with a concept object nested within another concept object")
+      val json =
+        s"""
+           |{
+           |  "id": "z6m7z2uz",
+           |  "identifiers": [
+           |    {
+           |      "identifierType": {
+           |        "id": "lc-subjects",
+           |        "label": "This field is ignored",
+           |        "type": "IdentifierType"
+           |      },
+           |      "value": "sh85046693",
+           |      "type": "Identifier"
+           |    }
+           |  ],
+           |  "label": "Eye-sockets--Diseases",
+           |  "type": "Subject",
+           |  "concepts":[
+           |  {
+           |  "id": "cafef00d",
+           |  "identifiers": [
+           |    {
+           |      "identifierType": {
+           |        "id": "lc-subjects",
+           |        "label": "This field is ignored",
+           |        "type": "IdentifierType"
+           |      },
+           |      "value": "sh85046691",
+           |      "type": "Identifier"
+           |    }
+           |  ],
+           |  "label": "Eye-sockets",
+           |  "type": "Concept"
+           |  },
+           |  {
+           |  "id": "cafebeef",
+           |  "identifiers": [
+           |    {
+           |      "identifierType": {
+           |        "id": "lc-subjects",
+           |        "label": "This field is ignored",
+           |        "type": "IdentifierType"
+           |      },
+           |      "value": "sh99002330",
+           |      "type": "Identifier"
+           |    }
+           |  ],
+           |  "label": "Diseases",
+           |  "type": "Concept"
+           |  }
+           | ]
+           |}
+           |""".stripMargin
+      val concepts = ConceptExtractor(json)
+      Then("both concepts are returned")
+      concepts.length shouldBe 3
+    }
+
     Scenario("extract a source Concept with multiple identifiers") {
       // If a source concept has multiple identifiers, then this
       // results in multiple concepts in the output.
