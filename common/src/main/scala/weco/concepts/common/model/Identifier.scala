@@ -4,7 +4,9 @@ case class Identifier(
   value: String,
   identifierType: IdentifierType,
   ontologyType: "Identifier" = "Identifier"
-)
+) {
+  override def toString:String = s"$identifierType:$value"
+}
 
 sealed trait IdentifierType {
   val id: String
