@@ -228,7 +228,7 @@ class ConceptExtractorTest
       concepts.head.identifier.identifierType.id shouldBe identifierType1
       concepts.head.identifier.value shouldBe identifier1
       And(
-        "the second Concept contains thecanonicalid and the second identifier"
+        "the second Concept contains the canonicalid and the second identifier"
       )
       concepts(1).canonicalId shouldBe "z6m7z2uz"
       concepts(1).identifier.identifierType.id shouldBe identifierType2
@@ -339,7 +339,7 @@ class ConceptExtractorTest
     )
     forAll(malformations) { (malformation, badJson) =>
       Scenario(s"encountering a malformed concept - $malformation") {
-        Given("a document with a valid concept and an invalid concept")
+        Given(s"a document with a valid concept and a concept with $malformation")
         val jsonString =
           s"""
              |{
