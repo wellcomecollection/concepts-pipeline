@@ -16,7 +16,7 @@ class AggregateStream(jsonSource: Source[String, NotUsed])(implicit
 
     jsonSource
       .via(extractConceptsFlow)
-//    .via(saveConceptsFlow)
+      .via(saveConceptsFlow)
       // TODO: Also report on the number of concepts
       .runWith(
         Sink.fold(0L)((nLines, _) => nLines + 1)
@@ -42,7 +42,10 @@ class AggregateStream(jsonSource: Source[String, NotUsed])(implicit
     // before inserting, and we may need to take care to ensure that updates are
     // bundled into an optimal size for insertion.
 
-    // Because the goal of this is a list of all existing
+    // Because the expected endpoint for all this is a list of all concepts currently
+    // in use in the input data, it might be appropriate to always CREATE records
+    // and ignore any failures due to clashes.  However, I recall that ES can get
+    // a bit miffed if you try to do conflicting things in one bulk request.
 
     Flow.fromFunction(println)
   }

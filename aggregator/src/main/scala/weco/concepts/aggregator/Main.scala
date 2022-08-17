@@ -36,7 +36,7 @@ object Main extends App with Logging {
     implicit val actorSystem: ActorSystem = ActorSystem("main")
     implicit val executionContext: ExecutionContext = actorSystem.dispatcher
 //    val source = WorksSnapshotSource(snapshotUrl)
-    val source = StdInSource.apply
+    val source = StdInSource()
     val aggregateStream = new AggregateStream(source)
     aggregateStream.run
       .recover(err => error(err.getMessage))
