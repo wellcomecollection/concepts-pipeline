@@ -16,23 +16,29 @@ object Main extends App with Logging {
   lazy val workUrlTemplate = config.as[String]("data-source.workURL.template")
   lazy val maxFrameKiB = config.as[Int]("data-source.maxframe.kib")
 
-  if (args.length > 0) for (workId <- args) {
-    // for now, just fetch it from the API.  Once we start deploying it for use,
-    // and it has access to databases, it may be better to pull it out from there
-    // instead to avoid load on the API.
-    info(workId)
-    val concepts = Using(Source.fromURL(workUrlTemplate.format(workId))) {
-      source => source.mkString
-    } match {
-      case Success(jsonString) =>
-        ConceptExtractor(jsonString)
-      case _ => Nil
+  // If you give it ids, it will fetch those records individually
+  // If you don't it will either look at stdin or fetch the snapshot.
+  if (args.length > 0) extractByIds(args)
+  else extractFromNDJSon()
+
+  private def extractByIds(workIds:Array[String]): Unit = {
+    for (workId <- workIds) {
+      // for now, just fetch it from the API.  Once we start deploying it for use,
+      // and it has access to databases, it may be better to pull it out from there
+      // instead to avoid load on the API.
+      info(workId)
+      val concepts = Using(Source.fromURL(workUrlTemplate.format(workId))) {
+        source => source.mkString
+      } match {
+        case Success(jsonString) =>
+          ConceptExtractor(jsonString)
+        case _ => Nil
+      }
+      info(concepts)
     }
-    info(concepts)
   }
-  else {
-    // The differentiator for now is that if you give it some ids, it will fetch those records,
-    // If you don't it will fetch the snapshot.
+
+  private def extractFromNDJSon(): Unit = {
     info(s"Snapshot URL: $snapshotUrl")
     implicit val actorSystem: ActorSystem = ActorSystem("main")
     implicit val executionContext: ExecutionContext = actorSystem.dispatcher
@@ -45,4 +51,5 @@ object Main extends App with Logging {
       .recover(err => error(err.getMessage))
       .onComplete(_ => actorSystem.terminate())
   }
+
 }
