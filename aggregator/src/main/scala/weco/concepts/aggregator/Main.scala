@@ -21,7 +21,7 @@ object Main extends App with Logging {
   if (args.length > 0) extractByIds(args)
   else extractFromNDJSon()
 
-  private def extractByIds(workIds:Array[String]): Unit = {
+  private def extractByIds(workIds: Array[String]): Unit = {
     for (workId <- workIds) {
       // for now, just fetch it from the API.  Once we start deploying it for use,
       // and it has access to databases, it may be better to pull it out from there
