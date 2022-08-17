@@ -16,13 +16,13 @@ class AggregateStream(jsonSource: Source[String, NotUsed])(implicit
 
     jsonSource
       .via(extractConceptsFlow)
+      .mapConcat(identity)
       .via(saveConceptsFlow)
-      // TODO: Also report on the number of concepts
       .runWith(
-        Sink.fold(0L)((nLines, _) => nLines + 1)
+        Sink.fold(0L)((nConcepts, _) => nConcepts + 1)
       )
-      .map(nLines => {
-        info(s"Transformed $nLines lines")
+      .map(nConcepts => {
+        info(s"Extracted $nConcepts concepts")
         Done
       })
   }
@@ -30,7 +30,7 @@ class AggregateStream(jsonSource: Source[String, NotUsed])(implicit
   def extractConceptsFlow: Flow[String, Seq[UsedConcept], NotUsed] =
     Flow.fromFunction(ConceptExtractor.apply)
 
-  def saveConceptsFlow: Flow[Seq[UsedConcept], Unit, NotUsed] = {
+  def saveConceptsFlow: Flow[UsedConcept, Unit, NotUsed] = {
     // TODO: Actually put it in a database.
     // Here is a probable batch mode/single mode diversion.
     // In single mode, entries are already deduplicated by the conceptextractor

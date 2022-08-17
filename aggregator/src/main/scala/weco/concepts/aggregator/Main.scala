@@ -8,12 +8,13 @@ import scala.concurrent.ExecutionContext
 import scala.io.Source
 import scala.util.{Success, Using}
 import akka.actor.ActorSystem
-import weco.concepts.aggregator.sources.StdInSource
+import weco.concepts.aggregator.sources.{StdInSource, WorksSnapshotSource}
 
 object Main extends App with Logging {
   val config = ConfigFactory.load()
   lazy val snapshotUrl = config.as[String]("data-source.works.snapshot")
   lazy val workUrlTemplate = config.as[String]("data-source.workURL.template")
+  lazy val maxFrameKiB = config.as[Int]("data-source.maxframe.kib")
 
   if (args.length > 0) for (workId <- args) {
     // for now, just fetch it from the API.  Once we start deploying it for use,
@@ -35,8 +36,7 @@ object Main extends App with Logging {
     info(s"Snapshot URL: $snapshotUrl")
     implicit val actorSystem: ActorSystem = ActorSystem("main")
     implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-//    val source = WorksSnapshotSource(snapshotUrl)
-    val source = StdInSource()
+    val source = if(System.in.available() > 0) StdInSource() else WorksSnapshotSource(snapshotUrl)
     val aggregateStream = new AggregateStream(source)
     aggregateStream.run
       .recover(err => error(err.getMessage))
