@@ -4,8 +4,11 @@ import com.typesafe.config.ConfigFactory
 import grizzled.slf4j.Logging
 import net.ceedubs.ficus.Ficus._
 
+import scala.concurrent.ExecutionContext
 import scala.io.Source
 import scala.util.{Success, Using}
+
+import akka.actor.ActorSystem
 
 object Main extends App with Logging {
   val config = ConfigFactory.load()
@@ -30,5 +33,12 @@ object Main extends App with Logging {
     // The differentiator for now is that if you give it some ids, it will fetch those records,
     // If you don't it will fetch the snapshot.
     info(s"Snapshot URL: $snapshotUrl")
+    implicit val actorSystem: ActorSystem = ActorSystem("main")
+    implicit val executionContext: ExecutionContext = actorSystem.dispatcher
+
+    val aggregateStream = new AggregateStream(snapshotUrl)
+    aggregateStream.run
+      .recover(err => error(err.getMessage))
+      .onComplete(_ => actorSystem.terminate())
   }
 }

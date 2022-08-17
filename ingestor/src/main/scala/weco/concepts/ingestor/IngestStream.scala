@@ -36,6 +36,9 @@ class IngestStream(subjectsUrl: String, namesUrl: String)(implicit
   ): Source[Concept, NotUsed] =
     fetcher
       .fetchFromUrl(dataUrl)
-      .via(Scroll.apply)
+      // At time of writing,
+      // The largest JSON in LC-Subjects is ca 77KiB
+      // So 128KiB should give sufficient overhead to catch any expansion
+      .via(Scroll(128 * 1024))
       .via(Transformer.apply[T])
 }

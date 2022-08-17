@@ -26,7 +26,7 @@ class ScrollTest extends AnyFunSpec with Matchers {
 
     Source
       .single(gzip(lines.mkString("\n")))
-      .via(Scroll.apply)
+      .via(Scroll(32))
       .runWith(TestSink.probe[String])
       .request(lines.length)
       .expectNextN(lines)
