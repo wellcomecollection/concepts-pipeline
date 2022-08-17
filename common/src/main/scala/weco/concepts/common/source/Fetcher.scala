@@ -1,4 +1,4 @@
-package weco.concepts.ingestor.stages
+package weco.concepts.common.source
 
 import akka.NotUsed
 import akka.http.scaladsl.model._
