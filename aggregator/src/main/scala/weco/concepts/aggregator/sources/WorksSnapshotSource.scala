@@ -8,7 +8,9 @@ import weco.concepts.common.source.{Fetcher, Scroll}
 
 object WorksSnapshotSource {
 
-  def apply(dataUrl: String)(implicit actorSystem: ActorSystem): Source[String, NotUsed] = {
+  def apply(
+    dataUrl: String
+  )(implicit actorSystem: ActorSystem): Source[String, NotUsed] = {
     lazy val fetcher = new Fetcher(Http().superPool())
     fetcher
       .fetchFromUrl(dataUrl)

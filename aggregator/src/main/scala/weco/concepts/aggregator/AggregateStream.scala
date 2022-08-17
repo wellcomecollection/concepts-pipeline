@@ -8,20 +8,23 @@ import weco.concepts.common.model.UsedConcept
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AggregateStream(jsonSource: Source[String, NotUsed]) (implicit actorSystem: ActorSystem) extends Logging {
+class AggregateStream(jsonSource: Source[String, NotUsed])(implicit
+  actorSystem: ActorSystem
+) extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
   def run: Future[Done] = {
 
-    jsonSource.via(extractConceptsFlow)
+    jsonSource
+      .via(extractConceptsFlow)
 //    .via(saveConceptsFlow)
-    // TODO: Also report on the number of concepts
-    .runWith(
-      Sink.fold(0L)((nLines, _) => nLines + 1)
-    )
-    .map(nLines => {
-      info(s"Transformed $nLines lines")
-      Done
-    })
+      // TODO: Also report on the number of concepts
+      .runWith(
+        Sink.fold(0L)((nLines, _) => nLines + 1)
+      )
+      .map(nLines => {
+        info(s"Transformed $nLines lines")
+        Done
+      })
   }
 
   def extractConceptsFlow: Flow[String, Seq[UsedConcept], NotUsed] =
