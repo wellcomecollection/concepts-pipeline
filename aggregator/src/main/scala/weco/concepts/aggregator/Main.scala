@@ -7,8 +7,8 @@ import net.ceedubs.ficus.Ficus._
 import scala.concurrent.ExecutionContext
 import scala.io.Source
 import scala.util.{Success, Using}
-
 import akka.actor.ActorSystem
+import weco.concepts.aggregator.sources.StdInSource
 
 object Main extends App with Logging {
   val config = ConfigFactory.load()
@@ -35,8 +35,9 @@ object Main extends App with Logging {
     info(s"Snapshot URL: $snapshotUrl")
     implicit val actorSystem: ActorSystem = ActorSystem("main")
     implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-
-    val aggregateStream = new AggregateStream(snapshotUrl)
+//    val source = WorksSnapshotSource(snapshotUrl)
+    val source = StdInSource.apply
+    val aggregateStream = new AggregateStream(source)
     aggregateStream.run
       .recover(err => error(err.getMessage))
       .onComplete(_ => actorSystem.terminate())
