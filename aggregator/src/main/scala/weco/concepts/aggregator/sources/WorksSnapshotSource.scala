@@ -7,11 +7,10 @@ import akka.stream.scaladsl.Source
 import grizzled.slf4j.Logging
 import weco.concepts.common.source.{Fetcher, Scroll}
 
-/**
- * Download the Works snapshot and scroll over the lines in it.
- */
+/** Download the Works snapshot and scroll over the lines in it.
+  */
 
-object WorksSnapshotSource extends Logging{
+object WorksSnapshotSource extends Logging {
 
   def apply(
     dataUrl: String,

@@ -37,7 +37,9 @@ object Main extends App with Logging {
     implicit val actorSystem: ActorSystem = ActorSystem("main")
     implicit val executionContext: ExecutionContext = actorSystem.dispatcher
     val maxFrameBytes = maxFrameKiB * 1024
-    val source = if(System.in.available() > 0) StdInSource(maxFrameBytes) else WorksSnapshotSource(snapshotUrl, maxFrameBytes)
+    val source =
+      if (System.in.available() > 0) StdInSource(maxFrameBytes)
+      else WorksSnapshotSource(snapshotUrl, maxFrameBytes)
     val aggregateStream = new AggregateStream(source)
     aggregateStream.run
       .recover(err => error(err.getMessage))
