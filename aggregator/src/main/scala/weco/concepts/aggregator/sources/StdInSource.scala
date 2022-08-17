@@ -1,16 +1,20 @@
 package weco.concepts.aggregator.sources
 
 import akka.NotUsed
-import akka.stream.scaladsl.Source
-import akka.util.ByteString
+import akka.stream.scaladsl.{Source, StreamConverters}
+import grizzled.slf4j.Logging
 import weco.concepts.common.source.Scroll
 
-object StdInSource {
-  def apply(): Source[String, NotUsed] = {
-    Source(
-      // Produce a single ByteString, in the same fashion
-      // as the Fetcher
-      Seq(ByteString(System.in.readAllBytes()))
-    ).via(Scroll.fromUncompressed(512 * 1024))
+/**
+ * Scroll over lines from stdin.
+ */
+
+object StdInSource extends Logging{
+
+  def apply(maxFrameBytes:Int): Source[String, NotUsed] = {
+    info("reading from stdin")
+    StreamConverters.fromInputStream(
+      () => System.in
+    ).via(Scroll.fromUncompressed(maxFrameBytes)).asInstanceOf[Source[String, NotUsed]]
   }
 }
