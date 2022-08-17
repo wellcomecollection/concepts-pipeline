@@ -44,7 +44,7 @@ class ScrollTest extends AnyFunSpec with Matchers {
     ByteString(gzipped)
   }
 
-  it("fails if any line is too long"){
+  it("fails if any line is too long") {
     implicit val actorSystem: ActorSystem = ActorSystem("test")
     val lines = Seq(
       "Der Vogelfänger bin ich ja!",
