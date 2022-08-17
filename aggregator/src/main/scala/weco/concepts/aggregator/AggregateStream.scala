@@ -12,12 +12,11 @@ class AggregateStream(jsonSource: Source[String, NotUsed])(implicit
   actorSystem: ActorSystem
 ) extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-  def run: Future[Done] = {
-
+  def run: Future[Done] =
     jsonSource
       .via(extractConceptsFlow)
       .mapConcat(identity)
-      .via(saveConceptsFlow)
+//      .via(saveConceptsFlow)
       .runWith(
         Sink.fold(0L)((nConcepts, _) => nConcepts + 1)
       )
@@ -25,7 +24,6 @@ class AggregateStream(jsonSource: Source[String, NotUsed])(implicit
         info(s"Extracted $nConcepts concepts")
         Done
       })
-  }
 
   def extractConceptsFlow: Flow[String, Seq[UsedConcept], NotUsed] =
     Flow.fromFunction(ConceptExtractor.apply)
@@ -48,5 +46,6 @@ class AggregateStream(jsonSource: Source[String, NotUsed])(implicit
     // a bit miffed if you try to do conflicting things in one bulk request.
 
     Flow.fromFunction(println)
+
   }
 }
