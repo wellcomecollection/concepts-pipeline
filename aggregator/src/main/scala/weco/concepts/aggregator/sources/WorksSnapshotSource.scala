@@ -21,6 +21,6 @@ object WorksSnapshotSource extends Logging {
     lazy val fetcher = new Fetcher(Http().superPool())
     fetcher
       .fetchFromUrl(dataUrl)
-      .via(Scroll.fromCompressed(maxFrameKiB*1024))
+      .via(Scroll.fromCompressed(maxFrameKiB * 1024))
   }
 }

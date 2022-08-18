@@ -8,14 +8,12 @@ import weco.concepts.common.model.UsedConcept
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
- * Aggregate Concepts from JSON strings emitted by jsonSource
- */
+/** Aggregate Concepts from JSON strings emitted by jsonSource
+  */
 
-class ConceptsAggregator
-(jsonSource: Source[String, NotUsed])
-(implicit actorSystem: ActorSystem)
-  extends Logging {
+class ConceptsAggregator(jsonSource: Source[String, NotUsed])(implicit
+  actorSystem: ActorSystem
+) extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
 
   def run: Future[Done] =

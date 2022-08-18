@@ -9,19 +9,19 @@ import grizzled.slf4j.Logging
 
 import weco.concepts.aggregator.Main.workUrlTemplate
 
-
 object WorkIdSource extends Logging {
-  def apply(workIds:Iterator[String]): AkkaSource[String, NotUsed] = {
-    AkkaSource.fromIterator(
-      () => workIds.iterator
-    ).via(
-      Flow.fromFunction(JSonFromWorkId)
-    ).mapConcat(identity)
+  def apply(workIds: Iterator[String]): AkkaSource[String, NotUsed] = {
+    AkkaSource
+      .fromIterator(() => workIds.iterator)
+      .via(
+        Flow.fromFunction(JSonFromWorkId)
+      )
+      .mapConcat(identity)
   }
 
   private def JSonFromWorkId(workId: String): Option[String] = {
-    Using(IoSource.fromURL(workUrlTemplate.format(workId))) {
-      source => source.mkString
+    Using(IoSource.fromURL(workUrlTemplate.format(workId))) { source =>
+      source.mkString
     } match {
       case Success(jsonString) =>
         Some(jsonString)
