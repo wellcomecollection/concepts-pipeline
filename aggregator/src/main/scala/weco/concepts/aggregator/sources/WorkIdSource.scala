@@ -9,6 +9,9 @@ import grizzled.slf4j.Logging
 
 import weco.concepts.aggregator.Main.workUrlTemplate
 
+/**
+ * Fetch works with given workIds from the Catalogue API
+ */
 object WorkIdSource extends Logging {
   def apply(workIds: Iterator[String]): AkkaSource[String, NotUsed] = {
     AkkaSource
