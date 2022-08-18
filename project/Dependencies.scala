@@ -41,7 +41,6 @@ object ExternalDependencies {
   )
 
 }
-
 object ServiceDependencies {
   import ExternalDependencies._
   val common: Seq[ModuleID] =
