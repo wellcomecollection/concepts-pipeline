@@ -5,6 +5,7 @@ import akka.stream.scaladsl.{Source, StreamConverters}
 import grizzled.slf4j.Logging
 import weco.concepts.common.source.Scroll
 import weco.concepts.aggregator.Main.maxFrameKiB
+
 /** Scroll over lines from stdin.
   */
 

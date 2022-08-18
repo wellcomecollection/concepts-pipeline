@@ -20,9 +20,10 @@ object Main extends App with Logging {
 
   // If you give it ids, it will fetch those records individually
   // If you don't it will either look at stdin or fetch the snapshot.
-  val source:Source[String, NotUsed] = if (args.length > 0) WorkIdSource(args.iterator)
-  else if (System.in.available() > 0) StdInSource.apply
-  else WorksSnapshotSource(snapshotUrl)
+  val source: Source[String, NotUsed] =
+    if (args.length > 0) WorkIdSource(args.iterator)
+    else if (System.in.available() > 0) StdInSource.apply
+    else WorksSnapshotSource(snapshotUrl)
 
   val aggregator = new ConceptsAggregator(source)
   aggregator.run
