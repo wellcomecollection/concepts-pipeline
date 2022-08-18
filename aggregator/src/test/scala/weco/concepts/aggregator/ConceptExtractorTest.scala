@@ -32,7 +32,7 @@ class ConceptExtractorTest
       // extracted.  This is just to demonstrate that it can successfully
       // find the concepts in a real document from the catalogue api.
       Then("all the concepts in the work are returned")
-      concepts.length shouldBe 6
+      concepts.length shouldBe 8
     }
 
     Scenario(s"extract the data from a concept") {
@@ -68,74 +68,11 @@ class ConceptExtractorTest
       And(s"the concept's identifier is $identifier")
       concept.identifier.value shouldBe identifier
 
-      And(s"the concept's canonicalIdentifier is $canonicalId")
-      concept.canonicalId shouldBe canonicalId
-
       And(s"the concept's label is $label")
       concept.label shouldBe label
-    }
 
-    val ontologyTypes = Table(
-      "ontologyType",
-      "Concept",
-      "Person",
-      "Organisation",
-      "Meeting",
-      "Period"
-    )
-    forAll(ontologyTypes) { ontologyType =>
-      Scenario(s"extract a concept of type $ontologyType ") {
-        Given(s"a document containing a concept of type $ontologyType")
-        val sourceConcept = SourceConcept(
-          ontologyType = ontologyType
-        )
-        val json =
-          s"""{
-             |"concepts":[
-            $sourceConcept
-             |]
-             |}""".stripMargin
-
-        Then("that concept is extracted")
-        ConceptExtractor(json).loneElement should have(
-          Symbol("label")(sourceConcept.label),
-          Symbol("canonicalId")(sourceConcept.canonicalId)
-        )
-      }
-    }
-
-    val identifierTypes = Table(
-      "identifierType",
-      "lc-subjects",
-      "lc-names",
-      "nlm-mesh",
-      "label-derived"
-    )
-    forAll(identifierTypes) { identifierType =>
-      Scenario(
-        s"extract a concept with an identifier in the $identifierType scheme "
-      ) {
-        Given(
-          s"a document containing a concept with an identifier of type $identifierType"
-        )
-        val sourceConcept = SourceConcept(
-          authority = identifierType
-        )
-        val json =
-          s"""{
-             |"concepts":[
-            $sourceConcept
-             |]
-             |}""".stripMargin
-
-        Then("that concept is extracted")
-        val concept = ConceptExtractor(json).loneElement
-        concept should have(
-          Symbol("label")(sourceConcept.label),
-          Symbol("canonicalId")(sourceConcept.canonicalId)
-        )
-        concept.identifier.identifierType.id shouldBe identifierType
-      }
+      And(s"the concept's canonicalIdentifier is $canonicalId")
+      concept.canonicalId shouldBe canonicalId
     }
 
     Scenario("extract multiple different concepts throughout the document") {
@@ -184,6 +121,73 @@ class ConceptExtractorTest
       concepts.loneElement.label shouldBe "Isaac Newton"
     }
 
+    Scenario("extract a Concept from within another Concept") {
+      info("a document may contain compound concepts")
+      info(
+        "in which a concept or list of concepts may be nested within a parent concept"
+      )
+      info("in real examples, Subjects are a kind of Concept operate this way")
+      Given(
+        "a document with a concept object nested within another concept object"
+      )
+      val json =
+        s"""
+           |{
+           |  "id": "z6m7z2uz",
+           |  "identifiers": [
+           |    {
+           |      "identifierType": {
+           |        "id": "lc-subjects",
+           |        "label": "This field is ignored",
+           |        "type": "IdentifierType"
+           |      },
+           |      "value": "sh85046693",
+           |      "type": "Identifier"
+           |    }
+           |  ],
+           |  "label": "Eye-sockets--Diseases",
+           |  "type": "Subject",
+           |  "concepts":[
+           |  {
+           |  "id": "cafef00d",
+           |  "identifiers": [
+           |    {
+           |      "identifierType": {
+           |        "id": "lc-subjects",
+           |        "label": "This field is ignored",
+           |        "type": "IdentifierType"
+           |      },
+           |      "value": "sh85046691",
+           |      "type": "Identifier"
+           |    }
+           |  ],
+           |  "label": "Eye-sockets",
+           |  "type": "Concept"
+           |  },
+           |  {
+           |  "id": "cafebeef",
+           |  "identifiers": [
+           |    {
+           |      "identifierType": {
+           |        "id": "lc-subjects",
+           |        "label": "This field is ignored",
+           |        "type": "IdentifierType"
+           |      },
+           |      "value": "sh99002330",
+           |      "type": "Identifier"
+           |    }
+           |  ],
+           |  "label": "Diseases",
+           |  "type": "Concept"
+           |  }
+           | ]
+           |}
+           |""".stripMargin
+      val concepts = ConceptExtractor(json)
+      Then("both concepts are returned")
+      concepts.length shouldBe 3
+    }
+
     Scenario("extract a source Concept with multiple identifiers") {
       // If a source concept has multiple identifiers, then this
       // results in multiple concepts in the output.
@@ -228,11 +232,79 @@ class ConceptExtractorTest
       concepts.head.identifier.identifierType.id shouldBe identifierType1
       concepts.head.identifier.value shouldBe identifier1
       And(
-        "the second Concept contains thecanonicalid and the second identifier"
+        "the second Concept contains the canonicalid and the second identifier"
       )
       concepts(1).canonicalId shouldBe "z6m7z2uz"
       concepts(1).identifier.identifierType.id shouldBe identifierType2
       concepts(1).identifier.value shouldBe identifier2
+    }
+  }
+
+  Feature("Different types of Concept") {
+    val ontologyTypes = Table(
+      "ontologyType",
+      "Concept",
+      "Person",
+      "Organisation",
+      "Meeting",
+      "Period",
+      "Subject"
+    )
+    forAll(ontologyTypes) { ontologyType =>
+      Scenario(s"extract a concept of type $ontologyType ") {
+        Given(s"a document containing a concept of type $ontologyType")
+        val sourceConcept = SourceConcept(
+          ontologyType = ontologyType
+        )
+        val json =
+          s"""{
+             |"concepts":[
+              $sourceConcept
+             |]
+             |}""".stripMargin
+
+        Then("that concept is extracted")
+        ConceptExtractor(json).loneElement should have(
+          Symbol("label")(sourceConcept.label),
+          Symbol("canonicalId")(sourceConcept.canonicalId)
+        )
+      }
+    }
+
+    val identifierTypes = Table(
+      "identifierType",
+      "lc-subjects",
+      "lc-names",
+      "nlm-mesh",
+      "label-derived",
+      "fihrist",
+      "viaf"
+    )
+    forAll(identifierTypes) { identifierType =>
+      Scenario(
+        s"extract a concept with an identifier in the $identifierType scheme "
+      ) {
+        Given(
+          s"a document containing a concept with an identifier of type $identifierType"
+        )
+        val sourceConcept = SourceConcept(
+          authority = identifierType
+        )
+        val json =
+          s"""{
+             |"concepts":[
+              $sourceConcept
+             |]
+             |}""".stripMargin
+
+        Then("that concept is extracted")
+        val concept = ConceptExtractor(json).loneElement
+        concept should have(
+          Symbol("label")(sourceConcept.label),
+          Symbol("canonicalId")(sourceConcept.canonicalId)
+        )
+        concept.identifier.identifierType.id shouldBe identifierType
+      }
     }
   }
   Feature("Handling bad input") {
@@ -249,6 +321,22 @@ class ConceptExtractorTest
       val notJSON = "<hello>world</hello>"
       Then("an exception is raised")
       a[ParseException] should be thrownBy ConceptExtractor(notJSON)
+    }
+
+    Scenario(s"ignore concept-like objects") {
+      Given(s"a document containing a concept-shaped object of type 'Banana'")
+      val sourceConcept = SourceConcept(
+        ontologyType = "Banana"
+      )
+      val json =
+        s"""{
+           |"concepts":[
+            $sourceConcept
+           |]
+           |}""".stripMargin
+      val concepts = ConceptExtractor(json)
+      Then("the concept list is empty")
+      concepts shouldBe Nil
     }
 
     val malformations = Table(
@@ -323,7 +411,9 @@ class ConceptExtractorTest
     )
     forAll(malformations) { (malformation, badJson) =>
       Scenario(s"encountering a malformed concept - $malformation") {
-        Given("a document with a valid concept and an invalid concept")
+        Given(
+          s"a document with a valid concept and a concept with $malformation"
+        )
         val jsonString =
           s"""
              |{

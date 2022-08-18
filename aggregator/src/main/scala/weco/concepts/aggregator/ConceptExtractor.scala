@@ -9,13 +9,12 @@ import scala.annotation.tailrec
 
 object ConceptExtractor {
   val conceptTypes =
-    Seq("Concept", "Person", "Organisation", "Meeting", "Period")
+    Seq("Concept", "Person", "Organisation", "Meeting", "Period", "Subject")
   def apply(jsonString: String): Seq[UsedConcept] =
     allConcepts(List(ujson.read(jsonString)), Nil).toList
       .distinctBy(_.identifier)
 
-  /** Extract concepts from wherever they may be in a JSON document. This makes
-    * the assumption that a concept cannot be within a concept
+  /** Extract concepts from wherever they may be in a JSON document.
     */
   @tailrec
   private def allConcepts(
@@ -26,10 +25,11 @@ object ConceptExtractor {
       case Nil => acc
       case _ =>
         val (nextJsons, concepts) = jsons.map {
-          case obj: ujson.Obj if isConcept(obj) => (Nil, UsedConcepts(obj))
-          case arr: ujson.Arr                   => (arr.arr, Nil)
-          case obj: ujson.Obj                   => (obj.obj.values, Nil)
-          case _                                => (Nil, Nil)
+          case obj: ujson.Obj if isConcept(obj) =>
+            (obj.obj.values, UsedConcepts(obj))
+          case arr: ujson.Arr => (arr.arr, Nil)
+          case obj: ujson.Obj => (obj.obj.values, Nil)
+          case _              => (Nil, Nil)
         }.unzip
         allConcepts(nextJsons.flatten, acc ++ concepts.flatten)
     }
