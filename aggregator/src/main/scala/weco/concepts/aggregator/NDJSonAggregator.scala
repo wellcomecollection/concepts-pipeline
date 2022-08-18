@@ -6,8 +6,8 @@ import akka.stream.scaladsl.{Flow, Source}
 import weco.concepts.common.model.UsedConcept
 
 class NDJSonAggregator(jsonSource: Source[String, NotUsed])(implicit
-                                                            actorSystem: ActorSystem
-) extends ConceptsAggregator{
+  actorSystem: ActorSystem
+) extends ConceptsAggregator {
 
   override protected def conceptSource: Source[UsedConcept, NotUsed] = {
     jsonSource

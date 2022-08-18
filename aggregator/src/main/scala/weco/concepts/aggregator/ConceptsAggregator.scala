@@ -8,9 +8,8 @@ import weco.concepts.common.model.UsedConcept
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ConceptsAggregator
-  (implicit actorSystem: ActorSystem)
-  extends Logging{
+abstract class ConceptsAggregator(implicit actorSystem: ActorSystem)
+    extends Logging {
   protected def conceptSource: Source[UsedConcept, NotUsed]
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
   def run: Future[Done] =
