@@ -1,12 +1,14 @@
 package weco.concepts.aggregator
 
+import akka.NotUsed
 import com.typesafe.config.ConfigFactory
 import grizzled.slf4j.Logging
 import net.ceedubs.ficus.Ficus._
 
 import scala.concurrent.ExecutionContext
 import akka.actor.ActorSystem
-import weco.concepts.aggregator.sources.{StdInSource, WorksSnapshotSource}
+import akka.stream.scaladsl.Source
+import weco.concepts.aggregator.sources._
 
 object Main extends App with Logging {
   val config = ConfigFactory.load()
@@ -18,20 +20,12 @@ object Main extends App with Logging {
 
   // If you give it ids, it will fetch those records individually
   // If you don't it will either look at stdin or fetch the snapshot.
-  val aggregator =
-    if (args.length > 0) new WorkIdAggregator(args.iterator)
-    else AggregatorFromNDJSonSource
+  val source:Source[String, NotUsed] = if (args.length > 0) WorkIdSource(args.iterator)
+  else if (System.in.available() > 0) StdInSource.apply
+  else WorksSnapshotSource(snapshotUrl)
 
+  val aggregator = new ConceptsAggregator(source)
   aggregator.run
     .recover(err => error(err.getMessage))
     .onComplete(_ => actorSystem.terminate())
-
-  private def AggregatorFromNDJSonSource: ConceptsAggregator = {
-    val maxFrameBytes = maxFrameKiB * 1024
-    val source =
-      if (System.in.available() > 0) StdInSource(maxFrameBytes)
-      else WorksSnapshotSource(snapshotUrl, maxFrameBytes)
-    new NDJSonAggregator(source)
-  }
-
 }
