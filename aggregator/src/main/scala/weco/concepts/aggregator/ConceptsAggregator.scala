@@ -1,22 +1,21 @@
 package weco.concepts.aggregator
 
-import akka.{Done, NotUsed}
 import akka.actor.ActorSystem
+import akka.{Done, NotUsed}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import grizzled.slf4j.Logging
 import weco.concepts.common.model.UsedConcept
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AggregateStream(jsonSource: Source[String, NotUsed])(implicit
-  actorSystem: ActorSystem
-) extends Logging {
+abstract class ConceptsAggregator
+  (implicit actorSystem: ActorSystem)
+  extends Logging{
+  protected def conceptSource: Source[UsedConcept, NotUsed]
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
   def run: Future[Done] =
-    jsonSource
-      .via(extractConceptsFlow)
-      .mapConcat(identity)
-//      .via(saveConceptsFlow)
+    conceptSource
+      //      .via(saveConceptsFlow)
       .runWith(
         Sink.fold(0L)((nConcepts, _) => nConcepts + 1)
       )
@@ -24,9 +23,6 @@ class AggregateStream(jsonSource: Source[String, NotUsed])(implicit
         info(s"Extracted $nConcepts concepts")
         Done
       })
-
-  def extractConceptsFlow: Flow[String, Seq[UsedConcept], NotUsed] =
-    Flow.fromFunction(ConceptExtractor.apply)
 
   def saveConceptsFlow: Flow[UsedConcept, Unit, NotUsed] = {
     // TODO: Actually put it in a database.
@@ -46,6 +42,6 @@ class AggregateStream(jsonSource: Source[String, NotUsed])(implicit
     // a bit miffed if you try to do conflicting things in one bulk request.
 
     Flow.fromFunction(println)
-
   }
+
 }
