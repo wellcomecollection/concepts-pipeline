@@ -8,13 +8,19 @@ import weco.concepts.common.model.UsedConcept
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class ConceptsAggregator(implicit actorSystem: ActorSystem)
-    extends Logging {
-  protected def conceptSource: Source[UsedConcept, NotUsed]
+/**
+ * Aggregate Concepts from JSON strings emitted by jsonSource
+ */
+
+class ConceptsAggregator
+(jsonSource: Source[String, NotUsed])
+(implicit actorSystem: ActorSystem)
+  extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
+
   def run: Future[Done] =
     conceptSource
-      //      .via(saveConceptsFlow)
+      .via(saveConceptsFlow)
       .runWith(
         Sink.fold(0L)((nConcepts, _) => nConcepts + 1)
       )
@@ -22,6 +28,15 @@ abstract class ConceptsAggregator(implicit actorSystem: ActorSystem)
         info(s"Extracted $nConcepts concepts")
         Done
       })
+
+  private def conceptSource: Source[UsedConcept, NotUsed] = {
+    jsonSource
+      .via(extractConceptsFlow)
+      .mapConcat(identity)
+  }
+
+  private def extractConceptsFlow: Flow[String, Seq[UsedConcept], NotUsed] =
+    Flow.fromFunction(ConceptExtractor.apply)
 
   def saveConceptsFlow: Flow[UsedConcept, Unit, NotUsed] = {
     // TODO: Actually put it in a database.
@@ -39,6 +54,9 @@ abstract class ConceptsAggregator(implicit actorSystem: ActorSystem)
     // in use in the input data, it might be appropriate to always CREATE records
     // and ignore any failures due to clashes.  However, I recall that ES can get
     // a bit miffed if you try to do conflicting things in one bulk request.
+
+    // All that said, the process of deduplication a small and already deduplicated set
+    // of Concepts will be pretty lightweight, so might as well do it.
 
     Flow.fromFunction(println)
   }
