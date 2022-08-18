@@ -18,8 +18,9 @@ object Main extends App with Logging {
 
   // If you give it ids, it will fetch those records individually
   // If you don't it will either look at stdin or fetch the snapshot.
-  val aggregator = if (args.length > 0) new WorkIdAggregator(args.iterator)
-  else AggregatorFromNDJSonSource
+  val aggregator =
+    if (args.length > 0) new WorkIdAggregator(args.iterator)
+    else AggregatorFromNDJSonSource
 
   aggregator.run
     .recover(err => error(err.getMessage))
