@@ -26,7 +26,7 @@ class ScrollTest extends AnyFunSpec with Matchers {
 
     Source
       .single(gzip(lines.mkString("\n")))
-      .via(Scroll.apply)
+      .via(Scroll(32))
       .runWith(TestSink.probe[String])
       .request(lines.length)
       .expectNextN(lines)
@@ -42,5 +42,21 @@ class ScrollTest extends AnyFunSpec with Matchers {
     val gzipped = byteArrayOutputStream.toByteArray
     byteArrayOutputStream.close()
     ByteString(gzipped)
+  }
+
+  it("fails if any line is too long") {
+    implicit val actorSystem: ActorSystem = ActorSystem("test")
+    val lines = Seq(
+      "Der Vogelfänger bin ich ja!",
+      "Steht's lustg, heissa hopsassa!", // longer than 30
+      "Ich Vogelfänger bin bekannt"
+    )
+
+    Source
+      .single(gzip(lines.mkString("\n")))
+      .via(Scroll(30))
+      .runWith(TestSink.probe[String])
+      .request(lines.length)
+      .expectError()
   }
 }
