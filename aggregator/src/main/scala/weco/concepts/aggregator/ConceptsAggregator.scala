@@ -1,9 +1,7 @@
 package weco.concepts.aggregator
-import com.sksamuel.elastic4s.ElasticApi
 import akka.actor.ActorSystem
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.{Flow, Sink, Source}
-import com.sksamuel.elastic4s.requests.update.UpdateRequest
 import grizzled.slf4j.Logging
 import weco.concepts.common.model.UsedConcept
 
@@ -79,18 +77,16 @@ class ConceptsAggregator(jsonSource: Source[String, NotUsed])(implicit
     * bulk request (The 22 Aug snapshot amounts to 17MB of documents once
     * deduplicated), it's prudent to break this up in order to ensure stability.
     */
-  private def prepareBulkBodyFlow
-    : Flow[UsedConcept, Seq[UpdateRequest], NotUsed] =
+  private def prepareBulkBodyFlow: Flow[UsedConcept, Seq[String], NotUsed] =
     Flow.fromFunction(new BulkFormatter("my_index").format).grouped(50000)
 
-  private def sendBulkUpdateFlow: Flow[Seq[UpdateRequest], Unit, NotUsed] = {
+  private def sendBulkUpdateFlow: Flow[Seq[String], Unit, NotUsed] = {
     // TODO: Actually put it in a database.
 
     // Because the expected endpoint for all this is a list of all concepts currently
     // in use in the input data, it might be appropriate to always UPDATE records
     // and ignore any failures due to clashes.  However, I recall that ES can get
     // a bit miffed if you try to do conflicting things in one bulk request.
-    ElasticApi.bulk()
     Flow.fromFunction(println)
   }
 

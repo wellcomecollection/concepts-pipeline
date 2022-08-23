@@ -1,6 +1,5 @@
 package weco.concepts.aggregator
 
-import com.sksamuel.elastic4s.requests.update.UpdateRequest
 import org.scalatest.GivenWhenThen
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
@@ -37,22 +36,30 @@ class BulkFormatterTest
           canonicalId = "baadbeef"
         )
       When("format is called")
-      Then("the result is an update request")
-      val formatted: UpdateRequest = formatter.format(concept)
+      val formatted: String = formatter.format(concept)
+      Then("the result is two lines of NDJSON")
+      val lines = formatted.linesIterator.toList
+      lines.length shouldBe 2
+      val action = ujson.read(lines.head)
+      val document = ujson.read(lines(1))
       And(
         "the action upserts a record with the identifier authority and value as the id"
       )
-      formatted.docAsUpsert.get shouldBe true
-      formatted.id shouldBe "lc-names:n84165387"
+      action
+        .obj("update")
+        .obj("_id")
+        .value shouldBe "lc-names:n84165387"
+      document("doc_as_upsert").value shouldBe true
       And(
         "the document contains all the information from the used concept"
       )
-      formatted.documentFields should contain theSameElementsAs Seq(
-        ("authority", "lc-names"),
-        ("identifier", "n84165387"),
-        ("label", "Pujol, Joseph, 1857-1945"),
-        ("canonicalId", "baadbeef")
-      )
+      val expectedDocument = ujson.read("""{
+        "authority": "lc-names",
+        "identifier": "n84165387",
+        "label": "Pujol, Joseph, 1857-1945",
+        "canonicalId":"baadbeef"
+      }""")
+      document("doc") shouldBe expectedDocument
     }
 
   }
