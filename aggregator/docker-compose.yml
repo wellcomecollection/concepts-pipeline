@@ -1,12 +1,18 @@
 services:
+
   elasticsearch:
     image: "docker.elastic.co/elasticsearch/elasticsearch:8.3.3"
+    hostname: elasticsearch
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - 9200:9200
     environment:
       - "http.host=0.0.0.0"
       - "transport.host=0.0.0.0"
       - "cluster.name=wellcome"
-      - "logger.level=INFO"
+      - "ES_JAVA_OPTS=-Xms750m -Xmx750m"
       - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+  aggregator:
+    build:
+      context: ..
+      dockerfile: ./aggregator/Dockerfile
