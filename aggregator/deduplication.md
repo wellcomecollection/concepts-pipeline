@@ -58,6 +58,10 @@ This approach works well, but relies on mutability.  It slows down as a higher p
 concepts are found in the `seen` set, meaning that it takes longer to gather enough concepts
 to be worth sending in a bulk request.
 
+One strong advantage to this approach is that it always looks like it is doing something.
+It almost immediately indexes the first 50,000, then gradually slows down.  Other techniques
+spend a long time getting to the point where it starts indexing, so require extra logging
+to make it clear that it is working.
 
 ### deduplicate in two stages
 Second was a Flow that first deduplicates a smaller batch, then collects and deduplicates 

@@ -3,8 +3,6 @@ import akka.actor.ActorSystem
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import grizzled.slf4j.Logging
-import org.apache.http.HttpHost
-import org.elasticsearch.client.RestClient
 import weco.concepts.common.model.UsedConcept
 
 import scala.collection.mutable.{Set => MutableSet}
@@ -20,19 +18,10 @@ class ConceptsAggregator(
   actorSystem: ActorSystem
 ) extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-
-  private val elasticClient: RestClient = {
-    // Currently points to an insecure local database.
-    // TODO: Do it properly, with details from config/environment
-    // once plumbed in to a persistent DB
-    val hostname = "elasticsearch"
-    val port = 9200
-    val scheme = "http"
-    RestClient
-      .builder(new HttpHost(hostname, port, scheme))
-      .setCompressionEnabled(true)
-      .build()
-  }
+  // Currently points to an insecure local database.
+  // TODO: Do it properly, with details from config/environment
+  // once plumbed in to a persistent DB
+  val indexer = new Indexer("elasticsearch", 9200, "http")
 
   private val bulkUpdateFlow = new BulkUpdateFlow(
     formatter = new BulkFormatter(indexName).format,
@@ -44,10 +33,11 @@ class ConceptsAggregator(
     // compose run -T aggregator) peak speed seemed to be at 50K documents
     // (3m30s). indexing in 25 and 100K batches both took about 3m45s
     max_bulk_records = maxRecordsPerBulkRequest,
-    elasticClient = elasticClient
+    indexer = indexer
   ).flow
 
-  def run: Future[Done] =
+  def run: Future[Done] = {
+    indexer.createIndex(indexName)
     conceptSource
       .via(deduplicateFlow)
       .via(bulkUpdateFlow)
@@ -56,9 +46,10 @@ class ConceptsAggregator(
       )
       .map(nConcepts => {
         info(s"Extracted $nConcepts unique concepts")
-        elasticClient.close()
+        indexer.close()
         Done
       })
+  }
 
   private def conceptSource: Source[UsedConcept, NotUsed] = {
     jsonSource
