@@ -2,7 +2,12 @@ package weco.concepts.aggregator
 
 import grizzled.slf4j.Logging
 import org.apache.http.HttpHost
-import org.elasticsearch.client.{Request, Response, ResponseException, RestClient}
+import org.elasticsearch.client.{
+  Request,
+  Response,
+  ResponseException,
+  RestClient
+}
 
 import scala.util.{Failure, Success, Try}
 import scala.io.Source
