@@ -11,6 +11,7 @@ import akka.stream.scaladsl.Source
 import weco.concepts.aggregator.sources._
 
 object Main extends App with Logging {
+
   val config = ConfigFactory.load()
   lazy val snapshotUrl = config.as[String]("data-source.works.snapshot")
   lazy val workUrlTemplate = config.as[String]("data-source.workURL.template")

@@ -47,6 +47,11 @@ object ExternalDependencies {
 
   val akkaDeps =
     Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
+
+  val awsLambda = Seq(
+    "com.amazonaws" % "aws-lambda-java-core" % "1.2.1",
+    "com.google.code.gson" % "gson" % "2.8.6"
+  )
 }
 
 object ServiceDependencies {
@@ -61,6 +66,6 @@ object ServiceDependencies {
       Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 
   val aggregator: Seq[ModuleID] = {
-    scalatest ++ logging ++ config ++ akkaDeps ++ elasticsearchLowLevel
+    scalatest ++ logging ++ config ++ akkaDeps ++ elasticsearchLowLevel ++ awsLambda
   }
 }
