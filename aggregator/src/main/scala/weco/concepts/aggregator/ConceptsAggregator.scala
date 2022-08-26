@@ -21,7 +21,7 @@ class ConceptsAggregator(
   // Currently points to an insecure local database.
   // TODO: Do it properly, with details from config/environment
   // once plumbed in to a persistent DB
-  val indexer = new Indexer("elasticsearch", 9200, "http")
+  private val indexer = Indexer("elasticsearch", 9200, "http")
 
   private val bulkUpdateFlow = new BulkUpdateFlow(
     formatter = new BulkFormatter(indexName).format,
@@ -38,7 +38,7 @@ class ConceptsAggregator(
         Sink.fold(0L)((acc, conceptCounts) => acc + conceptCounts("total"))
       )
       .map(nConcepts => {
-        info(s"Extracted $nConcepts unique concepts")
+        info(s"Extracted $nConcepts distinct concepts")
         indexer.close()
         Done
       })
@@ -74,7 +74,7 @@ class ConceptsAggregator(
     * amount of data we have to send. (In the 2022-08-22 snapshot I found over
     * 3.7M concepts, but fewer than 0.25M different concepts)
     */
-  def deduplicateFlow: Flow[UsedConcept, UsedConcept, NotUsed] =
+  private def deduplicateFlow: Flow[UsedConcept, UsedConcept, NotUsed] =
     Flow[UsedConcept].statefulMapConcat { () =>
       val seen: MutableSet[String] = MutableSet.empty[String];
       { concept: UsedConcept =>

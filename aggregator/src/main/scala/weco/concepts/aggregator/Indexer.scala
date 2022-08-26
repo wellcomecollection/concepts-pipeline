@@ -19,11 +19,7 @@ import scala.io.Source
  * the ES High-level Java client bring along extra dependencies
  * and provide a lot more than we actually require.
  */
-class Indexer(hostname: String, port: Int, scheme: String) extends Logging {
-  private val elasticClient = RestClient
-    .builder(new HttpHost(hostname, port, scheme))
-    .setCompressionEnabled(true)
-    .build()
+class Indexer(elasticClient: RestClient) extends Logging {
 
   def bulk(couplets: Seq[String]): Response = {
     val rq = new Request("post", "_bulk")
@@ -33,7 +29,8 @@ class Indexer(hostname: String, port: Int, scheme: String) extends Logging {
 
   def createIndex(indexName: String): Unit = {
     Try(elasticClient.performRequest(new Request("head", indexName))) match {
-      case Success(_) => println(s"index $indexName already exists")
+      case Success(_) =>
+        info(s"index $indexName already exists, no need to create")
       case Failure(exception: ResponseException) =>
         if (exception.getResponse.getStatusLine.getStatusCode == 404) {
           val rq = new Request("put", indexName)
@@ -50,4 +47,14 @@ class Indexer(hostname: String, port: Int, scheme: String) extends Logging {
     }
   }
   def close(): Unit = elasticClient.close()
+}
+
+object Indexer {
+  def apply(hostname: String, port: Int, scheme: String) =
+    new Indexer(
+      RestClient
+        .builder(new HttpHost(hostname, port, scheme))
+        .setCompressionEnabled(true)
+        .build()
+    )
 }
