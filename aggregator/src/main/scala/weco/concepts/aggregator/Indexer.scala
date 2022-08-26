@@ -46,7 +46,10 @@ class Indexer(elasticClient: RestClient) extends Logging {
       case Failure(exception) => throw exception
     }
   }
-  def close(): Unit = elasticClient.close()
+  def close(): Unit = {
+    info("closing ES Client")
+    elasticClient.close()
+  }
 }
 
 object Indexer {

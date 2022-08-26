@@ -36,7 +36,6 @@ class ConceptsAggregator(
       )
       .map(nConcepts => {
         info(s"Extracted $nConcepts distinct concepts")
-        indexer.close()
         Done
       })
   }

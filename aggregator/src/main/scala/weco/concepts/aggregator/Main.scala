@@ -5,13 +5,14 @@ import com.typesafe.config.ConfigFactory
 import grizzled.slf4j.Logging
 import net.ceedubs.ficus.Ficus._
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Await, ExecutionContext}
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import weco.concepts.aggregator.sources._
 
-object Main extends App with Logging {
+import scala.concurrent.duration.DurationInt
 
+object Main extends App with Logging {
   val config = ConfigFactory.load()
   lazy val snapshotUrl = config.as[String]("data-source.works.snapshot")
   lazy val workUrlTemplate = config.as[String]("data-source.workURL.template")
@@ -32,13 +33,18 @@ object Main extends App with Logging {
   // Currently points to an insecure local database in docker-compose.
   // TODO: Do it properly, with details from config/environment
   // once plumbed in to a persistent DB
+  val indexer = Indexer("elasticsearch", 9200, "http")
   val aggregator = new ConceptsAggregator(
     jsonSource = source,
-    indexer = Indexer("elasticsearch", 9200, "http"),
+    indexer = indexer,
     indexName = indexName,
     maxRecordsPerBulkRequest = maxBulkRecords
   )
   aggregator.run
     .recover(err => error(err.getMessage))
-    .onComplete(_ => actorSystem.terminate())
+    .onComplete(_ => {
+      indexer.close()
+      actorSystem.terminate()
+    })
+  Await.result(actorSystem.whenTerminated, 10.minutes)
 }
