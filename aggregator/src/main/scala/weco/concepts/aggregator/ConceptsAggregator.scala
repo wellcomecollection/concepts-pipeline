@@ -25,13 +25,6 @@ class ConceptsAggregator(
 
   private val bulkUpdateFlow = new BulkUpdateFlow(
     formatter = new BulkFormatter(indexName).format,
-    // Although (theoretically) it may be possible to send the whole set in one
-    // bulk request (The 22 Aug snapshot amounts to 17MB of documents once
-    // deduplicated), it's prudent to break this up in order to ensure stability.
-    // Running locally (not perfectly scientific), against a prepopulated
-    // elasticsearch index in Docker, (time cat ~/Downloads/works.json| docker
-    // compose run -T aggregator) peak speed seemed to be at 50K documents
-    // (3m30s). indexing in 25 and 100K batches both took about 3m45s
     max_bulk_records = maxRecordsPerBulkRequest,
     indexer = indexer
   ).flow

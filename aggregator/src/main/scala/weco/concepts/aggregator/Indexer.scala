@@ -11,9 +11,16 @@ import org.elasticsearch.client.{
 
 import scala.util.{Failure, Success, Try}
 import scala.io.Source
-
+/*
+ * Thin wrapper around the Elasticsearch Low-level Rest Client.
+ * providing only what this pipeline needs.
+ *
+ * Other Elasticsearch Client implementations, such as elastic4s or
+ * the ES High-level Java client bring along extra dependencies
+ * and provide a lot more than we actually require.
+ */
 class Indexer(hostname: String, port: Int, scheme: String) extends Logging {
-  val elasticClient = RestClient
+  private val elasticClient = RestClient
     .builder(new HttpHost(hostname, port, scheme))
     .setCompressionEnabled(true)
     .build()
@@ -36,7 +43,8 @@ class Indexer(hostname: String, port: Int, scheme: String) extends Logging {
           val response = elasticClient.performRequest(rq)
           info(response)
         }
-      // Should not be possible to reach a different kind of exception here, so
+      // Should not be possible to reach a different kind of exception here,
+      // unless something really exceptional has happened so
       // if we do, make it the caller's problem
       case Failure(exception) => throw exception
     }

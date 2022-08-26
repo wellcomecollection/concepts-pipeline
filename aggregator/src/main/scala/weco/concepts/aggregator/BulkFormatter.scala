@@ -3,7 +3,7 @@ package weco.concepts.aggregator
 import weco.concepts.common.model.UsedConcept
 
 /** Formatter to turn concepts into couplets for use in an Elasticsearch Bulk
-  * request.
+  * update request.
   */
 class BulkFormatter(index: String) {
   def format(concept: UsedConcept): String = {
