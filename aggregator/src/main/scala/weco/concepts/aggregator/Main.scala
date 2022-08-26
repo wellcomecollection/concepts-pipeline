@@ -28,8 +28,12 @@ object Main extends App with Logging {
     else if (System.in.available() > 0) StdInSource.apply
     else WorksSnapshotSource(snapshotUrl)
 
+  // Currently points to an insecure local database in docker-compose.
+  // TODO: Do it properly, with details from config/environment
+  // once plumbed in to a persistent DB
   val aggregator = new ConceptsAggregator(
     jsonSource = source,
+    indexer = Indexer("elasticsearch", 9200, "http"),
     indexName = indexName,
     maxRecordsPerBulkRequest = maxBulkRecords
   )

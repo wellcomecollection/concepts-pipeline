@@ -12,16 +12,13 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 class ConceptsAggregator(
   jsonSource: Source[String, NotUsed],
+  indexer: Indexer,
   indexName: String,
   maxRecordsPerBulkRequest: Int
 )(implicit
   actorSystem: ActorSystem
 ) extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-  // Currently points to an insecure local database.
-  // TODO: Do it properly, with details from config/environment
-  // once plumbed in to a persistent DB
-  private val indexer = Indexer("elasticsearch", 9200, "http")
 
   private val bulkUpdateFlow = new BulkUpdateFlow(
     formatter = new BulkFormatter(indexName).format,
