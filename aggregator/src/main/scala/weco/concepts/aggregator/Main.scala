@@ -31,13 +31,17 @@ object Main extends App with Logging {
   // Currently points to an insecure local database in docker-compose.
   // TODO: Do it properly, with details from config/environment
   // once plumbed in to a persistent DB
+  val indexer = Indexer("elasticsearch", 9200, "http")
   val aggregator = new ConceptsAggregator(
     jsonSource = source,
-    indexer = Indexer("elasticsearch", 9200, "http"),
+    indexer = indexer,
     indexName = indexName,
     maxRecordsPerBulkRequest = maxBulkRecords
   )
   aggregator.run
     .recover(err => error(err.getMessage))
-    .onComplete(_ => actorSystem.terminate())
+    .onComplete(_ => {
+      indexer.close()
+      actorSystem.terminate()
+    })
 }

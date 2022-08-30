@@ -39,7 +39,7 @@ class BulkUpdateFlow[T](
     Flow
       .fromFunction(formatter)
       .grouped(max_bulk_records)
-      .via(sendBulkUpdateFlow)
+      .via(Flow.fromFunction(sendBulkUpdate))
       .via(Flow.fromFunction(countActions))
   }
 
@@ -47,17 +47,13 @@ class BulkUpdateFlow[T](
     * Elasticsearch, emitting the responses
     */
 
-  private def sendBulkUpdateFlow: Flow[Seq[String], Response, NotUsed] = {
-    def fn(couplets: Seq[String]): Response = {
-      info(s"indexing ${couplets.length} concepts")
-      // This runs synchronously, because the very next step is to examine the response
-      // to work out what ES did with the data we provided.
-      // This also stops us rapidly posting a bunch of bulk updates while ES is still
-      // trying to work out what to do with the last three we sent it
-      indexer.bulk(couplets)
-    }
-    Flow.fromFunction(fn)
-
+  private def sendBulkUpdate(couplets: Seq[String]): Response = {
+    info(s"indexing ${couplets.length} concepts")
+    // This runs synchronously, because the very next step is to examine the response
+    // to work out what ES did with the data we provided.
+    // This also stops us rapidly posting a bunch of bulk updates while ES is still
+    // trying to work out what to do with the last three we sent it
+    indexer.bulk(couplets)
   }
 
   /** Given a Response from a BulkAPI call, log what it did. Emit the
