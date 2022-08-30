@@ -9,10 +9,6 @@ object LambdaMain extends RequestHandler[String, String] with Logging {
     event: String,
     context: Context
   ): String = {
-//    val l = context.getLogger
-//    l.log(s"ENVIRONMENT VARIABLES: ${gson.toJson(System.getenv)}\n")
-//    l.log(s"CONTEXT: ${gson.toJson(context)}\n")
-//    l.log(s"EVENT: ${gson.toJson(event)}\n")
     event.split(' ')
     info(event)
     Main.main(event.split(' ').filter(_.nonEmpty))
