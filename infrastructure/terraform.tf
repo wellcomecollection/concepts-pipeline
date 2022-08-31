@@ -13,6 +13,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.22.0"
     }
+    ec = {
+      source  = "elastic/ec"
+      version = ">= 0.4.1"
+    }
   }
 }
 
@@ -30,3 +34,5 @@ provider "aws" {
     }
   }
 }
+
+provider "ec" {}
