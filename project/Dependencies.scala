@@ -10,6 +10,7 @@ object ExternalDependencies {
     val logback = "1.2.11"
     val scalatest = "3.2.12"
     val typesafeConfig = "1.4.2"
+    val elastic4s = "8.3.2"
   }
 
   val scalatest = Seq(
@@ -40,13 +41,18 @@ object ExternalDependencies {
     "com.lihaoyi" %% "upickle" % "2.0.0"
   )
 
+  val elasticsearchLowLevel = Seq(
+    "org.elasticsearch.client" % "elasticsearch-rest-client" % "8.3.3"
+  )
+
+  val akkaDeps =
+    Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 }
 
 object ServiceDependencies {
   import ExternalDependencies._
   val common: Seq[ModuleID] =
-    scalatest ++ logging ++ uPickle ++
-      Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
+    scalatest ++ logging ++ uPickle ++ akkaDeps
 
   val ingestor: Seq[ModuleID] =
     scalatest ++
@@ -54,5 +60,7 @@ object ServiceDependencies {
       config ++
       Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 
-  val aggregator: Seq[ModuleID] = scalatest ++ logging ++ config
+  val aggregator: Seq[ModuleID] = {
+    scalatest ++ logging ++ config ++ akkaDeps ++ elasticsearchLowLevel
+  }
 }

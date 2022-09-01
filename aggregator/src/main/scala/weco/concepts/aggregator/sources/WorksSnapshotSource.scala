@@ -17,7 +17,6 @@ object WorksSnapshotSource extends Logging {
     dataUrl: String
   )(implicit actorSystem: ActorSystem): Source[String, NotUsed] = {
     info(s"reading from $dataUrl")
-
     lazy val fetcher = new Fetcher(Http().superPool())
     fetcher
       .fetchFromUrl(dataUrl)
