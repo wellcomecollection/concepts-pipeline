@@ -3,7 +3,10 @@ package weco.concepts.aggregator
 import akka.NotUsed
 import akka.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
-import org.elasticsearch.client.Response
+import org.apache.http.util.EntityUtils
+import org.elasticsearch.client.{Response, ResponseException}
+
+import scala.util.{Failure, Success}
 
 /*
  * An Akka Flow that takes a stream of objects and inserts them into ElasticSearch
@@ -53,7 +56,17 @@ class BulkUpdateFlow[T](
     // to work out what ES did with the data we provided.
     // This also stops us rapidly posting a bunch of bulk updates while ES is still
     // trying to work out what to do with the last three we sent it
-    indexer.bulk(couplets)
+    indexer.bulk(couplets) match {
+      case Success(response) => response
+      case Failure(responseException: ResponseException) =>
+        error(
+          s"Error response returned when sending bulk update: ${responseException.getResponse}"
+        )
+        throw responseException
+      case Failure(otherException) =>
+        error("Unexpected error sending bulk update!")
+        throw otherException
+    }
   }
 
   /** Given a Response from a BulkAPI call, log what it did. Emit the
@@ -62,15 +75,6 @@ class BulkUpdateFlow[T](
   private def countActions(
     response: Response
   ): Map[String, Int] = {
-    // The happy path is assumed here for now. Future development
-    // might look at different handling of failure modes.
-    //
-    // We could check Response for success/fail before continuing,
-    // but if there was a failure to connect (404, 500), then
-    // it will fail at ujson.read anyway.
-    // First, log the broad response details (url, response code).
-    // That should always succeed, regardless of what ES has done.
-    // A 400 error will include some useful info in response.toString.
     info(response)
     val rsJson = ujson.read(response.getEntity.getContent)
     val items = rsJson.obj("items").arr

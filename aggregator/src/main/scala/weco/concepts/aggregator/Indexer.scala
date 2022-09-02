@@ -25,10 +25,10 @@ import scala.io.Source
  */
 class Indexer(elasticClient: RestClient) extends Logging {
 
-  def bulk(couplets: Seq[String]): Response = {
+  def bulk(couplets: Seq[String]): Try[Response] = {
     val rq = new Request("post", "_bulk")
     rq.setJsonEntity(couplets.mkString(start = "", sep = "\n", end = "\n"))
-    elasticClient.performRequest(rq)
+    Try(elasticClient.performRequest(rq))
   }
 
   def createIndex(indexName: String): Unit = {
