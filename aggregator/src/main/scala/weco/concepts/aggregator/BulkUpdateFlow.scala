@@ -3,7 +3,6 @@ package weco.concepts.aggregator
 import akka.NotUsed
 import akka.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
-import org.apache.http.util.EntityUtils
 import org.elasticsearch.client.{Response, ResponseException}
 
 import scala.util.{Failure, Success}

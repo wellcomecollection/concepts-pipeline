@@ -26,25 +26,26 @@ import scala.io.Source
 class Indexer(elasticClient: RestClient) extends Logging {
 
   def bulk(couplets: Seq[String]): Try[Response] = {
-    val rq = new Request("post", "_bulk")
+    val rq = new Request("post", "/_bulk")
     rq.setJsonEntity(couplets.mkString(start = "", sep = "\n", end = "\n"))
     Try(elasticClient.performRequest(rq))
   }
 
   def createIndex(indexName: String): Unit = {
-    Try(elasticClient.performRequest(new Request("head", indexName))) match {
+    Try(
+      elasticClient.performRequest(new Request("head", s"/$indexName"))
+    ) match {
       case Success(_) =>
         info(s"index $indexName already exists, no need to create")
-      case Failure(exception: ResponseException) =>
-        if (exception.getResponse.getStatusLine.getStatusCode == 404) {
-          val rq = new Request("put", indexName)
-          rq.setJsonEntity(
-            Source.fromResource("index.json").getLines().mkString("\n")
-          )
-          val response = elasticClient.performRequest(rq)
-          info(response)
-        }
-      // Should not be possible to reach a different kind of exception here,
+      case Failure(exception: ResponseException)
+          if exception.getResponse.getStatusLine.getStatusCode == 404 =>
+        val rq = new Request("put", s"/$indexName")
+        rq.setJsonEntity(
+          Source.fromResource("index.json").getLines().mkString("\n")
+        )
+        val response = elasticClient.performRequest(rq)
+        info(response)
+      // Not expected to reach a different kind of exception here,
       // unless something really exceptional has happened so
       // if we do, make it the caller's problem
       case Failure(exception) => throw exception
