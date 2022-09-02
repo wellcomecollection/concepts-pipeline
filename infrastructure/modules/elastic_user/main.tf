@@ -8,9 +8,8 @@ resource "random_password" "password" {
 
 resource "elasticstack_elasticsearch_security_user" "user" {
   username = var.username
-  # ES uses bcrypt by default https://www.elastic.co/guide/en/elasticsearch/reference/current/security-settings.html#password-hashing-algorithms
-  password_hash = random_password.password.bcrypt_hash
-  roles         = var.roles
+  password = random_password.password.result
+  roles    = var.roles
 }
 
 module "secrets" {
