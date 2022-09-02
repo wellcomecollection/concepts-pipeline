@@ -7,17 +7,17 @@ locals {
 }
 
 resource "elasticstack_elasticsearch_security_role" "read_indices" {
-  for_each = local.indices
+  for_each = toset(local.indices)
 
   name = "${each.key}_read"
   indices {
     names      = [each.key]
-    privileges = ["read", "monitor"]
+    privileges = ["read", "monitor", "view_index_metadata"]
   }
 }
 
 resource "elasticstack_elasticsearch_security_role" "write_indices" {
-  for_each = local.indices
+  for_each = toset(local.indices)
 
   name = "${each.key}_write"
   indices {
