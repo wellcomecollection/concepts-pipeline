@@ -4,6 +4,7 @@ import akka.NotUsed
 import com.typesafe.config.ConfigFactory
 import grizzled.slf4j.Logging
 import net.ceedubs.ficus.Ficus._
+import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 
 import scala.concurrent.ExecutionContext
 import akka.actor.ActorSystem
@@ -17,6 +18,8 @@ object Main extends App with Logging {
   lazy val maxFrameKiB = config.as[Int]("data-source.maxframe.kib")
   lazy val indexName = config.as[String]("data-target.index.name")
   lazy val maxBulkRecords = config.as[Int]("data-target.bulk.max-records")
+  lazy val clusterConfig =
+    config.as[Indexer.ClusterConfig]("data-target.cluster")
 
   implicit val actorSystem: ActorSystem = ActorSystem("main")
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
@@ -28,10 +31,7 @@ object Main extends App with Logging {
     else if (System.in.available() > 0) StdInSource.apply
     else WorksSnapshotSource(snapshotUrl)
 
-  // Currently points to an insecure local database in docker-compose.
-  // TODO: Do it properly, with details from config/environment
-  // once plumbed in to a persistent DB
-  val indexer = Indexer("elasticsearch", 9200, "http")
+  val indexer = Indexer(clusterConfig)
   val aggregator = new ConceptsAggregator(
     jsonSource = source,
     indexer = indexer,
