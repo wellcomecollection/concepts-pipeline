@@ -5,9 +5,10 @@ LABEL maintainer = "Wellcome Collection <digital@wellcomecollection.org>"
 WORKDIR /app
 COPY ./build.sbt ./
 COPY ./project ./project
+# make use of layers, don't go fetching all the dependencies for every code change
+RUN /run_sbt.sh "project aggregator" "update"
 COPY ./common ./common
 COPY ./aggregator ./aggregator
-
 RUN /run_sbt.sh "project aggregator" "stage"
 
 ENTRYPOINT ["/run_sbt.sh", "project aggregator"]
