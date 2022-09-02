@@ -9,7 +9,7 @@ locals {
 resource "elasticstack_elasticsearch_security_role" "read_indices" {
   for_each = local.indices
 
-  name = each.key
+  name = "${each.key}_read"
   indices {
     names      = [each.key]
     privileges = ["read", "monitor"]
@@ -19,7 +19,7 @@ resource "elasticstack_elasticsearch_security_role" "read_indices" {
 resource "elasticstack_elasticsearch_security_role" "write_indices" {
   for_each = local.indices
 
-  name = each.key
+  name = "${each.key}_write"
   indices {
     names = [each.key]
     // See https://www.elastic.co/guide/en/elasticsearch/reference/current/security-privileges.html#privileges-list-indices for details
