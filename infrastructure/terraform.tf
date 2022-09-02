@@ -17,6 +17,10 @@ terraform {
       source  = "elastic/ec"
       version = ">= 0.4.1"
     }
+    elasticstack = {
+      source  = "elastic/elasticstack"
+      version = ">= 0.3.3"
+    }
   }
 }
 
@@ -36,6 +40,8 @@ provider "aws" {
 }
 
 provider "ec" {}
+
+provider "elasticstack" {}
 
 data "terraform_remote_state" "shared_infra" {
   backend = "s3"
