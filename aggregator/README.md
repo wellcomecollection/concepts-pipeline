@@ -44,3 +44,11 @@ the results there:
 ```shell 
 curl -XGET http://localhost:9200/_search\?pretty
 ```
+
+### Connecting to the remote cluster
+
+If you want to run the application locally, but connected to the remote ES cluster, you can use the following (so long as you have the ability to assume a catalogue-developer role locally).
+
+```shell
+./run_with_remote_cluster.sh [pipeline_date] [...application arguments]
+```
