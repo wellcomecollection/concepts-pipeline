@@ -1,5 +1,10 @@
 locals {
   elastic_cloud_region = "eu-west-1"
+
+  cluster_id           = ec_deployment.concepts.elasticsearch[0].resource_id
+  cluster_alias        = ec_deployment.concepts.alias
+  cluster_public_host  = "${local.cluster_alias}.es.${local.elastic_cloud_region}.aws.found.io"
+  cluster_private_host = "${local.cluster_id}.vpce.${local.elastic_cloud_region}.aws.elastic-cloud.com"
 }
 
 data "ec_stack" "latest_patch" {
@@ -9,6 +14,7 @@ data "ec_stack" "latest_patch" {
 
 resource "ec_deployment" "concepts" {
   name    = "concepts-${var.namespace}"
+  alias   = "concepts-${var.namespace}"
   version = data.ec_stack.latest_patch.version
 
   traffic_filter         = var.network_config.ec_traffic_filters
@@ -32,5 +38,14 @@ resource "ec_deployment" "concepts" {
 
   observability {
     deployment_id = var.logging_cluster_id
+  }
+}
+
+module "host_secrets" {
+  source = "github.com/wellcomecollection/terraform-aws-secrets?ref=v1.4.0"
+
+  key_value_map = {
+    "elasticsearch/${ec_deployment.concepts.name}/public_host"  = local.cluster_public_host
+    "elasticsearch/${ec_deployment.concepts.name}/private_host" = local.cluster_private_host
   }
 }
