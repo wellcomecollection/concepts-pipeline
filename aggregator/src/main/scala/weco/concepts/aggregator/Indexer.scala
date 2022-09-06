@@ -8,9 +8,47 @@ import org.elasticsearch.client.{
   ResponseException,
   RestClient
 }
+import ujson.Value
 
 import scala.util.{Failure, Success, Try}
 import scala.io.Source
+trait IndexerResponse {
+  def body: Value.Value
+}
+class ElasticResponse(response: Response) extends IndexerResponse {
+  def body: Value.Value = ujson.read(response.getEntity.getContent)
+}
+
+class LoggingResponse(ids: Seq[String]) extends IndexerResponse {
+  def body: Value.Value = {
+    val items = ids
+      .map(id => s"""{"_id": "$id", "update": {"result": "printed"}}""")
+      .mkString(",")
+    println(s"""{"items": [$items]}""")
+    ujson.read(s"""{"items": [$items]}""")
+  }
+
+}
+trait Indexer {
+  def bulk(couplets: Seq[String]): IndexerResponse
+  def createIndex(indexName: String): Unit
+  def close(): Unit
+}
+
+class LoggingIndexer extends Indexer with Logging {
+  def bulk(couplets: Seq[String]): IndexerResponse = {
+    val ids = couplets map { couplet =>
+      ujson.read(couplet.split("\n")(0)).obj("update").obj("_id").value.toString
+    }
+    info(ids)
+    new LoggingResponse(ids)
+  }
+
+  def createIndex(indexName: String): Unit = ()
+
+  def close(): Unit = ()
+
+}
 /*
  * Thin wrapper around the Elasticsearch Low-level Rest Client.
  * providing only what this pipeline needs.
@@ -19,12 +57,12 @@ import scala.io.Source
  * the ES High-level Java client bring along extra dependencies
  * and provide a lot more than we actually require.
  */
-class Indexer(elasticClient: RestClient) extends Logging {
+class ElasticIndexer(elasticClient: RestClient) extends Indexer with Logging {
 
-  def bulk(couplets: Seq[String]): Response = {
+  def bulk(couplets: Seq[String]): IndexerResponse = {
     val rq = new Request("post", "_bulk")
     rq.setJsonEntity(couplets.mkString(start = "", sep = "\n", end = "\n"))
-    elasticClient.performRequest(rq)
+    new ElasticResponse(elasticClient.performRequest(rq))
   }
 
   def createIndex(indexName: String): Unit = {
@@ -52,9 +90,9 @@ class Indexer(elasticClient: RestClient) extends Logging {
   }
 }
 
-object Indexer {
+object ElasticIndexer {
   def apply(hostname: String, port: Int, scheme: String) =
-    new Indexer(
+    new ElasticIndexer(
       RestClient
         .builder(new HttpHost(hostname, port, scheme))
         .setCompressionEnabled(true)

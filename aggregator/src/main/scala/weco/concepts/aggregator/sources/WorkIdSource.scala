@@ -2,17 +2,16 @@ package weco.concepts.aggregator.sources
 
 import scala.util.{Failure, Success, Using}
 import scala.io.{Source => IoSource}
-
 import akka.stream.scaladsl.{Flow, Source => AkkaSource}
 import akka.NotUsed
 import grizzled.slf4j.Logging
-
 import weco.concepts.aggregator.Main.workUrlTemplate
 
 /** Fetch works with given workIds from the Catalogue API
   */
 object WorkIdSource extends Logging {
   def apply(workIds: Iterator[String]): AkkaSource[String, NotUsed] = {
+    info(s"reading from catalogue API")
     AkkaSource
       .fromIterator(() => workIds.iterator)
       .via(
@@ -22,6 +21,8 @@ object WorkIdSource extends Logging {
   }
 
   private def JSonFromWorkId(workId: String): Option[String] = {
+    val workUrl = workUrlTemplate.format(workId)
+    info(s"fetching $workUrl")
     Using(IoSource.fromURL(workUrlTemplate.format(workId))) { source =>
       source.mkString
     } match {

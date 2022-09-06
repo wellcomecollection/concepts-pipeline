@@ -41,6 +41,18 @@ lazy val aggregator = setupProject(
   folder = "aggregator",
   localDependencies = Seq(common),
   externalDependencies = ServiceDependencies.aggregator
+).settings(
+  assembly / assemblyOutputPath := file("target/aggregator-lambda.jar"),
+  assembly / mainClass := Some("weco.concepts.aggregator.Main"),
+  assembly / assemblyMergeStrategy := {
+    case PathList(ps @ _*) if ps.last == "module-info.class" =>
+      // The module-info.class files in logback-classic and logback-core clash.
+      MergeStrategy.rename
+    case x =>
+      // Do whatever the default is for this file.
+      val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
+      oldStrategy(x)
+  }
 )
 
 // AWS Credentials to read from S3

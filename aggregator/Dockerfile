@@ -9,18 +9,12 @@ COPY ./project ./project
 RUN /run_sbt.sh "project aggregator" "update"
 COPY ./common ./common
 COPY ./aggregator ./aggregator
-RUN /run_sbt.sh "project aggregator" "stage"
-
+RUN /run_sbt.sh "project aggregator" "assembly"
 ENTRYPOINT ["/run_sbt.sh", "project aggregator"]
 
 FROM public.ecr.aws/docker/library/eclipse-temurin:11-jre-alpine as runtime
 
 RUN apk add --no-cache bash
 
-COPY --from=sbt /app/aggregator/target/universal/stage /opt/docker
-
-ENTRYPOINT ["/opt/docker/bin/aggregator"]
-
-FROM public.ecr.aws/lambda/java:11 as lambda
-COPY --from=sbt /app/aggregator/target/universal/stage ${LAMBDA_TASK_ROOT}
-CMD ["weco.concepts.aggregator.LambdaMain::handleRequest"]
+COPY --from=sbt /app/target/aggregator-lambda.jar /opt/docker/
+ENTRYPOINT ["java", "-jar", "/opt/docker/aggregator-lambda.jar"]

@@ -33,7 +33,9 @@ object Main extends App with Logging {
   // Currently points to an insecure local database in docker-compose.
   // TODO: Do it properly, with details from config/environment
   // once plumbed in to a persistent DB
-  val indexer = Indexer("elasticsearch", 9200, "http")
+  val indexer = ElasticIndexer("elasticsearch", 9200, "http")
+//  val indexer = new LoggingIndexer()
+
   val aggregator = new ConceptsAggregator(
     jsonSource = source,
     indexer = indexer,
@@ -46,5 +48,10 @@ object Main extends App with Logging {
       indexer.close()
       actorSystem.terminate()
     })
+
+  // Wait here so that running local lambda reports properly
+  // If it all works on future magic, App returns Unit immediately
+  // Lambda Main finishes and tells us it took no time at all
+  // and then Akka starts doing all the work.
   Await.result(actorSystem.whenTerminated, 10.minutes)
 }

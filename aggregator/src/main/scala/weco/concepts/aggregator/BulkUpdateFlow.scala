@@ -3,7 +3,6 @@ package weco.concepts.aggregator
 import akka.NotUsed
 import akka.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
-import org.elasticsearch.client.Response
 
 /*
  * An Akka Flow that takes a stream of objects and inserts them into ElasticSearch
@@ -47,8 +46,9 @@ class BulkUpdateFlow[T](
     * Elasticsearch, emitting the responses
     */
 
-  private def sendBulkUpdateFlow: Flow[Seq[String], Response, NotUsed] = {
-    def fn(couplets: Seq[String]): Response = {
+  private def sendBulkUpdateFlow
+    : Flow[Seq[String], IndexerResponse, NotUsed] = {
+    def fn(couplets: Seq[String]): IndexerResponse = {
       info(s"indexing ${couplets.length} concepts")
       // This runs synchronously, because the very next step is to examine the response
       // to work out what ES did with the data we provided.
@@ -64,7 +64,7 @@ class BulkUpdateFlow[T](
     * created/updated/noop counts as a Map
     */
   private def countActions(
-    response: Response
+    response: IndexerResponse
   ): Map[String, Int] = {
     // The happy path is assumed here for now. Future development
     // might look at different handling of failure modes.
@@ -76,7 +76,7 @@ class BulkUpdateFlow[T](
     // That should always succeed, regardless of what ES has done.
     // A 400 error will include some useful info in response.toString.
     info(response)
-    val rsJson = ujson.read(response.getEntity.getContent)
+    val rsJson = response.body
     val items = rsJson.obj("items").arr
     val result_counts: Map[String, Int] =
       items
