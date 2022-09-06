@@ -72,9 +72,9 @@ class ConceptsAggregator(
     */
   private def deduplicateFlow: Flow[UsedConcept, UsedConcept, NotUsed] =
     Flow[UsedConcept].statefulMapConcat { () =>
-      val seen: MutableSet[String] = MutableSet.empty[String];
+      val seen: MutableSet[Int] = MutableSet.empty[Int];
       { concept: UsedConcept =>
-        val id = concept.identifier.toString
+        val id = concept.identifier.hashCode()
         if (seen.add(id)) Some(concept) else None
       }
     }

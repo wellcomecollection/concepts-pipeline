@@ -3,6 +3,9 @@ package weco.concepts.aggregator
 import akka.NotUsed
 import akka.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
+import org.elasticsearch.client.{Response, ResponseException}
+
+import scala.util.{Failure, Success}
 
 /*
  * An Akka Flow that takes a stream of objects and inserts them into ElasticSearch
@@ -38,7 +41,7 @@ class BulkUpdateFlow[T](
     Flow
       .fromFunction(formatter)
       .grouped(max_bulk_records)
-      .via(sendBulkUpdateFlow)
+      .via(Flow.fromFunction(sendBulkUpdate))
       .via(Flow.fromFunction(countActions))
   }
 
@@ -46,37 +49,33 @@ class BulkUpdateFlow[T](
     * Elasticsearch, emitting the responses
     */
 
-  private def sendBulkUpdateFlow
-    : Flow[Seq[String], IndexerResponse, NotUsed] = {
-    def fn(couplets: Seq[String]): IndexerResponse = {
-      info(s"indexing ${couplets.length} concepts")
-      // This runs synchronously, because the very next step is to examine the response
-      // to work out what ES did with the data we provided.
-      // This also stops us rapidly posting a bunch of bulk updates while ES is still
-      // trying to work out what to do with the last three we sent it
-      indexer.bulk(couplets)
+  private def sendBulkUpdate(couplets: Seq[String]): Response = {
+    info(s"indexing ${couplets.length} concepts")
+    // This runs synchronously, because the very next step is to examine the response
+    // to work out what ES did with the data we provided.
+    // This also stops us rapidly posting a bunch of bulk updates while ES is still
+    // trying to work out what to do with the last three we sent it
+    indexer.bulk(couplets) match {
+      case Success(response) => response
+      case Failure(responseException: ResponseException) =>
+        error(
+          s"Error response returned when sending bulk update: ${responseException.getResponse}"
+        )
+        throw responseException
+      case Failure(otherException) =>
+        error("Unexpected error sending bulk update!")
+        throw otherException
     }
-    Flow.fromFunction(fn)
-
   }
 
   /** Given a Response from a BulkAPI call, log what it did. Emit the
     * created/updated/noop counts as a Map
     */
   private def countActions(
-    response: IndexerResponse
+    response: Response
   ): Map[String, Int] = {
-    // The happy path is assumed here for now. Future development
-    // might look at different handling of failure modes.
-    //
-    // We could check Response for success/fail before continuing,
-    // but if there was a failure to connect (404, 500), then
-    // it will fail at ujson.read anyway.
-    // First, log the broad response details (url, response code).
-    // That should always succeed, regardless of what ES has done.
-    // A 400 error will include some useful info in response.toString.
     info(response)
-    val rsJson = response.body
+    val rsJson = ujson.read(response.getEntity.getContent)
     val items = rsJson.obj("items").arr
     val result_counts: Map[String, Int] =
       items

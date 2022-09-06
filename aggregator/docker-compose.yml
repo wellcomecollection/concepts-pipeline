@@ -1,7 +1,7 @@
 services:
 
   elasticsearch:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:8.3.3"
+    image: "docker.elastic.co/elasticsearch/elasticsearch:8.4.1"
     hostname: elasticsearch
     ports:
       - 9200:9200
@@ -16,7 +16,3 @@ services:
     build:
       context: ..
       dockerfile: ./aggregator/Dockerfile
-    ports:
-      - 9000:8080
-    environment:
-      AWS_LAMBDA_FUNCTION_MEMORY_SIZE: 2000
