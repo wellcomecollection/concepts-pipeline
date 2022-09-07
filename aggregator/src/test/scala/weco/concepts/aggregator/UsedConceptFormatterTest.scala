@@ -6,7 +6,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
 import weco.concepts.aggregator.testhelpers.UsedConcept
 
-class BulkFormatterTest
+class UsedConceptFormatterTest
     extends AnyFeatureSpec
     with Matchers
     with GivenWhenThen
@@ -26,7 +26,7 @@ class BulkFormatterTest
     )
     Scenario("a single concept") {
       Given("a formatter for the index 'myindex'")
-      val formatter = new BulkFormatter("myindex")
+      val formatter = UsedConceptFormatter.format("myindex") _
       And("a UsedConcept object")
       val concept =
         UsedConcept(
@@ -36,7 +36,7 @@ class BulkFormatterTest
           canonicalId = "baadbeef"
         )
       When("format is called")
-      val formatted: String = formatter.format(concept)
+      val formatted: String = formatter(concept)
       Then("the result is two lines of NDJSON")
       val lines = formatted.linesIterator.toList
       lines.length shouldBe 2
