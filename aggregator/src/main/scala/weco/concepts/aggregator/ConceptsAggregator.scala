@@ -20,11 +20,11 @@ class ConceptsAggregator(
   actorSystem: ActorSystem
 ) extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-
+  implicit val formatter = UsedConceptFormatter
   private val bulkUpdateFlow = new BulkUpdateFlow(
-    formatter = new BulkFormatter(indexName).format,
     max_bulk_records = maxRecordsPerBulkRequest,
-    indexer = indexer
+    indexer = indexer,
+    indexName = indexName
   ).flow
 
   def run: Future[Done] = {

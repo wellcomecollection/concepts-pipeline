@@ -31,15 +31,36 @@ import scala.util.{Failure, Success}
  *  the output is just ot allow it to report on some numbers.
  */
 
-class BulkUpdateFlow[T](
-  formatter: T => String,
+/** Formatter to turn concepts into couplets for use in an Elasticsearch Bulk
+  * update request.
+  */
+trait BulkFormatter[T] {
+  def identifier(item: T): String
+  def doc(item: T): ujson.Obj
+  def format(index: String)(item: T): String = {
+    val action = ujson.Obj(
+      "update" -> ujson.Obj(
+        "_index" -> index,
+        "_id" -> identifier(item)
+      )
+    )
+    val document = ujson.Obj(
+      "doc_as_upsert" -> true,
+      "doc" -> doc(item)
+    )
+    s"${action.render()}\n${document.render()}"
+  }
+}
+
+class BulkUpdateFlow[T: BulkFormatter](
   max_bulk_records: Int,
-  indexer: Indexer
+  indexer: Indexer,
+  indexName: String
 ) extends Logging {
 
   def flow: Flow[T, Map[String, Int], NotUsed] = {
     Flow
-      .fromFunction(formatter)
+      .fromFunction(implicitly[BulkFormatter[T]].format(indexName))
       .grouped(max_bulk_records)
       .via(Flow.fromFunction(sendBulkUpdate))
       .via(Flow.fromFunction(countActions))
