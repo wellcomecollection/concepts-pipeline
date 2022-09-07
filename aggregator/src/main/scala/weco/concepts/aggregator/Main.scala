@@ -4,6 +4,7 @@ import akka.NotUsed
 import grizzled.slf4j.Logging
 import akka.stream.scaladsl.Source
 import weco.concepts.aggregator.sources._
+import weco.concepts.common.elasticsearch.Indexer
 
 object Main extends AggregatorMain with Logging with App {
   // If you give it ids, it will fetch those records individually
