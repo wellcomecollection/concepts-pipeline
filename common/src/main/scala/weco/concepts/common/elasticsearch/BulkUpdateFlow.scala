@@ -52,7 +52,8 @@ trait BulkFormatter[T] {
   }
 }
 
-class BulkUpdateFlow[T: BulkFormatter](
+class BulkUpdateFlow[T](
+  formatter: BulkFormatter[T],
   max_bulk_records: Int,
   indexer: Indexer,
   indexName: String
@@ -60,7 +61,7 @@ class BulkUpdateFlow[T: BulkFormatter](
 
   def flow: Flow[T, Map[String, Int], NotUsed] = {
     Flow
-      .fromFunction(implicitly[BulkFormatter[T]].format(indexName))
+      .fromFunction(formatter.format(indexName))
       .grouped(max_bulk_records)
       .via(Flow.fromFunction(sendBulkUpdate))
       .via(Flow.fromFunction(countActions))

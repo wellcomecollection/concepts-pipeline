@@ -19,8 +19,8 @@ class ConceptsAggregator(
   actorSystem: ActorSystem
 ) extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-  implicit val formatter = UsedConceptFormatter
   private val bulkUpdateFlow = new BulkUpdateFlow(
+    formatter = UsedConceptFormatter,
     max_bulk_records = maxRecordsPerBulkRequest,
     indexer = indexer,
     indexName = indexName
