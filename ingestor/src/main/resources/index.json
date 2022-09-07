@@ -1,0 +1,21 @@
+{
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "authority": {
+        "type": "keyword"
+      },
+      "identifier": {
+        "type": "keyword"
+      },
+      "label": {
+        "type": "keyword"
+      },
+      "alternativeLabels": {
+        "type": "keyword"
+      }
+    }
+  }
+}
+
+

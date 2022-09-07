@@ -5,13 +5,20 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.scaladsl._
 import grizzled.slf4j.Logging
+import weco.concepts.common.elasticsearch.{BulkUpdateFlow, Indexer}
 import weco.concepts.common.model._
 import weco.concepts.common.source.{Fetcher, Scroll}
 import weco.concepts.ingestor.stages.Transformer
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class IngestStream(subjectsUrl: String, namesUrl: String)(implicit
+class IngestStream(
+  subjectsUrl: String,
+  namesUrl: String,
+  indexer: Indexer,
+  indexName: String,
+  maxRecordsPerBulkRequest: Int
+)(implicit
   actorSystem: ActorSystem
 ) extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
@@ -21,13 +28,20 @@ class IngestStream(subjectsUrl: String, namesUrl: String)(implicit
     conceptSource[IdentifierType.LCSubjects.type](subjectsUrl)
   lazy val namesSource: Source[Concept, NotUsed] =
     conceptSource[IdentifierType.LCNames.type](namesUrl)
+  lazy val bulkUpdater = new BulkUpdateFlow(
+    formatter = ConceptFormatter,
+    max_bulk_records = maxRecordsPerBulkRequest,
+    indexer = indexer,
+    indexName = indexName
+  )
 
   def run: Future[Done] =
     Source
       .combine(subjectsSource, namesSource)(Merge(_))
+      .via(bulkUpdater.flow)
       .runWith(Sink.fold(0L)((n, _) => n + 1))
       .map(n => {
-        info(s"Extracted $n concepts from $subjectsUrl and $namesUrl")
+        info(s"Indexed $n concepts from $subjectsUrl and $namesUrl")
         Done
       })
 
