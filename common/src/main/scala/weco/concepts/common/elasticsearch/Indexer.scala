@@ -1,4 +1,4 @@
-package weco.concepts.aggregator
+package weco.concepts.common.elasticsearch
 
 import grizzled.slf4j.Logging
 import org.apache.http.HttpHost
@@ -31,7 +31,7 @@ class Indexer(elasticClient: RestClient) extends Logging {
     Try(elasticClient.performRequest(rq))
   }
 
-  def createIndex(indexName: String): Unit = {
+  def createIndex(indexName: String, indexConfig: String): Unit = {
     Try(
       elasticClient.performRequest(new Request("head", s"/$indexName"))
     ) match {
@@ -40,9 +40,7 @@ class Indexer(elasticClient: RestClient) extends Logging {
       case Failure(exception: ResponseException)
           if exception.getResponse.getStatusLine.getStatusCode == 404 =>
         val rq = new Request("put", s"/$indexName")
-        rq.setJsonEntity(
-          Source.fromResource("index.json").getLines().mkString("\n")
-        )
+        rq.setJsonEntity(indexConfig)
         val response = elasticClient.performRequest(rq)
         info(response)
       // Not expected to reach a different kind of exception here,
@@ -51,6 +49,12 @@ class Indexer(elasticClient: RestClient) extends Logging {
       case Failure(exception) => throw exception
     }
   }
+
+  def createIndex(indexName: String): Unit = createIndex(
+    indexName = indexName,
+    indexConfig = Source.fromResource("index.json").getLines().mkString("\n")
+  )
+
   def close(): Unit = elasticClient.close()
 }
 

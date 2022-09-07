@@ -4,6 +4,7 @@ import akka.NotUsed
 import akka.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
 import org.elasticsearch.client.{Response, ResponseException}
+import weco.concepts.common.elasticsearch.Indexer
 
 import scala.util.{Failure, Success}
 

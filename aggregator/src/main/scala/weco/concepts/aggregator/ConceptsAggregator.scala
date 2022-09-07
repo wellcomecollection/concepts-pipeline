@@ -3,6 +3,7 @@ import akka.actor.ActorSystem
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import grizzled.slf4j.Logging
+import weco.concepts.common.elasticsearch.Indexer
 import weco.concepts.common.model.UsedConcept
 
 import scala.collection.mutable.{Set => MutableSet}
