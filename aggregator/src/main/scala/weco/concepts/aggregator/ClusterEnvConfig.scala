@@ -23,7 +23,7 @@ trait ClusterEnvConfig extends Logging {
       ).map { case (key: String, value: String) =>
         (key.split('/').last, value)
       }
-      println(secrets)
+
       clusterConfig.copy(
         host = secrets("public_host"),
         password = secrets.get("password")
