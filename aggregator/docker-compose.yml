@@ -16,3 +16,7 @@ services:
     build:
       context: ..
       dockerfile: ./aggregator/Dockerfile
+    ports:
+      - 9000:8080
+    environment:
+      - "AGGREGATOR_APP_CONTEXT=docker-compose"

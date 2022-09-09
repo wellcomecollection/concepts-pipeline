@@ -18,3 +18,8 @@ RUN apk add --no-cache bash
 
 COPY --from=sbt /app/target/aggregator-lambda.jar /opt/docker/
 ENTRYPOINT ["java", "-jar", "/opt/docker/aggregator-lambda.jar"]
+
+FROM public.ecr.aws/lambda/java:11 as lambda
+RUN mkdir -p /opt/extensions
+COPY --from=sbt /app/target/aggregator-lambda.jar ${LAMBDA_TASK_ROOT}/lib/
+CMD ["weco.concepts.aggregator.LambdaMain::handleRequest"]

@@ -11,7 +11,6 @@ import scala.concurrent.{ExecutionContext, Future}
 /** Aggregate Concepts from JSON strings emitted by jsonSource
   */
 class ConceptsAggregator(
-  jsonSource: Source[String, NotUsed],
   indexer: Indexer,
   indexName: String,
   maxRecordsPerBulkRequest: Int
@@ -26,9 +25,9 @@ class ConceptsAggregator(
     indexer = indexer
   ).flow
 
-  def run: Future[Done] = {
+  def run(jsonSource: Source[String, NotUsed]): Future[Done] = {
     indexer.createIndex(indexName)
-    conceptSource
+    conceptSource(jsonSource)
       .via(deduplicateFlow)
       .via(bulkUpdateFlow)
       .runWith(
@@ -40,7 +39,9 @@ class ConceptsAggregator(
       })
   }
 
-  private def conceptSource: Source[UsedConcept, NotUsed] = {
+  private def conceptSource(
+    jsonSource: Source[String, NotUsed]
+  ): Source[UsedConcept, NotUsed] = {
     jsonSource
       .via(extractConceptsFlow)
       .mapConcat(identity)

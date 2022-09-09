@@ -4,7 +4,7 @@
 
 We index something in the region of 15,000 documents per week, however, that will include
 some documents being indexed multiple times.
-Indexing one document has a peak memory usage of about 80MiB.
+Indexing one document has a peak memory usage of about 180MiB.
 
 Indexing one document from a cold start takes about 2500ms. When warm, about 200ms.
 

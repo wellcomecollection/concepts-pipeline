@@ -51,6 +51,14 @@ object ExternalDependencies {
   val awsLambda = Seq(
     "com.amazonaws" % "aws-lambda-java-core" % "1.2.1"
   )
+  val awsSecrets = Seq(
+    "software.amazon.awssdk" % "secretsmanager" % "2.17.269" excludeAll (
+      ExclusionRule(organization = "io.netty")
+    ),
+    "software.amazon.awssdk" % "sts" % "2.17.269" excludeAll (
+      ExclusionRule(organization = "io.netty")
+    )
+  )
 }
 
 object ServiceDependencies {
@@ -65,6 +73,6 @@ object ServiceDependencies {
       Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 
   val aggregator: Seq[ModuleID] = {
-    scalatest ++ logging ++ config ++ akkaDeps ++ elasticsearchLowLevel ++ awsLambda
+    scalatest ++ logging ++ config ++ akkaDeps ++ elasticsearchLowLevel ++ awsLambda ++ awsSecrets
   }
 }

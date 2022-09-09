@@ -42,7 +42,7 @@ lazy val aggregator = setupProject(
   localDependencies = Seq(common),
   externalDependencies = ServiceDependencies.aggregator
 ).settings(
-  assembly / assemblyOutputPath := file("target/aggregator-lambda.jar"),
+  assembly / assemblyOutputPath := file("target/aggregator.jar"),
   assembly / mainClass := Some("weco.concepts.aggregator.Main"),
   assembly / assemblyMergeStrategy := {
     case PathList(ps @ _*) if ps.last == "module-info.class" =>
