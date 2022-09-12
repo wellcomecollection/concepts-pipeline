@@ -22,6 +22,15 @@ object LambdaMain
     info(
       s"running aggregator lambda for $workId, Lambda request: ${context.getAwsRequestId}"
     )
+    // TODO: This is the CLI Logic (minus StdIn), but this runs the risk
+    //   of spawning a 5-minute lambda for every notification if there is
+    //   an unexpected change to the notifying message format
+    //   e.g. if a typo is introduced, e.g. {"wrokId":"deadbeef"} would cause it to
+    //   run the full snapshot-based aggregation for every message.  Better make
+    //   snapshot run explicit.
+    //   It may be best to have two distinct lambdas for the purpose. That way,
+    //   the big one can be provided with lots of memory and a long timeout, and
+    //   the other one can be kept short and forgetful.
     val source: Source[String, NotUsed] =
       if (workId.isEmpty) snapshotSource
       else workIdSource(Array(workId).iterator)

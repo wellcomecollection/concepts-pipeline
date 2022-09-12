@@ -41,13 +41,14 @@ trait AggregatorMain extends ClusterEnvConfig {
     config.as[Int]("data-target.bulk.max-records")
 
   private lazy val snapshotUrl = config.as[String]("data-source.works.snapshot")
-  protected lazy val maxFrameKiB = config.as[Int]("data-source.maxframe.kib")
+  protected lazy val maxFrameKiB: Int =
+    config.as[Int]("data-source.maxframe.kib")
 
   protected lazy val workIdSource: WorkIdSource = WorkIdSource(workUrlTemplate)
   protected lazy val snapshotSource: Source[String, NotUsed] =
     WorksSnapshotSource(maxFrameKiB, snapshotUrl)
 
-  val aggregator = new ConceptsAggregator(
+  protected val aggregator: ConceptsAggregator = new ConceptsAggregator(
     indexer = indexer,
     indexName = indexName,
     maxRecordsPerBulkRequest = maxBulkRecords
