@@ -5,6 +5,7 @@ import org.apache.http.HttpHost
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
+import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback
 import org.elasticsearch.client.{
   Request,
@@ -80,8 +81,8 @@ object Indexer {
 
   private def clientConfigCallback(
     clusterConfig: ClusterConfig
-  ): HttpClientConfigCallback =
-    clusterConfig match {
+  ): HttpClientConfigCallback = {
+    val addAuthentication: HttpClientConfigCallback = clusterConfig match {
       case ClusterConfig(_, _, _, Some(username), Some(password)) =>
         val credentials = new UsernamePasswordCredentials(username, password)
         val credentialsProvider = new BasicCredentialsProvider()
@@ -89,4 +90,15 @@ object Indexer {
         _.setDefaultCredentialsProvider(credentialsProvider)
       case _ => identity[HttpAsyncClientBuilder](_)
     }
+    val addKeepAlive: HttpClientConfigCallback = _.setDefaultIOReactorConfig(
+      IOReactorConfig
+        .custom()
+        .setSoKeepAlive(true)
+        .build()
+    )
+
+    (addAuthentication.customizeHttpClient compose addKeepAlive.customizeHttpClient)(
+      _
+    )
+  }
 }
