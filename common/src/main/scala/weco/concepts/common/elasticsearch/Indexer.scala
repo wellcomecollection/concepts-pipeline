@@ -99,15 +99,18 @@ object Indexer {
         _.setDefaultCredentialsProvider(credentialsProvider)
       case _ => identity[HttpAsyncClientBuilder](_)
     }
-    val addKeepAlive: HttpClientConfigCallback = _.setDefaultIOReactorConfig(
-      IOReactorConfig
-        .custom()
-        .setSoKeepAlive(true)
-        .build()
-    )
 
-    (addAuthentication.customizeHttpClient compose addKeepAlive.customizeHttpClient)(
-      _
-    )
+    (httpClientBuilder: HttpAsyncClientBuilder) =>
+      addAuthentication
+        .customizeHttpClient(httpClientBuilder)
+        .setDefaultIOReactorConfig(
+          // Enable TCP keepalive
+          // https://github.com/elastic/elasticsearch/issues/65213
+          IOReactorConfig
+            .custom()
+            .setSoKeepAlive(true)
+            .build()
+        )
+
   }
 }
