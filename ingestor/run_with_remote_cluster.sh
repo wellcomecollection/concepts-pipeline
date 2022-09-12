@@ -27,8 +27,8 @@ function get_es_secret () {
 ES_HOST=$(get_es_secret "elasticsearch/concepts-$CONCEPTS_PIPELINE_DATE/public_host")
 ES_PORT=9243
 ES_SCHEME="https"
-ES_USERNAME="aggregator"
-ES_PASSWORD=$(get_es_secret "elasticsearch/concepts-$CONCEPTS_PIPELINE_DATE/aggregator/password")
+ES_USERNAME="ingestor"
+ES_PASSWORD=$(get_es_secret "elasticsearch/concepts-$CONCEPTS_PIPELINE_DATE/ingestor/password")
 
 (cd $ROOT && docker compose run \
   --env es_host="$ES_HOST" \
@@ -36,4 +36,4 @@ ES_PASSWORD=$(get_es_secret "elasticsearch/concepts-$CONCEPTS_PIPELINE_DATE/aggr
   --env es_scheme="$ES_SCHEME" \
   --env es_username="$ES_USERNAME" \
   --env es_password="$ES_PASSWORD" \
-  aggregator "$@")
+  ingestor "$@")
