@@ -48,6 +48,10 @@ lazy val aggregator = setupProject(
     case PathList(ps @ _*) if ps.last == "module-info.class" =>
       // The module-info.class files in logback-classic and logback-core clash.
       MergeStrategy.rename
+    case PathList(ps @ _*) if ps.last == "Log4j2Plugins.dat" =>
+      MergeStrategy.discard
+    case PathList(ps @ _*) if ps.last == "io.netty.versions.properties" =>
+      MergeStrategy.first
     case x =>
       // Do whatever the default is for this file.
       val oldStrategy = (ThisBuild / assemblyMergeStrategy).value

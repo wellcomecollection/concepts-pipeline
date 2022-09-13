@@ -16,10 +16,10 @@ FROM public.ecr.aws/docker/library/eclipse-temurin:11-jre-alpine as runtime
 
 RUN apk add --no-cache bash
 
-COPY --from=sbt /app/target/aggregator-lambda.jar /opt/docker/
-ENTRYPOINT ["java", "-jar", "/opt/docker/aggregator-lambda.jar"]
+COPY --from=sbt /app/target/aggregator.jar /opt/docker/
+ENTRYPOINT ["java", "-jar", "/opt/docker/aggregator.jar"]
 
 FROM public.ecr.aws/lambda/java:11 as lambda
 RUN mkdir -p /opt/extensions
-COPY --from=sbt /app/target/aggregator-lambda.jar ${LAMBDA_TASK_ROOT}/lib/
-CMD ["weco.concepts.aggregator.LambdaMain::handleRequest"]
+COPY --from=sbt /app/target/aggregator.jar ${LAMBDA_TASK_ROOT}/lib/
+CMD ["weco.concepts.aggregator.LambdaHW::handleRequest"]

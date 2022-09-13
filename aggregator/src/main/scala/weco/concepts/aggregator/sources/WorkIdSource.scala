@@ -27,6 +27,8 @@ class WorkIdSource(workUrlTemplate: String) extends Logging {
     //   each call could take "forever", hitting the timeout for the application
     //   It may be a good idea to add a very short timeout here so that it
     //   can fail faster and possibly in a more informative manner.
+    // TODO: Also, consider setting this up to maintain the connection between calls,
+    //   That way subsequent Lambdas will be faster.
     Using(IoSource.fromURL(workUrlTemplate.format(workId))) { source =>
       source.mkString
     } match {

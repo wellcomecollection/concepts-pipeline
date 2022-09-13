@@ -42,7 +42,7 @@ object ExternalDependencies {
   )
 
   val elasticsearchLowLevel = Seq(
-    "org.elasticsearch.client" % "elasticsearch-rest-client" % "8.4.0"
+    "org.elasticsearch.client" % "elasticsearch-rest-client" % "8.4.1"
   )
 
   val akkaDeps =
@@ -50,15 +50,20 @@ object ExternalDependencies {
 
   val awsLambda = Seq(
     "com.amazonaws" % "aws-lambda-java-core" % "1.2.1"
+//    "software.amazon.awssdk" % "lambda" % "2.17.271",
+//    "com.amazonaws" % "aws-lambda-java-events" % "3.11.0",
+//    "com.google.code.gson" % "gson" % "2.9.0",
+//    "com.amazonaws" % "aws-lambda-java-log4j2" % "1.5.1"
+//    "com.amazonaws" % "aws-lambda-java-log4j2" % "1.5.1",
   )
+
   val awsSecrets = Seq(
-    "software.amazon.awssdk" % "secretsmanager" % "2.17.269" excludeAll (
-      ExclusionRule(organization = "io.netty")
-    ),
-    "software.amazon.awssdk" % "sts" % "2.17.269" excludeAll (
-      ExclusionRule(organization = "io.netty")
-    )
+    "software.amazon.awssdk" % "secretsmanager" % "2.17.271",
+    "software.amazon.awssdk" % "sts" % "2.17.271"
   )
+//  val awsSecrets = Seq(
+//    "com.amazonaws.secretsmanager" % "aws-secretsmanager-caching-java" % "1.0.1"
+//  )
 }
 
 object ServiceDependencies {

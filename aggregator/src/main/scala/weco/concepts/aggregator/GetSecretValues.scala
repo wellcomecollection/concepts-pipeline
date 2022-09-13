@@ -1,6 +1,25 @@
 package weco.concepts.aggregator
+//import grizzled.slf4j.Logging
+//import com.amazonaws.secretsmanager.caching.SecretCache
+//import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder
+//
+//import com.amazonaws.regions.Regions
+//object GetSecretValues extends Logging {
+//  def apply(keys: Seq[String]): Map[String, String] = {
+//    info("initiating secret cache")
+//    val cache: SecretCache = new SecretCache(
+//      AWSSecretsManagerClientBuilder.standard().withRegion(Regions.EU_WEST_1)
+//    )
+//    info("getting secrets")
+//    keys
+//      .map(secretName => secretName -> cache.getSecretString(secretName))
+//      .toMap
+//
+//  }
+//}
 
-import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider
+import grizzled.slf4j.Logging
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
@@ -17,13 +36,26 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueReques
   * code cribbed from this Java sample:
   * https://github.com/awsdocs/aws-doc-sdk-examples/blob/af08838cbf272adbeda96ebbf7c5bfe14f0db80d/javav2/example_code/secretsmanager/src/main/java/com/example/secrets/GetSecretValue.java
   */
-object GetSecretValues {
+object GetSecretValues extends Logging {
   def apply(keys: Seq[String]): Map[String, String] = {
     val region = Region.EU_WEST_1
+    info("creating credentialsProvider")
+    val credentialsProvider = DefaultCredentialsProvider.create()
+    info("building secretsManager client")
+    try {
+      val secretsClientX: SecretsManagerClient = SecretsManagerClient.builder
+        .region(region)
+        .credentialsProvider(credentialsProvider)
+        .build()
+      secretsClientX.close()
+    } catch {
+      case exception: Exception => info(exception)
+    }
     val secretsClient: SecretsManagerClient = SecretsManagerClient.builder
       .region(region)
-      .credentialsProvider(ProfileCredentialsProvider.create)
-      .build
+      .credentialsProvider(DefaultCredentialsProvider.create())
+      .build()
+    info("fetching secrets")
     val secrets = keys
       .map(secretName => secretName -> getValue(secretsClient, secretName))
       .toMap
@@ -35,6 +67,7 @@ object GetSecretValues {
     secretsClient: SecretsManagerClient,
     secretName: String
   ): String = {
+    info(s"fetching $secretName")
     val valueRequest = GetSecretValueRequest.builder.secretId(secretName).build
     val valueResponse = secretsClient.getSecretValue(valueRequest)
     valueResponse.secretString

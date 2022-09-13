@@ -9,19 +9,76 @@ import akka.stream.scaladsl.Source
 
 import java.util.{Map => JavaMap}
 import scala.concurrent.duration.DurationInt
+
+//XX
+
+import com.typesafe.config.{Config, ConfigFactory}
+import net.ceedubs.ficus.Ficus._
+import net.ceedubs.ficus.readers.ArbitraryTypeReader._
+import akka.actor.ActorSystem
+//import grizzled.slf4j.Logging
+import weco.concepts.aggregator.sources.WorkIdSource
+
+import scala.concurrent.ExecutionContext
+
+//XX
+
 object LambdaMain
     extends RequestHandler[JavaMap[String, String], String]
-    with Logging
-    with AggregatorMain {
+//    with AggregatorMain
+    with Logging {
+
+  class AggregatorMain extends Logging {
+
+    private val config: Config = {
+      val configName = sys.env.getOrElse("AGGREGATOR_APP_CONTEXT", "local")
+      info(s"loading config $configName")
+      ConfigFactory.load(configName)
+    }
+
+    protected val maxFrameKiB: Int =
+      config.as[Int]("data-source.maxframe.kib")
+
+    lazy val workIdSource: WorkIdSource = WorkIdSource(
+      config.as[String]("data-source.workURL.template")
+    )
+    protected lazy val snapshotUrl: String =
+      config.as[String]("data-source.works.snapshot")
+
+    protected val indexer: Indexer = Indexer(
+      config.as[Indexer.ClusterConfig]("data-target.cluster"),
+      ClusterSecrets.apply
+    )
+
+    implicit val actorSystem: ActorSystem = ActorSystem("main")
+    implicit val executionContext: ExecutionContext =
+      actorSystem.dispatcher
+
+    val aggregator: ConceptsAggregator = new ConceptsAggregator(
+      indexer = indexer,
+      indexName = config.as[String]("data-target.index.name"),
+      maxRecordsPerBulkRequest = config.as[Int]("data-target.bulk.max-records")
+    )
+
+  }
 
   override def handleRequest(
     event: JavaMap[String, String],
     context: Context
   ): String = {
     val workId = event.get("workId")
-    info(
+
+    context.getLogger.log(
       s"running aggregator lambda for $workId, Lambda request: ${context.getAwsRequestId}"
     )
+    println(workId)
+    info(workId)
+    val a = new AggregatorMain()
+    val aggregator = a.aggregator
+    val workIdSource = a.workIdSource
+    implicit val executionContext: ExecutionContext =
+      a.executionContext
+
     // TODO: This is the CLI Logic (minus StdIn), but this runs the risk
     //   of spawning a 5-minute lambda for every notification if there is
     //   an unexpected change to the notifying message format
@@ -31,10 +88,9 @@ object LambdaMain
     //   It may be best to have two distinct lambdas for the purpose. That way,
     //   the big one can be provided with lots of memory and a long timeout, and
     //   the other one can be kept short and forgetful.
-    val source: Source[String, NotUsed] =
-      if (workId.isEmpty) snapshotSource
-      else workIdSource(Array(workId).iterator)
-
+    // Fixed, but only by removing snapshot source.
+    val source: Source[String, NotUsed] = workIdSource(Array(workId).iterator)
+    println(GetSecretValues(Seq("banana")))
     val f = aggregator
       .run(source)
       .recover(err => error(err.getMessage))

@@ -63,25 +63,34 @@ object Indexer {
     port: Int,
     scheme: String,
     username: Option[String],
-    password: Option[String]
+    password: Option[String],
+    resolveSecrets: Boolean = false
   )
 
-  def apply(clusterConfig: ClusterConfig): Indexer = clusterConfig match {
-    case ClusterConfig(host, port, scheme, _, _) =>
-      new Indexer(
-        RestClient
-          .builder(new HttpHost(host, port, scheme))
-          .setCompressionEnabled(true)
-          .setHttpClientConfigCallback(clientConfigCallback(clusterConfig))
-          .build()
-      )
+  def apply(
+    clusterConfig: ClusterConfig,
+    secretSource: ClusterConfig => ClusterConfig = identity[ClusterConfig]
+  ): Indexer = {
+    val withSecrets = secretSource(clusterConfig)
+    withSecrets match {
+      case ClusterConfig(host, port, scheme, _, _, _) =>
+        new Indexer(
+          RestClient
+            .builder(new HttpHost(host, port, scheme))
+            .setCompressionEnabled(true)
+            .setHttpClientConfigCallback(
+              clientConfigCallback(withSecrets)
+            )
+            .build()
+        )
+    }
   }
 
   private def clientConfigCallback(
     clusterConfig: ClusterConfig
   ): HttpClientConfigCallback =
     clusterConfig match {
-      case ClusterConfig(_, _, _, Some(username), Some(password)) =>
+      case ClusterConfig(_, _, _, Some(username), Some(password), _) =>
         val credentials = new UsernamePasswordCredentials(username, password)
         val credentialsProvider = new BasicCredentialsProvider()
         credentialsProvider.setCredentials(AuthScope.ANY, credentials)

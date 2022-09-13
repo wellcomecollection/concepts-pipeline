@@ -15,9 +15,10 @@
         <appender-ref ref="ASYNC"/>
     </root>
 
-    <!-- reduce external logging -->
+    <!-- reduce external logging-->
     <logger name="org.apache.http" level="ERROR"/>
     <logger name="io.netty" level="ERROR"/>
-    <logger name="com.amazonaws" level="WARN"/>
-    <logger name="software.amazon.awssdk" level="WARN"/>
+    <logger name="com.amazonaws" level="DEBUG"/>
+    <logger name="com.amazonaws.request" level="DEBUG"/>
+    <logger name="software.amazon.awssdk" level="DEBUG"/>
 </configuration>
