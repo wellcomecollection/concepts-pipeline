@@ -22,4 +22,5 @@ ENTRYPOINT ["java", "-jar", "/opt/docker/aggregator.jar"]
 FROM public.ecr.aws/lambda/java:11 as lambda
 RUN mkdir -p /opt/extensions
 COPY --from=sbt /app/target/aggregator.jar ${LAMBDA_TASK_ROOT}/lib/
-CMD ["weco.concepts.aggregator.LambdaHW::handleRequest"]
+ENV AGGREGATOR_APP_CONTEXT=remote
+CMD ["weco.concepts.aggregator.aws.LambdaMain::handleRequest"]

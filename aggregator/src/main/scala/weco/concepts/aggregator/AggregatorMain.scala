@@ -5,6 +5,7 @@ import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import akka.actor.ActorSystem
 import grizzled.slf4j.Logging
+import weco.concepts.aggregator.secrets.{ClusterConfWithSecrets, SecretsResolver}
 import weco.concepts.aggregator.sources.WorkIdSource
 
 import scala.concurrent.ExecutionContext
@@ -24,7 +25,6 @@ import scala.concurrent.ExecutionContext
   * is that which differs per-call.
   */
 trait AggregatorMain extends Logging {
-
   private val config: Config = {
     val configName = sys.env.getOrElse("AGGREGATOR_APP_CONTEXT", "local")
     info(s"loading config $configName")
@@ -40,9 +40,12 @@ trait AggregatorMain extends Logging {
   protected lazy val snapshotUrl: String =
     config.as[String]("data-source.works.snapshot")
 
-  protected val indexer: Indexer = Indexer(
-    config.as[Indexer.ClusterConfig]("data-target.cluster"),
-    ClusterSecrets.apply
+  private val clusterConf = new ClusterConfWithSecrets(
+    SecretsResolver(config.as[String]("secrets-resolver"))
+  )(config.as[Indexer.ClusterConfig]("data-target.cluster"))
+
+  protected lazy val indexer: Indexer = Indexer(
+    clusterConf
   )
 
   implicit val actorSystem: ActorSystem = ActorSystem("main")

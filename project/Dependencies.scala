@@ -74,7 +74,4 @@ object ServiceDependencies {
   val aggregator: Seq[ModuleID] = {
     scalatest ++ logging ++ config ++ akkaDeps ++ elasticsearchLowLevel ++ awsLambda ++ awsSecrets
   }
-  val aggregatorLambda: Seq[ModuleID] = {
-    awsLambda ++ logging ++ awsSecrets
-  }
 }

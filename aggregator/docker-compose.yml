@@ -19,4 +19,4 @@ services:
     ports:
       - 9000:8080
     environment:
-      - "AGGREGATOR_APP_CONTEXT=lambda"
+      - "AGGREGATOR_APP_CONTEXT=remote"

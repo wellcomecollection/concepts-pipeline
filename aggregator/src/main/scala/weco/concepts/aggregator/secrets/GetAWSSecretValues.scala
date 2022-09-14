@@ -1,7 +1,11 @@
-package weco.concepts.aggregator
+package weco.concepts.aggregator.secrets
 
 import grizzled.slf4j.Logging
-import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider
+import software.amazon.awssdk.auth.credentials.{
+  AwsCredentialsProvider,
+  DefaultCredentialsProvider,
+  EnvironmentVariableCredentialsProvider
+}
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
@@ -18,11 +22,10 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueReques
   * code cribbed from this Java sample:
   * https://github.com/awsdocs/aws-doc-sdk-examples/blob/af08838cbf272adbeda96ebbf7c5bfe14f0db80d/javav2/example_code/secretsmanager/src/main/java/com/example/secrets/GetSecretValue.java
   */
-object GetSecretValues extends Logging {
+class GetAWSSecretValues(credentialsProvider: AwsCredentialsProvider)
+    extends Logging {
   def apply(keys: Seq[String]): Map[String, String] = {
     val region = Region.EU_WEST_1
-    info("creating credentialsProvider")
-    val credentialsProvider = EnvironmentVariableCredentialsProvider.create()
     info("building secretsManager client")
     val secretsClient: SecretsManagerClient = SecretsManagerClient.builder
       .region(region)
@@ -45,4 +48,28 @@ object GetSecretValues extends Logging {
     val valueResponse = secretsClient.getSecretValue(valueRequest)
     valueResponse.secretString
   }
+}
+
+object GetAWSSecretValues extends Logging {
+  // Choose a credentials provider for AWS to use to sign in in order to then
+  // fetch secrets.
+  // Do not use Default in production, it is very slow on Lambda.
+  sealed trait CredentialsProvider
+  case object Environment extends CredentialsProvider
+  case object Default extends CredentialsProvider
+  def apply(
+    credentialsType: CredentialsProvider
+  ): GetAWSSecretValues = {
+    info("creating credentialsProvider")
+
+    val credentialsProvider: AwsCredentialsProvider = credentialsType match {
+      case Environment =>
+        EnvironmentVariableCredentialsProvider.create()
+      case Default =>
+        DefaultCredentialsProvider.create()
+    }
+
+    new GetAWSSecretValues(credentialsProvider)
+  }
+
 }

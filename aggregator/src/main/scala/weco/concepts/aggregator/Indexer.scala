@@ -68,18 +68,16 @@ object Indexer {
   )
 
   def apply(
-    clusterConfig: ClusterConfig,
-    secretSource: ClusterConfig => ClusterConfig = identity[ClusterConfig]
+    clusterConfig: ClusterConfig
   ): Indexer = {
-    val withSecrets = secretSource(clusterConfig)
-    withSecrets match {
+    clusterConfig match {
       case ClusterConfig(host, port, scheme, _, _, _) =>
         new Indexer(
           RestClient
             .builder(new HttpHost(host, port, scheme))
             .setCompressionEnabled(true)
             .setHttpClientConfigCallback(
-              clientConfigCallback(withSecrets)
+              clientConfigCallback(clusterConfig)
             )
             .build()
         )

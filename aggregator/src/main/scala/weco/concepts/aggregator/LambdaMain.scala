@@ -1,19 +1,19 @@
 package weco.concepts.aggregator
 
 import akka.NotUsed
+import akka.stream.scaladsl.Source
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import grizzled.slf4j.Logging
 
-import scala.concurrent.Await
-import akka.stream.scaladsl.Source
-
 import java.util.{Map => JavaMap}
+import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 
 object LambdaMain
     extends RequestHandler[JavaMap[String, String], String]
     with AggregatorMain
     with Logging {
+
   override def handleRequest(
     event: JavaMap[String, String],
     context: Context
