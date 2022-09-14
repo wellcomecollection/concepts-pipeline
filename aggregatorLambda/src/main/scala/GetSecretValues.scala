@@ -1,6 +1,5 @@
 package weco.concepts.aggregatorLambda
 
-
 import grizzled.slf4j.Logging
 import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider
 import software.amazon.awssdk.regions.Region
