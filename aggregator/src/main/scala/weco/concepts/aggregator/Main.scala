@@ -10,6 +10,7 @@ import scala.concurrent.ExecutionContext
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import weco.concepts.aggregator.sources._
+import weco.concepts.common.elasticsearch.Indexer
 
 object Main extends App with Logging {
   val config = ConfigFactory.load()

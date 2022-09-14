@@ -1,10 +1,11 @@
-package weco.concepts.aggregator
+package weco.concepts.common.elasticsearch
 
 import grizzled.slf4j.Logging
 import org.apache.http.HttpHost
 import org.apache.http.auth.{AuthScope, UsernamePasswordCredentials}
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
+import org.apache.http.impl.nio.reactor.IOReactorConfig
 import org.elasticsearch.client.RestClientBuilder.HttpClientConfigCallback
 import org.elasticsearch.client.{
   Request,
@@ -31,7 +32,7 @@ class Indexer(elasticClient: RestClient) extends Logging {
     Try(elasticClient.performRequest(rq))
   }
 
-  def createIndex(indexName: String): Unit = {
+  def createIndex(indexName: String, indexConfig: String): Unit = {
     Try(
       elasticClient.performRequest(new Request("head", s"/$indexName"))
     ) match {
@@ -40,9 +41,7 @@ class Indexer(elasticClient: RestClient) extends Logging {
       case Failure(exception: ResponseException)
           if exception.getResponse.getStatusLine.getStatusCode == 404 =>
         val rq = new Request("put", s"/$indexName")
-        rq.setJsonEntity(
-          Source.fromResource("index.json").getLines().mkString("\n")
-        )
+        rq.setJsonEntity(indexConfig)
         val response = elasticClient.performRequest(rq)
         info(response)
       // Not expected to reach a different kind of exception here,
@@ -51,6 +50,12 @@ class Indexer(elasticClient: RestClient) extends Logging {
       case Failure(exception) => throw exception
     }
   }
+
+  def createIndex(indexName: String): Unit = createIndex(
+    indexName = indexName,
+    indexConfig = Source.fromResource("index.json").getLines().mkString("\n")
+  )
+
   def close(): Unit = elasticClient.close()
 }
 
@@ -76,8 +81,8 @@ object Indexer {
 
   private def clientConfigCallback(
     clusterConfig: ClusterConfig
-  ): HttpClientConfigCallback =
-    clusterConfig match {
+  ): HttpClientConfigCallback = {
+    val addAuthentication: HttpClientConfigCallback = clusterConfig match {
       case ClusterConfig(_, _, _, Some(username), Some(password)) =>
         val credentials = new UsernamePasswordCredentials(username, password)
         val credentialsProvider = new BasicCredentialsProvider()
@@ -85,4 +90,18 @@ object Indexer {
         _.setDefaultCredentialsProvider(credentialsProvider)
       case _ => identity[HttpAsyncClientBuilder](_)
     }
+
+    (httpClientBuilder: HttpAsyncClientBuilder) =>
+      addAuthentication
+        .customizeHttpClient(httpClientBuilder)
+        .setDefaultIOReactorConfig(
+          // Enable TCP keepalive
+          // https://github.com/elastic/elasticsearch/issues/65213
+          IOReactorConfig
+            .custom()
+            .setSoKeepAlive(true)
+            .build()
+        )
+
+  }
 }

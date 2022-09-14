@@ -2,16 +2,16 @@
 
 The Concepts Aggregator collects in-use Concepts by examining Works from the catalogue API.
 
-To build in docker, run docker build from the root of the project
+To build in docker, run `docker build` from the root of the project
 
 ```shell
 docker build -f aggregator/Dockerfile -t concepts-aggregator .
 ```
 
-Or (better), docker compose build from here.
+Or (better), `docker compose build`.
 
 ```shell
-  docker compose build
+  docker compose build aggregator
 ```
 
 You can then run it locally. First start elasticsearch:
