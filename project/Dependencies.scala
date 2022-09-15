@@ -50,7 +50,7 @@ object ExternalDependencies {
 
   val awsLambda = Seq(
     "com.amazonaws" % "aws-lambda-java-core" % "1.2.1",
-    "com.google.code.gson" % "gson" % "2.8.6"
+    "com.google.code.gson" % "gson" % "2.9.0"
   )
 
   val awsSecrets = Seq(
