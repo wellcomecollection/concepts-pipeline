@@ -1,7 +1,7 @@
 package weco.concepts.aggregator.secrets
 
 import grizzled.slf4j.Logging
-import weco.concepts.aggregator.Indexer
+import weco.concepts.common.elasticsearch.Indexer
 
 /*
  * A Resolver for ClusterConfig secrets.
@@ -12,7 +12,7 @@ import weco.concepts.aggregator.Indexer
  * return them in a map.
  *
  */
-private class ClusterConfWithSecrets(
+class ClusterConfWithSecrets(
   resolver: Seq[String] => Map[String, String]
 ) extends Logging {
   def apply(

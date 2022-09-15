@@ -1,9 +1,8 @@
 package weco.concepts.aggregator
 
-import akka.NotUsed
-import akka.stream.scaladsl.Source
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import grizzled.slf4j.Logging
+import weco.concepts.aggregator.sources.WorksSnapshotSource
 
 import java.util.{Map => JavaMap}
 import scala.concurrent.Await
@@ -25,18 +24,14 @@ object LambdaMain
     )
     println(workId)
     info(workId)
-
-    // TODO: This is the CLI Logic (minus StdIn), but this runs the risk
-    //   of spawning a 5-minute lambda for every notification if there is
-    //   an unexpected change to the notifying message format
-    //   e.g. if a typo is introduced, e.g. {"wrokId":"deadbeef"} would cause it to
-    //   run the full snapshot-based aggregation for every message.  Better make
-    //   snapshot run explicit.
-    //   It may be best to have two distinct lambdas for the purpose. That way,
-    //   the big one can be provided with lots of memory and a long timeout, and
-    //   the other one can be kept short and forgetful.
-    // Fixed, but only by removing snapshot source.
-    val source: Source[String, NotUsed] = workIdSource(Array(workId).iterator)
+    val source = workId match {
+      case "all" =>
+        WorksSnapshotSource(
+          maxFrameKiB,
+          snapshotUrl
+        )
+      case _ => workIdSource(Array(workId).iterator)
+    }
     val f = aggregator
       .run(source)
       .recover(err => error(err.getMessage))

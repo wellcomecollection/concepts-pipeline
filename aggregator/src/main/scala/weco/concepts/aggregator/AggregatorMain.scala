@@ -10,6 +10,7 @@ import weco.concepts.aggregator.secrets.{
   SecretsResolver
 }
 import weco.concepts.aggregator.sources.WorkIdSource
+import weco.concepts.common.elasticsearch.Indexer
 
 import scala.concurrent.ExecutionContext
 
