@@ -20,7 +20,12 @@ COPY --from=sbt /app/target/aggregator.jar /opt/docker/
 ENTRYPOINT ["java", "-jar", "/opt/docker/aggregator.jar"]
 
 FROM public.ecr.aws/lambda/java:11 as lambda
+# A Lambda container, to be used to run/test the application in Lambda mode
+# See: https://gallery.ecr.aws/lambda/java
+
+# Prevent "Cannot list external agents" warning
 RUN mkdir -p /opt/extensions
+
 COPY --from=sbt /app/target/aggregator.jar ${LAMBDA_TASK_ROOT}/lib/
 ENV AGGREGATOR_APP_CONTEXT=remote
 CMD ["weco.concepts.aggregator.LambdaMain::handleRequest"]

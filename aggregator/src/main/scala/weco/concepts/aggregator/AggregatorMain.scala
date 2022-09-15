@@ -48,7 +48,7 @@ trait AggregatorMain extends Logging {
     SecretsResolver(config.as[String]("secrets-resolver"))
   )(config.as[Indexer.ClusterConfig]("data-target.cluster"))
 
-  protected lazy val indexer: Indexer = Indexer(
+  protected val indexer: Indexer = Indexer(
     clusterConf
   )
 

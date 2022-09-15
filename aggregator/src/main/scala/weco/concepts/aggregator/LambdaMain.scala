@@ -22,8 +22,6 @@ object LambdaMain
     context.getLogger.log(
       s"running aggregator lambda for $workId, Lambda request: ${context.getAwsRequestId}"
     )
-    println(workId)
-    info(workId)
     val source = workId match {
       case "all" =>
         WorksSnapshotSource(
