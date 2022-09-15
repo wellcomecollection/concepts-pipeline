@@ -50,6 +50,7 @@ class Indexer(elasticClient: RestClient) extends Logging {
       case Failure(exception) => throw exception
     }
   }
+
   def createIndex(indexName: String): Unit = createIndex(
     indexName = indexName,
     indexConfig = Source.fromResource("index.json").getLines().mkString("\n")
