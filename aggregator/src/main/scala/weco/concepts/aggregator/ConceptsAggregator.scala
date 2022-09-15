@@ -30,7 +30,6 @@ class ConceptsAggregator(
     indexer.createIndex(indexName)
     conceptSource(jsonSource)
       .via(deduplicateFlow)
-      .async
       .via(bulkUpdateFlow)
       .runWith(
         Sink.fold(0L)((acc, conceptCounts) => acc + conceptCounts("total"))
