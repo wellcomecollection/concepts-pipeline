@@ -52,7 +52,7 @@ lazy val aggregator = setupProject(
     case PathList(ps @ _*) if ps.last == "io.netty.versions.properties" =>
       // AWS libraries bring along this file.  They are all bodily the same, but with a
       // comment containing the time they were generated
-      MergeStrategy.rename
+      MergeStrategy.first
     case x =>
       // Do whatever the default is for this file.
       val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
