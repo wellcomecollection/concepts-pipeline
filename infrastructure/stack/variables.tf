@@ -12,3 +12,10 @@ variable "network_config" {
     ec_traffic_filters               = list(string)
   })
 }
+
+variable "aggregator_repository" {
+  type = object({
+    name = string
+    url = string
+  })
+}

@@ -1,5 +1,5 @@
 locals {
-  ecr_image_tag   = "latest"
+  ecr_image_tag   = "latest" # for now.  Once we make it work like weco-deploy, use the namespace
   service_name    = "concepts_aggregator"
 }
 
@@ -11,7 +11,7 @@ resource "aws_iam_role" "concepts_aggregator_role" {
 }
 
 data aws_ecr_image lambda_image {
-  repository_name = aws_ecr_repository.concepts_aggregator.name
+  repository_name = var.aggregator_repository.name
   image_tag       = local.ecr_image_tag
 }
 #
@@ -22,10 +22,9 @@ data aws_ecr_image lambda_image {
 #}
 
 resource "aws_lambda_function" "concepts_aggregator" {
-
   function_name = "${var.namespace}-concepts_aggregator"
   handler       = "weco.concepts.aggregator.LambdaMain::handleRequest"
   package_type = "Image"
-  image_uri = "${aws_ecr_repository.concepts_aggregator.repository_url}@${data.aws_ecr_image.lambda_image.id}"
+  image_uri = "${var.aggregator_repository.url}@${data.aws_ecr_image.lambda_image.id}"
   role = aws_iam_role.concepts_aggregator_role.arn
 }
