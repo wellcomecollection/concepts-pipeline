@@ -1,4 +1,4 @@
-Scripts for gathering stats about the catalogue, in order to help with scaling the appication appropriately.
+Scripts for gathering stats about the catalogue, in order to help with scaling the application appropriately.
 
 Results from looking at the 2022-09-08 snapshot:
 

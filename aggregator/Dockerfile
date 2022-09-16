@@ -9,6 +9,9 @@ COPY ./project ./project
 RUN /run_sbt.sh "project aggregator" "update"
 COPY ./common ./common
 COPY ./aggregator ./aggregator
+# Build a fat jar, as recommended for lambda here:
+# https://deepdive.codiply.com/aws-lambda-function-in-scala-with-container-image
+# https://aws.amazon.com/blogs/compute/writing-aws-lambda-functions-in-scala/
 RUN /run_sbt.sh "project aggregator" "assembly"
 ENTRYPOINT ["/run_sbt.sh", "project aggregator"]
 
