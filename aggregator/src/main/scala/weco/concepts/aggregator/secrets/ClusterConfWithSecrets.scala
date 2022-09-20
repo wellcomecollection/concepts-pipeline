@@ -26,13 +26,10 @@ class ClusterConfWithSecrets(
             host,
             password
           )
-        ).map { case (key: String, value: String) =>
-          (key.split('/').last, value)
-        }
-
+        )
         clusterConfig.copy(
-          host = secrets("public_host"),
-          password = secrets.get("password")
+          host = secrets(host),
+          password = secrets.get(password)
         )
       case _ =>
         info("no secrets to resolve")
