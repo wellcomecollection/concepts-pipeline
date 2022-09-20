@@ -16,6 +16,6 @@ variable "network_config" {
 variable "aggregator_repository" {
   type = object({
     name = string
-    url = string
+    url  = string
   })
 }

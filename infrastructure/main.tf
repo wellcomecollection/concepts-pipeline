@@ -7,6 +7,6 @@ module "concepts_pipeline" {
   logging_cluster_id = local.logging_cluster_id
   aggregator_repository = {
     name = aws_ecr_repository.concepts_aggregator.name
-    url = aws_ecr_repository.concepts_aggregator.repository_url
+    url  = aws_ecr_repository.concepts_aggregator.repository_url
   }
 }
