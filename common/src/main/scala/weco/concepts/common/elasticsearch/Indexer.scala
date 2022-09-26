@@ -56,7 +56,10 @@ class Indexer(elasticClient: RestClient) extends Logging {
     indexConfig = Source.fromResource("index.json").getLines().mkString("\n")
   )
 
-  def close(): Unit = elasticClient.close()
+  def close(): Unit = {
+    info("closing ES Client")
+    elasticClient.close()
+  }
 }
 
 object Indexer {
@@ -65,25 +68,32 @@ object Indexer {
     port: Int,
     scheme: String,
     username: Option[String],
-    password: Option[String]
+    password: Option[String],
+    resolveSecrets: Boolean = false
   )
 
-  def apply(clusterConfig: ClusterConfig): Indexer = clusterConfig match {
-    case ClusterConfig(host, port, scheme, _, _) =>
-      new Indexer(
-        RestClient
-          .builder(new HttpHost(host, port, scheme))
-          .setCompressionEnabled(true)
-          .setHttpClientConfigCallback(clientConfigCallback(clusterConfig))
-          .build()
-      )
+  def apply(
+    clusterConfig: ClusterConfig
+  ): Indexer = {
+    clusterConfig match {
+      case ClusterConfig(host, port, scheme, _, _, _) =>
+        new Indexer(
+          RestClient
+            .builder(new HttpHost(host, port, scheme))
+            .setCompressionEnabled(true)
+            .setHttpClientConfigCallback(
+              clientConfigCallback(clusterConfig)
+            )
+            .build()
+        )
+    }
   }
 
   private def clientConfigCallback(
     clusterConfig: ClusterConfig
   ): HttpClientConfigCallback = {
     val addAuthentication: HttpClientConfigCallback = clusterConfig match {
-      case ClusterConfig(_, _, _, Some(username), Some(password)) =>
+      case ClusterConfig(_, _, _, Some(username), Some(password), _) =>
         val credentials = new UsernamePasswordCredentials(username, password)
         val credentialsProvider = new BasicCredentialsProvider()
         credentialsProvider.setCredentials(AuthScope.ANY, credentials)

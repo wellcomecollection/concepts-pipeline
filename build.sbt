@@ -23,6 +23,7 @@ def setupProject(
     .dependsOn(dependsOn: _*)
     .settings(libraryDependencies ++= externalDependencies)
 }
+
 lazy val common = setupProject(
   project,
   "common",
@@ -48,6 +49,10 @@ lazy val aggregator = setupProject(
     case PathList(ps @ _*) if ps.last == "module-info.class" =>
       // The module-info.class files in logback-classic and logback-core clash.
       MergeStrategy.rename
+    case PathList(ps @ _*) if ps.last == "io.netty.versions.properties" =>
+      // AWS libraries bring along this file.  They are all bodily the same, but with a
+      // comment containing the time they were generated
+      MergeStrategy.first
     case x =>
       // Do whatever the default is for this file.
       val oldStrategy = (ThisBuild / assemblyMergeStrategy).value

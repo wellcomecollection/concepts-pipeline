@@ -2,7 +2,30 @@
 
 The Concepts Aggregator collects in-use Concepts by examining Works from the catalogue API.
 
-To build in docker, run `docker build` from the root of the project
+## Running
+### As a Jar
+To build a jar, run sbt:
+```shell 
+sbt "project aggregator" assembly
+```
+Given a locally running instance of Elasticsearch, you can then run it locally.
+#### Extract all concepts from the latest snapshot
+```shell 
+AGGREGATOR_APP_CONTEXT=local java -jar target/aggregator.jar
+```
+#### Extract all concepts from some piped NDJSON
+
+```shell 
+AGGREGATOR_APP_CONTEXT=local head works.json | java -jar target/aggregator.jar
+```
+#### Extract the concepts from a list of work ids
+```shell 
+AGGREGATOR_APP_CONTEXT=local java -jar target/aggregator.jar uk4kymkq yn8nshmc  
+```
+
+### In Docker
+The Docker version of the application runs the [AWS RIE])(https://docs.aws.amazon.com/lambda/latest/dg/images-test.html)
+To build in docker, run `docker build` from the root of the project.
 
 ```shell
 docker build -f aggregator/Dockerfile -t concepts-aggregator .
@@ -19,31 +42,32 @@ You can then run it locally. First start elasticsearch:
  docker compose run -d --service-ports elasticsearch 
 ```
 
-Then, to see the lists of Concepts that would be returned by 
-a list of Work ids, thus:
+Then start the Lambda emulator
+```shell
+docker compose run -d aggregator
+```
+Now, you can send requests to the container to mimic a Lambda invocation:
+
+Extract the concepts from one work
 
 ```shell
-docker compose run aggregator uk4kymkq yn8nshmc  
+ curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"workId":"gwdn56yp"}'
 ```
 
-Or with some line-delimited JSON piped to STDIN, thus:
+Or, to fetch the latest API Snapshot and extract from there:
 
 ```shell
-head works.json | docker compose run -T aggregator
+ curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"workId":"all"}'
 ```
 
-Or, to fetch the latest API Snapshot and extract from there, with no inputs, thus:
-
-```shell
-docker compose run aggregator
-```
-
+### Where is the data?
 Each of these commands will populate the local Elasticsearch, so you can examine
 the results there:
 
 ```shell 
 curl -XGET http://localhost:9200/_search\?pretty
 ```
+
 
 ### Connecting to the remote cluster
 
