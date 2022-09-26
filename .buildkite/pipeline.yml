@@ -4,6 +4,16 @@ steps:
     agents:
       queue: "nano"
 
+  - label: "test: common"
+    plugins:
+      - docker-compose#v3.10.0:
+          config:
+            - docker-compose.yml
+          run: common
+          command: ["test"]
+    agents:
+      queue: "scala"
+
   - label: "test: ingestor"
     plugins:
       - docker-compose#v3.10.0:
