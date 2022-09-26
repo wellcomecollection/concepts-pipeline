@@ -11,7 +11,7 @@ resource "elasticstack_elasticsearch_security_role" "read_indices" {
 
   name = "${each.key}_read"
   indices {
-    names      = [each.key]
+    names      = ["${each.key}*"]
     privileges = ["read", "monitor", "view_index_metadata"]
   }
 }
@@ -21,7 +21,7 @@ resource "elasticstack_elasticsearch_security_role" "write_indices" {
 
   name = "${each.key}_write"
   indices {
-    names = [each.key]
+    names = ["${each.key}*"]
     // See https://www.elastic.co/guide/en/elasticsearch/reference/current/security-privileges.html#privileges-list-indices for details
     // This doesn't allow index deletion (but does allow document deletion)
     privileges = ["create_index", "index", "create", "delete"]
