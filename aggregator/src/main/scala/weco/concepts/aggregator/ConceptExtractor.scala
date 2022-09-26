@@ -7,12 +7,16 @@ import weco.concepts.common.json.JsonOps._
 
 import scala.annotation.tailrec
 
-object ConceptExtractor {
+object ConceptExtractor extends Logging {
   val conceptTypes =
     Seq("Concept", "Person", "Organisation", "Meeting", "Period", "Subject")
-  def apply(jsonString: String): Seq[UsedConcept] =
-    allConcepts(List(ujson.read(jsonString)), Nil).toList
+  def apply(jsonString: String): Seq[UsedConcept] = {
+    val jsonObj = ujson.read(jsonString)
+    val concepts = allConcepts(List(jsonObj), Nil).toList
       .distinctBy(_.identifier)
+    debug(s"extracted ${concepts.length} concepts from ${jsonObj.obj("id")}")
+    concepts
+  }
 
   /** Extract concepts from wherever they may be in a JSON document.
     */

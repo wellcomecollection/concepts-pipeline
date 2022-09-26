@@ -6,7 +6,6 @@ import akka.http.scaladsl.Http
 import akka.stream.scaladsl.Source
 import grizzled.slf4j.Logging
 import weco.concepts.common.source.{Fetcher, Scroll}
-import weco.concepts.aggregator.Main.maxFrameKiB
 
 /** Download the Works snapshot and scroll over the lines in it.
   */
@@ -14,6 +13,7 @@ import weco.concepts.aggregator.Main.maxFrameKiB
 object WorksSnapshotSource extends Logging {
 
   def apply(
+    maxFrameKiB: Int,
     dataUrl: String
   )(implicit actorSystem: ActorSystem): Source[String, NotUsed] = {
     info(s"reading from $dataUrl")
