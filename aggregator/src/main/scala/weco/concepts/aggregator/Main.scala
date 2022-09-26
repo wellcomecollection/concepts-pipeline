@@ -10,7 +10,7 @@ import scala.concurrent.ExecutionContext
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.Source
 import weco.concepts.aggregator.sources._
-import weco.concepts.common.elasticsearch.Indexer
+import weco.concepts.common.elasticsearch.ElasticAkkaHttpClient
 
 object Main extends App with Logging {
   val config = ConfigFactory.load()
@@ -20,7 +20,7 @@ object Main extends App with Logging {
   lazy val indexName = config.as[String]("data-target.index.name")
   lazy val maxBulkRecords = config.as[Int]("data-target.bulk.max-records")
   lazy val clusterConfig =
-    config.as[Indexer.ClusterConfig]("data-target.cluster")
+    config.as[ElasticAkkaHttpClient.ClusterConfig]("data-target.cluster")
 
   implicit val actorSystem: ActorSystem = ActorSystem("main")
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
@@ -32,17 +32,16 @@ object Main extends App with Logging {
     else if (System.in.available() > 0) StdInSource.apply
     else WorksSnapshotSource(snapshotUrl)
 
-  val indexer = Indexer(clusterConfig)
+  val elasticHttpClient = ElasticAkkaHttpClient(clusterConfig)
   val aggregator = new ConceptsAggregator(
     jsonSource = source,
-    indexer = indexer,
+    elasticHttpClient = elasticHttpClient,
     indexName = indexName,
     maxRecordsPerBulkRequest = maxBulkRecords
   )
   aggregator.run
     .recover(err => error(err.getMessage))
     .onComplete(_ => {
-      indexer.close()
       actorSystem.terminate()
     })
 }
