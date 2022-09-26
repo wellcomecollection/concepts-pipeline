@@ -28,7 +28,8 @@ object LambdaMain
           maxFrameKiB,
           snapshotUrl
         )
-      case _ => workIdSource(Array(workId).iterator)
+      case null => throw InvalidArg(event)
+      case _    => workIdSource(Array(workId).iterator)
     }
     val f = aggregator
       .run(source)

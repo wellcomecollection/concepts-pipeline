@@ -53,10 +53,15 @@ class GetAWSSecretValues(credentialsProvider: AwsCredentialsProvider)
 object GetAWSSecretValues extends Logging {
   // Choose a credentials provider for AWS to use to sign in in order to then
   // fetch secrets.
+  // Default will run through a bunch of methods for working out who you are.
+  // Environment will look for AWS_ACCESS_KEY_ID and AWS_SECRET_KEY and fail if that does not work.
+  //
   // Do not use Default in production, it is very slow on Lambda.
+
   sealed trait CredentialsProvider
   case object Environment extends CredentialsProvider
   case object Default extends CredentialsProvider
+
   def apply(
     credentialsType: CredentialsProvider
   ): GetAWSSecretValues = {

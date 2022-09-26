@@ -19,6 +19,12 @@ class ClusterConfWithSecrets(
     clusterConfig: Indexer.ClusterConfig
   ): Indexer.ClusterConfig = {
     clusterConfig match {
+      // The two parameters that are expected to contain references to secrets
+      // are host and password.  This means that if resolveSecrets is true,
+      // *both* of them must be secret keys, and not contain the actual value to be used.
+      // If you try to put a secret key in any of the other properties, it won't resolve.
+      // This is sufficient for the Aggregator application, but if this code is to be reused
+      // elsewhere, then it will require a bit of a change to make it more general-purpose.
       case Indexer.ClusterConfig(host, _, _, _, Some(password), true) =>
         info("resolving cluster config secrets")
         val secrets = resolver(

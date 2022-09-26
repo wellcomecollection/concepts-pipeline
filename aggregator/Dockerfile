@@ -25,6 +25,7 @@ ENTRYPOINT ["java", "-jar", "/opt/docker/aggregator.jar"]
 FROM public.ecr.aws/lambda/java:11 as lambda
 # A Lambda container, to be used to run/test the application in Lambda mode
 # See: https://gallery.ecr.aws/lambda/java
+# Or to run as an image on Lambda
 
 # Prevent "Cannot list external agents" warning
 RUN mkdir -p /opt/extensions
