@@ -16,8 +16,6 @@ import scala.concurrent.{ExecutionContext, Future}
 /** Aggregate Concepts from JSON strings emitted by jsonSource
   */
 class ConceptsAggregator(
-  indexer: Indexer,
-  jsonSource: Source[String, NotUsed],
   elasticHttpClient: ElasticHttpClient,
   indexName: String,
   maxRecordsPerBulkRequest: Int

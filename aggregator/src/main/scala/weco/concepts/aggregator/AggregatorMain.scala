@@ -10,7 +10,10 @@ import weco.concepts.aggregator.secrets.{
   SecretsResolver
 }
 import weco.concepts.aggregator.sources.WorkIdSource
-import weco.concepts.common.elasticsearch.Indexer
+import weco.concepts.common.elasticsearch.{
+  ElasticAkkaHttpClient,
+  ElasticHttpClient
+}
 
 import scala.concurrent.ExecutionContext
 
@@ -46,9 +49,9 @@ trait AggregatorMain extends Logging {
 
   private val clusterConf = new ClusterConfWithSecrets(
     SecretsResolver(config.as[String]("secrets-resolver"))
-  )(config.as[Indexer.ClusterConfig]("data-target.cluster"))
+  )(config.as[ElasticAkkaHttpClient.ClusterConfig]("data-target.cluster"))
 
-  protected val indexer: Indexer = Indexer(
+  protected val indexer: ElasticHttpClient = ElasticAkkaHttpClient(
     clusterConf
   )
 
@@ -57,7 +60,7 @@ trait AggregatorMain extends Logging {
     actorSystem.dispatcher
 
   val aggregator: ConceptsAggregator = new ConceptsAggregator(
-    indexer = indexer,
+    elasticHttpClient = indexer,
     indexName = config.as[String]("data-target.index.name"),
     maxRecordsPerBulkRequest = config.as[Int]("data-target.bulk.max-records")
   )

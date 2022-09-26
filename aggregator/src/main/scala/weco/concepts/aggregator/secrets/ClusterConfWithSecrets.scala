@@ -1,7 +1,7 @@
 package weco.concepts.aggregator.secrets
 
 import grizzled.slf4j.Logging
-import weco.concepts.common.elasticsearch.Indexer
+import weco.concepts.common.elasticsearch.ElasticAkkaHttpClient.ClusterConfig
 
 /*
  * A Resolver for ClusterConfig secrets.
@@ -16,8 +16,8 @@ class ClusterConfWithSecrets(
   resolver: Seq[String] => Map[String, String]
 ) extends Logging {
   def apply(
-    clusterConfig: Indexer.ClusterConfig
-  ): Indexer.ClusterConfig = {
+    clusterConfig: ClusterConfig
+  ): ClusterConfig = {
     clusterConfig match {
       // The two parameters that are expected to contain references to secrets
       // are host and password.  This means that if resolveSecrets is true,
@@ -25,7 +25,7 @@ class ClusterConfWithSecrets(
       // If you try to put a secret key in any of the other properties, it won't resolve.
       // This is sufficient for the Aggregator application, but if this code is to be reused
       // elsewhere, then it will require a bit of a change to make it more general-purpose.
-      case Indexer.ClusterConfig(host, _, _, _, Some(password), true) =>
+      case ClusterConfig(host, _, _, _, Some(password), true) =>
         info("resolving cluster config secrets")
         val secrets = resolver(
           Seq(
