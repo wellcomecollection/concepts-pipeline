@@ -3,7 +3,11 @@ import akka.actor.ActorSystem
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import grizzled.slf4j.Logging
-import weco.concepts.common.elasticsearch.{BulkUpdateFlow, Indexer}
+import weco.concepts.common.elasticsearch.{
+  BulkUpdateFlow,
+  ElasticHttpClient,
+  Indices
+}
 import weco.concepts.common.model.UsedConcept
 
 import scala.collection.mutable.{Set => MutableSet}
@@ -12,7 +16,7 @@ import scala.concurrent.{ExecutionContext, Future}
 /** Aggregate Concepts from JSON strings emitted by jsonSource
   */
 class ConceptsAggregator(
-  indexer: Indexer,
+  elasticHttpClient: ElasticHttpClient,
   indexName: String,
   maxRecordsPerBulkRequest: Int
 )(implicit
@@ -22,22 +26,24 @@ class ConceptsAggregator(
   private val bulkUpdateFlow = new BulkUpdateFlow(
     formatter = UsedConceptFormatter,
     max_bulk_records = maxRecordsPerBulkRequest,
-    indexer = indexer,
+    elasticHttpClient = elasticHttpClient,
     indexName = indexName
   ).flow
+  private val indices = new Indices(elasticHttpClient)
 
   def run(jsonSource: Source[String, NotUsed]): Future[Done] = {
-    indexer.createIndex(indexName)
-    conceptSource(jsonSource)
-      .via(deduplicateFlow)
-      .via(bulkUpdateFlow)
-      .runWith(
-        Sink.fold(0L)((acc, conceptCounts) => acc + conceptCounts("total"))
-      )
-      .map(nConcepts => {
-        info(s"Extracted $nConcepts distinct concepts")
-        Done
-      })
+    indices.create(indexName).flatMap { _ =>
+      conceptSource(jsonSource)
+        .via(deduplicateFlow)
+        .via(bulkUpdateFlow)
+        .runWith(
+          Sink.fold(0L)((acc, conceptCounts) => acc + conceptCounts("total"))
+        )
+        .map(nConcepts => {
+          info(s"Extracted $nConcepts distinct concepts")
+          Done
+        })
+    }
   }
 
   private def conceptSource(

@@ -22,7 +22,6 @@ object Main extends AggregatorMain with Logging with App {
     .run(source)
     .recover(err => error(err.getMessage))
     .onComplete(_ => {
-      indexer.close()
       actorSystem.terminate()
     })
 }

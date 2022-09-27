@@ -10,7 +10,7 @@ object ExternalDependencies {
     val logback = "1.4.0"
     val scalatest = "3.2.12"
     val typesafeConfig = "1.4.2"
-    val elastic4s = "8.3.2"
+    val uPickle = "2.0.0"
   }
 
   val scalatest = Seq(
@@ -38,11 +38,7 @@ object ExternalDependencies {
   }
 
   val uPickle = Seq(
-    "com.lihaoyi" %% "upickle" % "2.0.0"
-  )
-
-  val elasticsearchLowLevel = Seq(
-    "org.elasticsearch.client" % "elasticsearch-rest-client" % "8.4.1"
+    "com.lihaoyi" %% "upickle" % versions.uPickle
   )
 
   val akkaDeps =
@@ -63,7 +59,7 @@ object ExternalDependencies {
 object ServiceDependencies {
   import ExternalDependencies._
   val common: Seq[ModuleID] =
-    scalatest ++ logging ++ uPickle ++ akkaDeps ++ elasticsearchLowLevel
+    scalatest ++ logging ++ uPickle ++ akkaDeps
 
   val ingestor: Seq[ModuleID] =
     scalatest ++

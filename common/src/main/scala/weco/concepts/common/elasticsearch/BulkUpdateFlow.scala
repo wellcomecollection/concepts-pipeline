@@ -1,10 +1,12 @@
 package weco.concepts.common.elasticsearch
 
 import akka.NotUsed
+import akka.http.scaladsl.model._
+import akka.stream.Materializer
 import akka.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
-import org.elasticsearch.client.{Response, ResponseException}
 
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 /*
@@ -55,57 +57,86 @@ trait BulkFormatter[T] {
 class BulkUpdateFlow[T](
   formatter: BulkFormatter[T],
   max_bulk_records: Int,
-  indexer: Indexer,
+  elasticHttpClient: ElasticHttpClient,
   indexName: String
 ) extends Logging {
 
-  def flow: Flow[T, Map[String, Int], NotUsed] = {
+  def flow: Flow[T, Map[String, Int], NotUsed] =
     Flow
       .fromFunction(formatter.format(indexName))
       .grouped(max_bulk_records)
-      .via(Flow.fromFunction(sendBulkUpdate))
-      .via(Flow.fromFunction(countActions))
-  }
+      .via(elasticsearchBulkFlow)
+      .via(checkResultsFlow)
+      .via(accumulateTotals)
 
   /** Given a stream of batches of BulkAPI action/document pairs, post them to
-    * Elasticsearch, emitting the responses
+    * Elasticsearch, emitting the responses and the expected count of updates
     */
-
-  private def sendBulkUpdate(couplets: Seq[String]): Response = {
-    info(s"indexing ${couplets.length} concepts")
-    // This runs synchronously, because the very next step is to examine the response
-    // to work out what ES did with the data we provided.
-    // This also stops us rapidly posting a bunch of bulk updates while ES is still
-    // trying to work out what to do with the last three we sent it
-    indexer.bulk(couplets) match {
-      case Success(response) => response
-      case Failure(responseException: ResponseException) =>
-        error(
-          s"Error response returned when sending bulk update: ${responseException.getResponse}"
-        )
-        throw responseException
-      case Failure(otherException) =>
-        error("Unexpected error sending bulk update!")
-        throw otherException
-    }
-  }
+  private def elasticsearchBulkFlow
+    : Flow[Seq[String], (HttpResponse, Seq[String]), NotUsed] =
+    Flow[Seq[String]]
+      .map { couplets =>
+        val requestBody = couplets.mkString(start = "", sep = "\n", end = "\n")
+        HttpRequest(
+          method = HttpMethods.POST,
+          uri = "/_bulk",
+          entity = HttpEntity(ContentTypes.`application/json`, requestBody)
+        ) -> couplets
+      }
+      .via(elasticHttpClient.flow[Seq[String]])
+      .map {
+        case (Success(response), couplets) if response.status.isSuccess() =>
+          (response, couplets)
+        case (Success(errorResponse), _) =>
+          error("Error response returned when sending bulk update")
+          throw new RuntimeException(s"Response: $errorResponse")
+        case (Failure(exception), _) =>
+          error("Unexpected error sending bulk update!")
+          throw exception
+      }
 
   /** Given a Response from a BulkAPI call, log what it did. Emit the
     * created/updated/noop counts as a Map
     */
-  private def countActions(
-    response: Response
-  ): Map[String, Int] = {
-    info(response)
-    val rsJson = ujson.read(response.getEntity.getContent)
-    val items = rsJson.obj("items").arr
-    val result_counts: Map[String, Int] =
-      items
-        .groupBy(_.obj("update").obj("result").value.toString)
-        .view
-        .mapValues(_.size)
-        .toMap + ("total" -> items.length)
-    info(result_counts)
-    result_counts
-  }
+  private def checkResultsFlow
+    : Flow[(HttpResponse, Seq[String]), Map[String, Int], NotUsed] =
+    Flow
+      .fromMaterializer { (materializer, _) =>
+        implicit val mat: Materializer = materializer
+        implicit val ec: ExecutionContext = mat.executionContext
+        Flow[(HttpResponse, Seq[String])].mapAsyncUnordered(10) {
+          case (response, couplets) =>
+            response.entity.dataBytes
+              .runReduce(_ ++ _)
+              .map(_.utf8String)
+              .map(ujson.read(_))
+              .map { rsJson =>
+                val items = rsJson.obj("items").arr
+                val result = items
+                  .groupBy(_.obj("update").obj("result").value.toString)
+                  .view
+                  .mapValues(_.size)
+                  .toMap + ("total" -> items.length)
+
+                if (!result.get("total").contains(couplets.size)) {
+                  warn("Bulk update executed fewer updates than requested")
+                  warn(s"Expected ${couplets.size}, got $result")
+                }
+
+                result
+              }
+        }
+      }
+      .mapMaterializedValue(_ => NotUsed)
+
+  private def accumulateTotals
+    : Flow[Map[String, Int], Map[String, Int], NotUsed] =
+    Flow[Map[String, Int]].statefulMapConcat(() => {
+      var total = 0L
+      (result: Map[String, Int]) => {
+        total += result.getOrElse("total", 0)
+        info(s"Total documents updated in $indexName: $total")
+        Seq(result)
+      }
+    })
 }
