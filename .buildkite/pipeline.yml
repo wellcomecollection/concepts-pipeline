@@ -65,3 +65,8 @@ steps:
             - aggregator:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_aggregator:latest
     agents:
       queue: "scala"
+
+  - label: "deploy to live pipeline"
+    branches: "deploy"
+    commands:
+      - sh .buildkite/scripts/deploy_to_live.sh ${BUILDKITE_COMMIT}

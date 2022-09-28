@@ -1,0 +1,4 @@
+PIPELINE_NAMESPACE=`cat infrastructure/live_pipeline.txt`
+AGGREGATOR_IMAGE_TAG=$1
+echo $PIPELINE_NAMESPACE
+echo $AGGREGATOR_IMAGE_TAG
