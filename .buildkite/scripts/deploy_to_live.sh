@@ -1,4 +1,8 @@
-PIPELINE_NAMESPACE=`cat infrastructure/live_pipeline.txt`
 AGGREGATOR_IMAGE_TAG=$1
+PIPELINE_NAMESPACE=`cat infrastructure/live_pipeline.txt`
+HERE=$(dirname $0)
+
 echo $PIPELINE_NAMESPACE
 echo $AGGREGATOR_IMAGE_TAG
+sh $HERE/retag.sh $AGGREGATOR_IMAGE_TAG $PIPELINE_NAMESPACE
+sh $HERE/notify_services.sh $PIPELINE_NAMESPACE
