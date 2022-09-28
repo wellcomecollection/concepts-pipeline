@@ -25,7 +25,7 @@ class ClusterConfWithSecrets(
       // If you try to put a secret key in any of the other properties, it won't resolve.
       // This is sufficient for the Aggregator application, but if this code is to be reused
       // elsewhere, then it will require a bit of a change to make it more general-purpose.
-      case ClusterConfig(host, _, _, _, Some(password), true) =>
+      case ClusterConfig(_, host, _, _, Some(password), true) =>
         info("resolving cluster config secrets")
         val secrets = resolver(
           Seq(
@@ -35,7 +35,8 @@ class ClusterConfWithSecrets(
         )
         clusterConfig.copy(
           host = secrets(host),
-          password = secrets.get(password)
+          password = secrets.get(password),
+          resolveSecrets = false
         )
       case _ =>
         info("no secrets to resolve")
