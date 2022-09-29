@@ -53,9 +53,7 @@ steps:
       queue: "scala"
 
   - label: "publish: aggregator"
-    branches:
-      - "main"
-      - "deploy"
+    branches: "main"
     plugins:
       - wellcomecollection/aws-assume-role#v0.2.2:
           role: "arn:aws:iam::756629837203:role/catalogue-ci"
@@ -69,7 +67,7 @@ steps:
       queue: "scala"
 
   - label: "deploy to live pipeline"
-    branches: "deploy"
+    branches: "main"
     plugins:
       - wellcomecollection/aws-assume-role#v0.2.2:
           role: "arn:aws:iam::756629837203:role/catalogue-ci"
