@@ -68,6 +68,8 @@ steps:
     agents:
       queue: "scala"
 
+  - wait
+
   - label: "deploy to live pipeline"
     branches: "deploy"
     plugins:
