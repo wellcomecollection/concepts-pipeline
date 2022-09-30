@@ -37,18 +37,21 @@ import scala.util.{Failure, Success}
   * update request.
   */
 trait BulkFormatter[T] {
-  def identifier(item: T): String
-  def doc(item: T): ujson.Obj
-  def format(index: String)(item: T): String = {
+  def identifier(item: T): Option[String]
+  def doc(item: T): Option[ujson.Obj]
+  def format(index: String)(item: T): Option[String] = for {
+    id <- identifier(item)
+    source <- doc(item)
+  } yield {
     val action = ujson.Obj(
       "update" -> ujson.Obj(
         "_index" -> index,
-        "_id" -> identifier(item)
+        "_id" -> id
       )
     )
     val document = ujson.Obj(
       "doc_as_upsert" -> true,
-      "doc" -> doc(item)
+      "doc" -> source
     )
     s"${action.render()}\n${document.render()}"
   }
@@ -64,6 +67,7 @@ class BulkUpdateFlow[T](
   def flow: Flow[T, Map[String, Int], NotUsed] =
     Flow
       .fromFunction(formatter.format(indexName))
+      .collect { case Some(update) => update }
       .grouped(max_bulk_records)
       .via(elasticsearchBulkFlow)
       .via(checkResultsFlow)

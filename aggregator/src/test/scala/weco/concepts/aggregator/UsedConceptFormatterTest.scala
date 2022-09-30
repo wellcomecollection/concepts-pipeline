@@ -36,7 +36,7 @@ class UsedConceptFormatterTest
           canonicalId = "baadbeef"
         )
       When("format is called")
-      val formatted: String = formatter(concept)
+      val formatted: String = formatter(concept).get
       Then("the result is two lines of NDJSON")
       val lines = formatted.linesIterator.toList
       lines.length shouldBe 2
