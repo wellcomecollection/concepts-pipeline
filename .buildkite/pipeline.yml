@@ -1,3 +1,5 @@
+env:
+  LIVE_PIPELINE: 2022-08-31
 steps:
   - label: "autoformat"
     command: .buildkite/scripts/autoformat.sh
@@ -48,6 +50,7 @@ steps:
       - docker-compose#v3.10.0:
           push:
             - ingestor:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_ingestor:ref.${BUILDKITE_COMMIT}
+            - ingestor:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_ingestor:${LIVE_PIPELINE}
             - ingestor:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_ingestor:latest
     agents:
       queue: "scala"
@@ -62,6 +65,17 @@ steps:
       - docker-compose#v3.10.0:
           push:
             - aggregator:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_aggregator:ref.${BUILDKITE_COMMIT}
+            - aggregator:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_aggregator:${LIVE_PIPELINE}
             - aggregator:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_aggregator:latest
     agents:
       queue: "scala"
+
+  - wait
+
+  - label: "deploy to live pipeline"
+    branches: "main"
+    plugins:
+      - wellcomecollection/aws-assume-role#v0.2.2:
+          role: "arn:aws:iam::756629837203:role/catalogue-ci"
+    commands:
+      - sh .buildkite/scripts/deploy.sh ${LIVE_PIPELINE} ${BUILDKITE_COMMIT}

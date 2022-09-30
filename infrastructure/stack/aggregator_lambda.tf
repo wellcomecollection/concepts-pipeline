@@ -6,7 +6,7 @@
 # used concepts in Elasticsearch.
 #
 locals {
-  ecr_image_tag = "latest" # for now.  Once we make it work like weco-deploy, use the namespace to tag it.
+  ecr_image_tag = var.namespace
   service_name  = "concepts_aggregator"
   secrets = {
     elasticsearch_host = {
