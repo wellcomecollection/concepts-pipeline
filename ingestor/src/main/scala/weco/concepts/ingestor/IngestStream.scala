@@ -44,6 +44,12 @@ class IngestStream(
     indices.create(indexName).flatMap { _ =>
       Source
         .combine(subjectsSource, namesSource)(Merge(_))
+        // TODO: This is a temporary restriction I have added while refactoring
+        //   and Lambda-izing, so that I can "run" to make sure I haven't completely
+        //   broken it by disconnection things.
+        //   It might be nice to make it selectable so that we can have a quick e2e
+        //   test.
+        // .take(10)
         .via(bulkUpdater.flow)
         .runWith(Sink.fold(0L)((n, _) => n + 1))
         .map(n => {

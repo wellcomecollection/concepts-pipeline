@@ -21,6 +21,8 @@ services:
     build:
       context: .
       dockerfile: ./ingestor/Dockerfile
+    ports:
+      - "9001:8080"
   aggregator:
     build:
       context: .
