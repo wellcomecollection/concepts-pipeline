@@ -23,6 +23,9 @@ services:
       dockerfile: ./ingestor/Dockerfile
     ports:
       - "9001:8080"
+    environment:
+      - "AWS_LAMBDA_FUNCTION_TIMEOUT=600"
+      - "INGESTOR_APP_CONTEXT=docker-compose"
   aggregator:
     build:
       context: .
