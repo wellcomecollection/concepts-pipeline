@@ -51,13 +51,13 @@ trait AggregatorMain extends Logging {
     SecretsResolver(config.as[String]("secrets-resolver"))
   )(config.as[ElasticAkkaHttpClient.ClusterConfig]("data-target.cluster"))
 
-  protected val indexer: ElasticHttpClient = ElasticAkkaHttpClient(
-    clusterConf
-  )
-
   implicit val actorSystem: ActorSystem = ActorSystem("main")
   implicit val executionContext: ExecutionContext =
     actorSystem.dispatcher
+
+  protected val indexer: ElasticHttpClient = ElasticAkkaHttpClient(
+    clusterConf
+  )
 
   val aggregator: ConceptsAggregator = new ConceptsAggregator(
     elasticHttpClient = indexer,
