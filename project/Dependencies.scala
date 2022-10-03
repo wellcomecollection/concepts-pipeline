@@ -65,7 +65,7 @@ object ServiceDependencies {
     scalatest ++
       logging ++
       config ++
-      Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
+      akkaDeps ++ awsLambda
 
   val aggregator: Seq[ModuleID] = {
     scalatest ++ logging ++ config ++ akkaDeps ++ awsLambda ++ awsSecrets
