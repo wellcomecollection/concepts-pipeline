@@ -41,9 +41,7 @@ steps:
   - wait
 
   - label: "publish: ingestor"
-    branches:
-      - "main"
-      - "ingestor-ci"
+    branches: "main"
     plugins:
       - wellcomecollection/aws-assume-role#v0.2.2:
           role: "arn:aws:iam::756629837203:role/catalogue-ci"
@@ -58,9 +56,7 @@ steps:
       queue: "scala"
 
   - label: "publish: aggregator"
-    branches:
-      - "main"
-      - "ingestor-ci"
+    branches: "main"
     plugins:
       - wellcomecollection/aws-assume-role#v0.2.2:
           role: "arn:aws:iam::756629837203:role/catalogue-ci"
@@ -77,9 +73,7 @@ steps:
   - wait
 
   - label: "deploy to live pipeline"
-    branches:
-    - "main"
-    - "ingestor-ci"
+    branches: "main"
     plugins:
       - wellcomecollection/aws-assume-role#v0.2.2:
           role: "arn:aws:iam::756629837203:role/catalogue-ci"
