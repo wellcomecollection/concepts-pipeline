@@ -6,6 +6,7 @@ import grizzled.slf4j.Logging
 import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import weco.concepts.common.elasticsearch.ElasticAkkaHttpClient
+import weco.concepts.common.secrets.{ClusterConfWithSecrets, SecretsResolver}
 
 import scala.concurrent.ExecutionContext
 
@@ -23,8 +24,9 @@ trait IngestorMain extends Logging {
   implicit val actorSystem: ActorSystem = ActorSystem("main")
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
 
-  val clusterConfig =
-    config.as[ElasticAkkaHttpClient.ClusterConfig]("data-target.cluster")
+  private val clusterConfig = new ClusterConfWithSecrets(
+    SecretsResolver(config.as[String]("secrets-resolver"))
+  )(config.as[ElasticAkkaHttpClient.ClusterConfig]("data-target.cluster"))
 
   val elasticHttpClient = ElasticAkkaHttpClient(clusterConfig)
   val ingestStream = new IngestStream(

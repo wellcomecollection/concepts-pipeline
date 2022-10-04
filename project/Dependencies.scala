@@ -59,7 +59,7 @@ object ExternalDependencies {
 object ServiceDependencies {
   import ExternalDependencies._
   val common: Seq[ModuleID] =
-    scalatest ++ logging ++ uPickle ++ akkaDeps
+    scalatest ++ logging ++ uPickle ++ akkaDeps ++ awsSecrets
 
   val ingestor: Seq[ModuleID] =
     scalatest ++
@@ -68,6 +68,6 @@ object ServiceDependencies {
       akkaDeps ++ awsLambda
 
   val aggregator: Seq[ModuleID] = {
-    scalatest ++ logging ++ config ++ akkaDeps ++ awsLambda ++ awsSecrets
+    scalatest ++ logging ++ config ++ akkaDeps ++ awsLambda
   }
 }

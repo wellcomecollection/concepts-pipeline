@@ -5,15 +5,12 @@ import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import akka.actor.ActorSystem
 import grizzled.slf4j.Logging
-import weco.concepts.aggregator.secrets.{
-  ClusterConfWithSecrets,
-  SecretsResolver
-}
 import weco.concepts.aggregator.sources.WorkIdSource
 import weco.concepts.common.elasticsearch.{
   ElasticAkkaHttpClient,
   ElasticHttpClient
 }
+import weco.concepts.common.secrets.{ClusterConfWithSecrets, SecretsResolver}
 
 import scala.concurrent.ExecutionContext
 

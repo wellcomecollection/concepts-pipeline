@@ -1,4 +1,4 @@
-package weco.concepts.aggregator.secrets
+package weco.concepts.common.secrets
 
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.ElasticAkkaHttpClient.ClusterConfig
