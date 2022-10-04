@@ -78,8 +78,8 @@ resource "aws_lambda_function" "concepts_ingestor" {
   environment {
     variables = {
       ingestor_APP_CONTEXT = "remote"
-      es_host                = var.elasticsearch_host_secret.name
-      es_password            = var.elasticsearch_user.password_secret_name
+      es_host              = var.elasticsearch_host_secret.name
+      es_password          = var.elasticsearch_user.password_secret_name
     }
   }
   role = aws_iam_role.lambda_role.arn

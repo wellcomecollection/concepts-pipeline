@@ -8,12 +8,12 @@
 module "aggregator_lambda" {
   source = "../modules/pipeline_step_lambda"
 
-  ecr_repository                = var.aggregator_repository
-  elasticsearch_host_secret     = {
+  ecr_repository = var.aggregator_repository
+  elasticsearch_host_secret = {
     name = "elasticsearch/concepts-${var.namespace}/public_host"
     arn  = module.host_secrets.arns[1]
   }
-  elasticsearch_user            = module.client_service_users["aggregator"]
-  namespace                     = var.namespace
-  service_name                  = "concepts_aggregator"
+  elasticsearch_user = module.client_service_users["aggregator"]
+  namespace          = var.namespace
+  service_name       = "concepts_aggregator"
 }
