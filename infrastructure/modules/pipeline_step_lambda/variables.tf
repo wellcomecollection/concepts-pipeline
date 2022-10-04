@@ -12,7 +12,7 @@ variable "namespace" {
 }
 
 variable "service_name" {
-  type = string
+  type        = string
   description = "A name for this step"
 }
 

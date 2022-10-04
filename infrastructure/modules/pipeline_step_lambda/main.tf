@@ -1,6 +1,6 @@
 
 locals {
-  ecr_image_tag = var.namespace
+  ecr_image_tag     = var.namespace
   service_full_name = "concepts_${var.service_name}"
 }
 
@@ -73,8 +73,8 @@ resource "aws_lambda_function" "concepts_ingestor" {
   environment {
     variables = {
       "${upper(var.service_name)}_APP_CONTEXT" = "remote"
-      es_host              = var.elasticsearch_host_secret.name
-      es_password          = var.elasticsearch_user.password_secret_name
+      es_host                                  = var.elasticsearch_host_secret.name
+      es_password                              = var.elasticsearch_user.password_secret_name
     }
   }
   role = aws_iam_role.lambda_role.arn
