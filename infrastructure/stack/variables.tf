@@ -19,3 +19,10 @@ variable "aggregator_repository" {
     url  = string
   })
 }
+
+variable "ingestor_repository" {
+  type = object({
+    name = string
+    url  = string
+  })
+}
