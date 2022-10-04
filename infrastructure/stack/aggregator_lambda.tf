@@ -15,5 +15,5 @@ module "aggregator_lambda" {
   }
   elasticsearch_user = module.client_service_users["aggregator"]
   namespace          = var.namespace
-  service_name       = "concepts_aggregator"
+  service_name       = "aggregator"
 }

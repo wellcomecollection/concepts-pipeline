@@ -4,6 +4,7 @@ variable "ecr_repository" {
     name = string
     url  = string
   })
+  description = "The ECR repository where the image for the function is stored"
 }
 
 variable "namespace" {
@@ -12,6 +13,7 @@ variable "namespace" {
 
 variable "service_name" {
   type = string
+  description = "A name for this step"
 }
 
 variable "elasticsearch_host_secret" {
@@ -19,6 +21,7 @@ variable "elasticsearch_host_secret" {
     name = string
     arn  = string
   })
+  description = "name and arn of a SecretsManager secret, containing the Elasticsearch Host to write to"
 }
 
 variable "elasticsearch_user" {
@@ -26,4 +29,5 @@ variable "elasticsearch_user" {
     password_secret_name = string
     password_secret_arn  = string
   })
+  description = "name and arn of a SecretsManager secret, containing the Elasticsearch user this step should use to authenticate"
 }

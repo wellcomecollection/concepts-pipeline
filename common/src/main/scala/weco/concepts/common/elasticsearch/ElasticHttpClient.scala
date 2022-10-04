@@ -51,7 +51,7 @@ object ElasticAkkaHttpClient {
     port: Int,
     username: Option[String],
     password: Option[String],
-    resolveSecrets: Boolean = false
+    resolveSecrets: Boolean
   )
 
   def apply(clusterConfig: ClusterConfig)(implicit actorSystem: ActorSystem) =

@@ -44,20 +44,19 @@ trait AggregatorMain extends Logging {
   protected lazy val snapshotUrl: String =
     config.as[String]("data-source.works.snapshot")
 
-  private val clusterConf = new ClusterConfWithSecrets(
+  implicit val actorSystem: ActorSystem = ActorSystem("main")
+  implicit val executionContext: ExecutionContext = actorSystem.dispatcher
+
+  private val clusterConfig = new ClusterConfWithSecrets(
     SecretsResolver(config.as[String]("secrets-resolver"))
   )(config.as[ElasticAkkaHttpClient.ClusterConfig]("data-target.cluster"))
 
-  implicit val actorSystem: ActorSystem = ActorSystem("main")
-  implicit val executionContext: ExecutionContext =
-    actorSystem.dispatcher
-
-  protected val indexer: ElasticHttpClient = ElasticAkkaHttpClient(
-    clusterConf
+  private val elasticHttpClient: ElasticHttpClient = ElasticAkkaHttpClient(
+    clusterConfig
   )
 
   val aggregator: ConceptsAggregator = new ConceptsAggregator(
-    elasticHttpClient = indexer,
+    elasticHttpClient = elasticHttpClient,
     indexName = config.as[String]("data-target.index.name"),
     maxRecordsPerBulkRequest = config.as[Int]("data-target.bulk.max-records")
   )
