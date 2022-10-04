@@ -1,6 +1,7 @@
 import java.io.File
 import java.util.UUID
 import com.amazonaws.auth.STSAssumeRoleSessionCredentialsProvider
+import sbtassembly.MergeStrategy
 
 def setupProject(
   project: Project,
@@ -30,11 +31,32 @@ lazy val common = setupProject(
   externalDependencies = ServiceDependencies.common
 )
 
+def jarMergeStrategy(
+  oldStrategy: String => MergeStrategy
+): String => MergeStrategy = {
+  case PathList(ps @ _*) if ps.last == "module-info.class" =>
+    // The module-info.class files in logback-classic and logback-core clash.
+    MergeStrategy.rename
+  case PathList(ps @ _*) if ps.last == "io.netty.versions.properties" =>
+    // AWS libraries bring along this file.  They are all bodily the same, but with a
+    // comment containing the time they were generated
+    MergeStrategy.first
+  case x =>
+    // Do whatever the default is for this file.
+    oldStrategy(x)
+}
+
 lazy val ingestor = setupProject(
   project,
   folder = "ingestor",
   localDependencies = Seq(common),
   externalDependencies = ServiceDependencies.ingestor
+).settings(
+  assembly / assemblyOutputPath := file("target/ingestor.jar"),
+  assembly / mainClass := Some("weco.concepts.ingestor.Main"),
+  assembly / assemblyMergeStrategy := jarMergeStrategy(
+    (ThisBuild / assemblyMergeStrategy).value
+  )
 )
 
 lazy val aggregator = setupProject(
@@ -45,19 +67,9 @@ lazy val aggregator = setupProject(
 ).settings(
   assembly / assemblyOutputPath := file("target/aggregator.jar"),
   assembly / mainClass := Some("weco.concepts.aggregator.Main"),
-  assembly / assemblyMergeStrategy := {
-    case PathList(ps @ _*) if ps.last == "module-info.class" =>
-      // The module-info.class files in logback-classic and logback-core clash.
-      MergeStrategy.rename
-    case PathList(ps @ _*) if ps.last == "io.netty.versions.properties" =>
-      // AWS libraries bring along this file.  They are all bodily the same, but with a
-      // comment containing the time they were generated
-      MergeStrategy.first
-    case x =>
-      // Do whatever the default is for this file.
-      val oldStrategy = (ThisBuild / assemblyMergeStrategy).value
-      oldStrategy(x)
-  }
+  assembly / assemblyMergeStrategy := jarMergeStrategy(
+    (ThisBuild / assemblyMergeStrategy).value
+  )
 )
 
 // AWS Credentials to read from S3

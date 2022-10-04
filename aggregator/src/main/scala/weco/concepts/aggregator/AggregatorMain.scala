@@ -5,15 +5,12 @@ import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import akka.actor.ActorSystem
 import grizzled.slf4j.Logging
-import weco.concepts.aggregator.secrets.{
-  ClusterConfWithSecrets,
-  SecretsResolver
-}
 import weco.concepts.aggregator.sources.WorkIdSource
 import weco.concepts.common.elasticsearch.{
   ElasticAkkaHttpClient,
   ElasticHttpClient
 }
+import weco.concepts.common.secrets.{ClusterConfWithSecrets, SecretsResolver}
 
 import scala.concurrent.ExecutionContext
 
@@ -47,20 +44,19 @@ trait AggregatorMain extends Logging {
   protected lazy val snapshotUrl: String =
     config.as[String]("data-source.works.snapshot")
 
-  private val clusterConf = new ClusterConfWithSecrets(
+  implicit val actorSystem: ActorSystem = ActorSystem("main")
+  implicit val executionContext: ExecutionContext = actorSystem.dispatcher
+
+  private val clusterConfig = new ClusterConfWithSecrets(
     SecretsResolver(config.as[String]("secrets-resolver"))
   )(config.as[ElasticAkkaHttpClient.ClusterConfig]("data-target.cluster"))
 
-  protected val indexer: ElasticHttpClient = ElasticAkkaHttpClient(
-    clusterConf
+  private val elasticHttpClient: ElasticHttpClient = ElasticAkkaHttpClient(
+    clusterConfig
   )
 
-  implicit val actorSystem: ActorSystem = ActorSystem("main")
-  implicit val executionContext: ExecutionContext =
-    actorSystem.dispatcher
-
   val aggregator: ConceptsAggregator = new ConceptsAggregator(
-    elasticHttpClient = indexer,
+    elasticHttpClient = elasticHttpClient,
     indexName = config.as[String]("data-target.index.name"),
     maxRecordsPerBulkRequest = config.as[Int]("data-target.bulk.max-records")
   )

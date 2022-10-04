@@ -1,9 +1,8 @@
-package weco.concepts.aggregator
+package weco.concepts.common.secrets
 
 import org.scalatest.GivenWhenThen
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
-import weco.concepts.aggregator.secrets.ClusterConfWithSecrets
 import weco.concepts.common.elasticsearch.ElasticAkkaHttpClient.ClusterConfig
 
 class ClusterConfWithSecretsTest
@@ -31,17 +30,24 @@ class ClusterConfWithSecretsTest
       When("ClusterConfWithSecrets is applied")
       val resolvedConfig = replacer(config)
       Then(
-        "the host and password secrets are resolved, leaving other value as they were"
+        "the host and password secrets are resolved"
       )
-      resolvedConfig shouldBe ClusterConfig(
-        scheme = "gopher",
-        host = "example.com",
-        port = 1234,
-        username = Some("Henry"),
-        password = Some("password")
+      resolvedConfig should have(
+        Symbol("host")("example.com"),
+        Symbol("password")(Some("password"))
       )
+
       And("secret resolution on the new config should be off")
       resolvedConfig.resolveSecrets shouldBe false
+
+      And(
+        "the other properties are left alone"
+      )
+      resolvedConfig should have(
+        Symbol("scheme")("gopher"),
+        Symbol("port")(1234),
+        Symbol("username")(Some("Henry"))
+      )
     }
 
     Scenario("Disabling secret resolution") {

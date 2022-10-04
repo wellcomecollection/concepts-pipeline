@@ -9,6 +9,7 @@ import grizzled.slf4j.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
+import scala.io.{Source => IOSource}
 
 class Indices(elasticHttpClient: ElasticHttpClient)(implicit mat: Materializer)
     extends Logging {
@@ -17,7 +18,7 @@ class Indices(elasticHttpClient: ElasticHttpClient)(implicit mat: Materializer)
   def create(name: String): Future[Done] =
     create(
       name = name,
-      config = io.Source.fromResource("index.json").getLines().mkString("\n")
+      config = IOSource.fromResource("index.json").getLines().mkString("\n")
     )
 
   def create(name: String, config: String): Future[Done] =
