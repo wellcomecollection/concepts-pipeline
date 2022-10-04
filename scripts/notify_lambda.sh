@@ -19,5 +19,6 @@ aws lambda update-function-code --function-name ${PIPELINE_NAMESPACE}-${SERVICE_
 # Waiting here and then reading the configuration is not a necessary step,
 # but it may aid investigations if something goes awry.
 aws lambda wait function-updated --function-name ${PIPELINE_NAMESPACE}-${SERVICE_NAME}
+echo "new lambda configuration, after change"
 aws lambda get-function-configuration --function-name ${PIPELINE_NAMESPACE}-${SERVICE_NAME}
 
