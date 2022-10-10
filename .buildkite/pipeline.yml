@@ -78,7 +78,7 @@ steps:
       - wellcomecollection/aws-assume-role#v0.2.2:
           role: "arn:aws:iam::756629837203:role/catalogue-ci"
     commands:
-      - sh .buildkite/scripts/deploy.sh ${LIVE_PIPELINE} "concepts_aggregator"${BUILDKITE_COMMIT}
+      - sh .buildkite/scripts/deploy.sh ${LIVE_PIPELINE} "concepts_aggregator" ${BUILDKITE_COMMIT}
 
   - label: "deploy ingestor to live pipeline"
     branches: "main"
