@@ -49,11 +49,21 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
   })
 
   case class TestDoc(id: String, value: Int)
-  object TestDocFormatter extends BulkFormatter[TestDoc] {
+
+  class TestBulkUpdateFlow(
+    elasticHttpClient: ElasticHttpClient,
+    maxBulkRecords: Int,
+    indexName: String
+  ) extends BulkUpdateFlow[TestDoc](
+        elasticHttpClient,
+        maxBulkRecords,
+        indexName
+      ) {
     def identifier(item: TestDoc): Option[String] = item.id match {
       case "none" => None
       case id     => Some(id)
     }
+
     def doc(item: TestDoc): Option[ujson.Obj] =
       Some(ujson.Obj("id" -> item.id, "value" -> item.value))
   }
@@ -62,10 +72,9 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
     val groupSize = 10
     val nDocs = 1000
 
-    val bulkUpdateFlow = new BulkUpdateFlow[TestDoc](
-      formatter = TestDocFormatter,
-      max_bulk_records = groupSize,
+    val bulkUpdateFlow = new TestBulkUpdateFlow(
       elasticHttpClient = client,
+      maxBulkRecords = groupSize,
       indexName = "test-index"
     )
     val documents = (1 to nDocs).map(i => TestDoc(id = i.toString, value = i))
@@ -81,10 +90,9 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
   }
 
   it("filters out items that aren't transformed successfully") {
-    val bulkUpdateFlow = new BulkUpdateFlow[TestDoc](
-      formatter = TestDocFormatter,
-      max_bulk_records = 10,
+    val bulkUpdateFlow = new TestBulkUpdateFlow(
       elasticHttpClient = client,
+      maxBulkRecords = 10,
       indexName = "test-index"
     )
     val documents = Seq(

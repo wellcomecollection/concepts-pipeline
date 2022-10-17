@@ -6,7 +6,6 @@ import akka.http.scaladsl.Http
 import akka.stream.scaladsl._
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
-  BulkUpdateFlow,
   ElasticHttpClient,
   Indices
 }
@@ -32,10 +31,9 @@ class IngestStream(
     conceptSource[IdentifierType.LCSubjects.type](subjectsUrl)
   lazy val namesSource: Source[Concept, NotUsed] =
     conceptSource[IdentifierType.LCNames.type](namesUrl)
-  lazy val bulkUpdater = new BulkUpdateFlow(
-    formatter = ConceptFormatter,
-    max_bulk_records = maxRecordsPerBulkRequest,
+  lazy val bulkUpdater = new ConceptBulkUpdateFlow(
     elasticHttpClient = elasticHttpClient,
+    maxBulkRecords = maxRecordsPerBulkRequest,
     indexName = indexName
   )
   lazy val indices = new Indices(elasticHttpClient)

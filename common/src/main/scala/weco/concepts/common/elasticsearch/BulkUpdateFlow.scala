@@ -33,19 +33,22 @@ import scala.util.{Failure, Success}
  *  the output is just ot allow it to report on some numbers.
  */
 
-/** Formatter to turn concepts into couplets for use in an Elasticsearch Bulk
-  * update request.
-  */
-trait BulkFormatter[T] {
+abstract class BulkUpdateFlow[T](
+  elasticHttpClient: ElasticHttpClient,
+  maxBulkRecords: Int,
+  indexName: String
+) extends Logging {
+
   def identifier(item: T): Option[String]
   def doc(item: T): Option[ujson.Obj]
-  def format(index: String)(item: T): Option[String] = for {
+
+  def format(item: T): Option[String] = for {
     id <- identifier(item)
     source <- doc(item)
   } yield {
     val action = ujson.Obj(
       "update" -> ujson.Obj(
-        "_index" -> index,
+        "_index" -> indexName,
         "_id" -> id
       )
     )
@@ -55,20 +58,12 @@ trait BulkFormatter[T] {
     )
     s"${action.render()}\n${document.render()}"
   }
-}
-
-class BulkUpdateFlow[T](
-  formatter: BulkFormatter[T],
-  max_bulk_records: Int,
-  elasticHttpClient: ElasticHttpClient,
-  indexName: String
-) extends Logging {
 
   def flow: Flow[T, Map[String, Int], NotUsed] =
     Flow
-      .fromFunction(formatter.format(indexName))
+      .fromFunction(format)
       .collect { case Some(update) => update }
-      .grouped(max_bulk_records)
+      .grouped(maxBulkRecords)
       .via(elasticsearchBulkFlow)
       .via(checkResultsFlow)
       .via(accumulateTotals)

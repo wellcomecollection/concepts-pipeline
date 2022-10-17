@@ -3,11 +3,7 @@ import akka.actor.ActorSystem
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import grizzled.slf4j.Logging
-import weco.concepts.common.elasticsearch.{
-  BulkUpdateFlow,
-  ElasticHttpClient,
-  Indices
-}
+import weco.concepts.common.elasticsearch.{ElasticHttpClient, Indices}
 import weco.concepts.common.model.UsedConcept
 
 import scala.collection.mutable.{Set => MutableSet}
@@ -23,10 +19,9 @@ class ConceptsAggregator(
   actorSystem: ActorSystem
 ) extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-  private val bulkUpdateFlow = new BulkUpdateFlow(
-    formatter = UsedConceptFormatter,
-    max_bulk_records = maxRecordsPerBulkRequest,
+  private val bulkUpdateFlow = new UsedConceptBulkUpdateFlow(
     elasticHttpClient = elasticHttpClient,
+    maxBulkRecords = maxRecordsPerBulkRequest,
     indexName = indexName
   ).flow
   private val indices = new Indices(elasticHttpClient)
