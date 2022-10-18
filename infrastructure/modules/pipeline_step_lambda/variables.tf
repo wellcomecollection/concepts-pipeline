@@ -33,11 +33,11 @@ variable "elasticsearch_user" {
 }
 
 variable "timeout" {
-  default = 600
+  default     = 600
   description = "lambda function timeout"
 }
 
 variable "memory_size" {
-  default = 1024
+  default     = 1024
   description = "lambda function memory size"
 }

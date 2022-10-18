@@ -6,7 +6,7 @@
 # used concepts in Elasticsearch.
 #
 locals {
-  catalogue_account = 760097843905
+  catalogue_account    = 760097843905
   works_ingestor_topic = "arn:aws:sns:eu-west-1:${local.catalogue_account}:catalogue-${var.catalogue_namespace}_ingestor_works_output"
 }
 
@@ -25,7 +25,7 @@ module "aggregator_lambda" {
   # A timeout of 20 seconds gives plenty of buffer if we choose to run it over more
   # records, or if either the Works API or Elasticsearch are uncharacteristically slow,
   # without excessively permitting it to run for ages.
-  timeout            = 20
+  timeout = 20
 }
 
 module "input_queue" {

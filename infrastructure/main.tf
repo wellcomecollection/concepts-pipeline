@@ -1,7 +1,7 @@
 module "concepts_pipeline" {
   source = "./stack"
 
-  namespace = "2022-08-31"
+  namespace           = "2022-08-31"
   catalogue_namespace = "2022-10-14"
 
   network_config     = local.network_config
