@@ -48,6 +48,9 @@ object ExternalDependencies {
     "com.amazonaws" % "aws-lambda-java-core" % "1.2.1",
     "com.google.code.gson" % "gson" % "2.9.0"
   )
+  val awsLambdaEvents = Seq(
+    "com.amazonaws" % "aws-lambda-java-events" % "3.11.0"
+  )
 
   val awsSecrets = Seq(
     "software.amazon.awssdk" % "secretsmanager" % "2.17.271",
@@ -68,6 +71,6 @@ object ServiceDependencies {
       akkaDeps ++ awsLambda
 
   val aggregator: Seq[ModuleID] = {
-    scalatest ++ logging ++ config ++ akkaDeps ++ awsLambda
+    scalatest ++ logging ++ config ++ akkaDeps ++ awsLambda ++ awsLambdaEvents
   }
 }

@@ -13,7 +13,7 @@ variable "namespace" {
 
 variable "service_name" {
   type        = string
-  description = "A name for this step"
+  description = "a name for this step"
 }
 
 variable "elasticsearch_host_secret" {
@@ -30,4 +30,14 @@ variable "elasticsearch_user" {
     password_secret_arn  = string
   })
   description = "name and arn of a SecretsManager secret, containing the Elasticsearch user this step should use to authenticate"
+}
+
+variable "timeout" {
+  default = 600
+  description = "lambda function timeout"
+}
+
+variable "memory_size" {
+  default = 1024
+  description = "lambda function memory size"
 }

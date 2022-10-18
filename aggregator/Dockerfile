@@ -32,4 +32,4 @@ RUN mkdir -p /opt/extensions
 
 COPY --from=sbt /app/target/aggregator.jar ${LAMBDA_TASK_ROOT}/lib/
 ENV AGGREGATOR_APP_CONTEXT=remote
-CMD ["weco.concepts.aggregator.LambdaMain::handleRequest"]
+CMD ["weco.concepts.aggregator.SQSMain::handleRequest"]

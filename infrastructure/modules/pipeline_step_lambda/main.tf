@@ -64,12 +64,30 @@ resource "aws_iam_role_policy_attachment" "lambda_role_attachment" {
   policy_arn = aws_iam_policy.concepts_lambda_policy.arn
 }
 
-resource "aws_lambda_function" "concepts_ingestor" {
+resource "aws_lambda_function" "pipeline_step" {
   function_name = "${var.namespace}-${local.service_full_name}"
   package_type  = "Image"
   image_uri     = "${var.ecr_repository.url}@${data.aws_ecr_image.lambda_image.id}"
-  timeout       = 600
-  memory_size   = 1024
+  timeout       = var.timeout
+  memory_size   = var.memory_size
+
+  # No Concurrency:
+  # Pipeline steps invoked on a schedule or manually are expected to be run very infrequently,
+  # so will not overlap.
+  # Pipeline steps invoked (directly or indirectly) by the works ingestor will have a low,
+  # but bursty throughput.
+  # Setting concurrency to 1 speeds things up by preventing cold starts,
+  # which have an overhead of about 13 seconds, partly due to secret lookups.
+  # Taking the Aggregator as an example and given a batch size of 10
+  # (default for Lamdba SQS triggers):
+  # Running a warm function takes about 300 ms.
+  # So running once takes ca. 13.3ms, twice takes 13.6s
+  # If we allow parallel execution, then, in a worst case scenario,
+  # where there are 19 messages to process, and a 20th arrives at
+  # about 13000ms after the first function is invoked, it could take
+  # over 26 seconds to process all 20.
+  reserved_concurrent_executions = 1
+
   environment {
     variables = {
       "${upper(var.service_name)}_APP_CONTEXT" = "remote"
