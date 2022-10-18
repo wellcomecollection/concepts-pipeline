@@ -5,7 +5,9 @@ import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import akka.actor.ActorSystem
 import grizzled.slf4j.Logging
+import software.amazon.awssdk.services.sns.SnsAsyncClient
 import weco.concepts.aggregator.sources.WorkIdSource
+import weco.concepts.common.aws.AuthenticatedClient
 import weco.concepts.common.elasticsearch.{
   ElasticAkkaHttpClient,
   ElasticHttpClient
@@ -54,11 +56,19 @@ trait AggregatorMain extends Logging {
   private val elasticHttpClient: ElasticHttpClient = ElasticAkkaHttpClient(
     clusterConfig
   )
+  private val updatesTopicArn = config.as[String]("updates-topic")
+  private val topicPublisher = new TopicPublisher(
+    snsClient = AuthenticatedClient(
+      AuthenticatedClient.CredentialsProvider.Environment,
+      SnsAsyncClient.builder()
+    ),
+    topicArn = updatesTopicArn
+  )
 
   val aggregator: ConceptsAggregator = new ConceptsAggregator(
     elasticHttpClient = elasticHttpClient,
+    topicPublisher = topicPublisher,
     indexName = config.as[String]("data-target.index.name"),
     maxRecordsPerBulkRequest = config.as[Int]("data-target.bulk.max-records")
   )
-
 }

@@ -5,8 +5,11 @@ object ExternalDependencies {
     val akka = "2.6.19"
     val akkaHttp =
       "10.2.9" // This is a separate library to the rest of the akka-* world
+    val awsLambda = "1.2.1"
+    val awsSdk = "2.17.271"
     val ficus = "1.5.2"
     val grizzledSlf4j = "1.3.4"
+    val gson = "2.9.0"
     val logback = "1.4.0"
     val scalatest = "3.2.12"
     val typesafeConfig = "1.4.2"
@@ -45,15 +48,19 @@ object ExternalDependencies {
     Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
 
   val awsLambda = Seq(
-    "com.amazonaws" % "aws-lambda-java-core" % "1.2.1",
-    "com.google.code.gson" % "gson" % "2.9.0"
+    "com.amazonaws" % "aws-lambda-java-core" % versions.awsLambda,
+    "com.google.code.gson" % "gson" % versions.gson
   )
 
   val awsSecrets = Seq(
-    "software.amazon.awssdk" % "secretsmanager" % "2.17.271",
-    "software.amazon.awssdk" % "sts" % "2.17.271"
+    "software.amazon.awssdk" % "secretsmanager" % versions.awsSdk,
+    "software.amazon.awssdk" % "sts" % versions.awsSdk
   )
 
+  val awsSns = Seq(
+    "software.amazon.awssdk" % "sns" % versions.awsSdk,
+    "software.amazon.awssdk" % "sts" % versions.awsSdk
+  )
 }
 
 object ServiceDependencies {
@@ -68,6 +75,6 @@ object ServiceDependencies {
       akkaDeps ++ awsLambda
 
   val aggregator: Seq[ModuleID] = {
-    scalatest ++ logging ++ config ++ akkaDeps ++ awsLambda
+    scalatest ++ logging ++ config ++ akkaDeps ++ awsLambda ++ awsSns
   }
 }
