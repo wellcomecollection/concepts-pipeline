@@ -5,6 +5,7 @@ import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
+import weco.concepts.common.elasticsearch.BulkUpdateResult
 import weco.concepts.common.fixtures.TestElasticHttpClient
 import weco.concepts.common.model.{Concept, Identifier, IdentifierType}
 
@@ -33,7 +34,7 @@ class ConceptBulkUpdateFlowTest extends AnyFunSpec with Matchers {
     Source
       .single(invalidConcept)
       .via(updateFlow.flow)
-      .runWith(TestSink.probe[Map[String, Int]])
+      .runWith(TestSink.probe[BulkUpdateResult])
       .request(1)
       .expectComplete()
   }

@@ -32,7 +32,7 @@ class ConceptsAggregator(
         .via(deduplicateFlow)
         .via(bulkUpdateFlow)
         .runWith(
-          Sink.fold(0L)((acc, conceptCounts) => acc + conceptCounts("total"))
+          Sink.fold(0L)((acc, result) => acc + result.total)
         )
         .map(nConcepts => {
           info(s"Extracted $nConcepts distinct concepts")

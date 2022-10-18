@@ -27,10 +27,6 @@ import scala.util.{Failure, Success}
  * it's prudent to break this up in order to ensure stability, and also to improve observability.
  * Saving it all up for one big hit, then sending it all to ES is a recipe for things to go
  * unpredictably wrong, and waiting for three minutes to see nothing happen is quite frustrating.
- *
- * TODO: I'm not sure what is the best thing to emit.  I think this is reusable by the ingestor,
- *  and that may need to know about specific changes made.  The aggregator doesn't care.
- *  the output is just ot allow it to report on some numbers.
  */
 
 abstract class BulkUpdateFlow[T](
@@ -59,7 +55,7 @@ abstract class BulkUpdateFlow[T](
     s"${action.render()}\n${document.render()}"
   }
 
-  def flow: Flow[T, Map[String, Int], NotUsed] =
+  def flow: Flow[T, BulkUpdateResult, NotUsed] =
     Flow
       .fromFunction(format)
       .collect { case Some(update) => update }
@@ -98,7 +94,7 @@ abstract class BulkUpdateFlow[T](
     * created/updated/noop counts as a Map
     */
   private def checkResultsFlow
-    : Flow[(HttpResponse, Seq[String]), Map[String, Int], NotUsed] =
+    : Flow[(HttpResponse, Seq[String]), BulkUpdateResult, NotUsed] =
     Flow
       .fromMaterializer { (materializer, _) =>
         implicit val mat: Materializer = materializer
@@ -109,19 +105,12 @@ abstract class BulkUpdateFlow[T](
               .runReduce(_ ++ _)
               .map(_.utf8String)
               .map(ujson.read(_))
-              .map { rsJson =>
-                val items = rsJson.obj("items").arr
-                val result = items
-                  .groupBy(_.obj("update").obj("result").value.toString)
-                  .view
-                  .mapValues(_.size)
-                  .toMap + ("total" -> items.length)
-
-                if (!result.get("total").contains(couplets.size)) {
+              .map(BulkUpdateResult.apply)
+              .map { result =>
+                if (result.total != couplets.size) {
                   warn("Bulk update executed fewer updates than requested")
                   warn(s"Expected ${couplets.size}, got $result")
                 }
-
                 result
               }
         }
@@ -129,13 +118,52 @@ abstract class BulkUpdateFlow[T](
       .mapMaterializedValue(_ => NotUsed)
 
   private def accumulateTotals
-    : Flow[Map[String, Int], Map[String, Int], NotUsed] =
-    Flow[Map[String, Int]].statefulMapConcat(() => {
+    : Flow[BulkUpdateResult, BulkUpdateResult, NotUsed] =
+    Flow[BulkUpdateResult].statefulMapConcat(() => {
       var total = 0L
-      (result: Map[String, Int]) => {
-        total += result.getOrElse("total", 0)
+      (result: BulkUpdateResult) => {
+        total += result.total
         info(s"Total documents updated in $indexName: $total")
         Seq(result)
       }
     })
+}
+
+case class BulkUpdateResult(
+  took: Long,
+  errored: Seq[String],
+  updated: Seq[String],
+  noop: Seq[String]
+) {
+  lazy val total: Int = updated.size + noop.size
+}
+
+object BulkUpdateResult {
+  import weco.concepts.common.json.JsonOps._
+  def apply(responseJson: ujson.Value): BulkUpdateResult = BulkUpdateResult(
+    took = responseJson.opt[Long]("took").getOrElse(0L),
+    errored = itemIds(_.opt[ujson.Value]("error").isDefined)(responseJson),
+    updated = itemIds(
+      _.opt[String]("result").exists {
+        case "updated" => true
+        case "created" => true
+        case _         => false
+      }
+    )(responseJson),
+    noop = itemIds(_.opt[String]("result").contains("noop"))(responseJson)
+  )
+
+  private def itemIds(
+    pred: ujson.Value => Boolean
+  )(json: ujson.Value): Seq[String] =
+    json
+      .opt[Seq[ujson.Value]]("items")
+      .map {
+        _.flatMap(_.opt[ujson.Value]("update"))
+          .collect {
+            case item if pred(item) => item.opt[String]("_id")
+          }
+          .flatten
+      }
+      .getOrElse(Nil)
 }
