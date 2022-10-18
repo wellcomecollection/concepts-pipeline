@@ -6,7 +6,7 @@
 # used concepts in Elasticsearch.
 #
 locals {
-  catalogue_account    = 760097843905
+  catalogue_account           = 760097843905
   works_ingestor_output_topic = "arn:aws:sns:eu-west-1:${local.catalogue_account}:catalogue-${var.catalogue_namespace}_ingestor_works_output"
 }
 
