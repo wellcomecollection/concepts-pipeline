@@ -17,7 +17,7 @@ variable "service_name" {
 }
 
 variable "description" {
-  default = ""
+  default     = ""
   description = "a description for this step, to be displayed on the lambda function"
 }
 
