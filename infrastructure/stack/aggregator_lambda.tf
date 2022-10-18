@@ -7,7 +7,7 @@
 #
 locals {
   catalogue_account    = 760097843905
-  works_ingestor_topic = "arn:aws:sns:eu-west-1:${local.catalogue_account}:catalogue-${var.catalogue_namespace}_ingestor_works_output"
+  works_ingestor_output_topic = "arn:aws:sns:eu-west-1:${local.catalogue_account}:catalogue-${var.catalogue_namespace}_ingestor_works_output"
 }
 
 module "aggregator_lambda" {
@@ -34,7 +34,7 @@ module "input_queue" {
 
   queue_name = "${var.namespace}_aggregator_input"
 
-  topic_arns                 = [local.works_ingestor_topic]
+  topic_arns                 = [local.works_ingestor_output_topic]
   visibility_timeout_seconds = 30
   max_receive_count          = 1
   message_retention_seconds  = 1200
