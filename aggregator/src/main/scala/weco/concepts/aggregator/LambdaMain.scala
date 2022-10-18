@@ -8,6 +8,9 @@ import java.util.{Map => JavaMap}
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 
+/*
+ * This will become the bulk-only version.
+ */
 object LambdaMain
     extends RequestHandler[JavaMap[String, String], String]
     with AggregatorMain

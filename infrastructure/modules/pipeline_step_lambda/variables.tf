@@ -16,6 +16,11 @@ variable "service_name" {
   description = "a name for this step"
 }
 
+variable "description" {
+  default = ""
+  description = "a description for this step, to be displayed on the lambda function"
+}
+
 variable "elasticsearch_host_secret" {
   type = object({
     name = string

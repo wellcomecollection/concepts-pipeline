@@ -70,7 +70,7 @@ resource "aws_lambda_function" "pipeline_step" {
   image_uri     = "${var.ecr_repository.url}@${data.aws_ecr_image.lambda_image.id}"
   timeout       = var.timeout
   memory_size   = var.memory_size
-
+  description   = var.description
   # No Concurrency:
   # Pipeline steps invoked on a schedule or manually are expected to be run very infrequently,
   # so will not overlap.

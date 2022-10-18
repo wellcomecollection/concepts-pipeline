@@ -21,9 +21,10 @@ module "aggregator_lambda" {
   elasticsearch_user = module.client_service_users["aggregator"]
   namespace          = var.namespace
   service_name       = "aggregator"
+  description        = "Aggregate concepts used in Works when they are ingested by the works pipeline"
   # This function takes 13-15 seconds to start up, and ca. 300ms to run over 10 records
   # A timeout of 20 seconds gives plenty of buffer if we choose to run it over more
-  # records, or if either the Works API or Elasticsearch are uncharacteristically slow,
+  # records, or if any service it relies on is uncharacteristically slow,
   # without excessively permitting it to run for ages.
   timeout = 20
 }

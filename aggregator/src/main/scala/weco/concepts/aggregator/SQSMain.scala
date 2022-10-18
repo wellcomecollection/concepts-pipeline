@@ -34,7 +34,7 @@ object SQSMain
     } map (_.str)
 
     context.getLogger.log(
-      s"running aggregator lambda for $workIds, Lambda request: ${context.getAwsRequestId}"
+      s"running aggregator lambda over ${workIds.length} works: $workIds, Lambda request: ${context.getAwsRequestId}"
     )
     val f = aggregator
       .run(workIdSource(workIds.iterator))
