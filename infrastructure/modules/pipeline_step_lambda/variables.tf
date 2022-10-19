@@ -31,3 +31,10 @@ variable "elasticsearch_user" {
   })
   description = "name and arn of a SecretsManager secret, containing the Elasticsearch user this step should use to authenticate"
 }
+
+variable "environment_variables" {
+  type        = map(string)
+  description = "Arbitrary environment variables to give to the Lambda"
+  default     = {}
+}
+
