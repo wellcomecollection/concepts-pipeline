@@ -114,4 +114,117 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
       )
       .expectComplete()
   }
+
+  describe("BulkUpdateResult") {
+    it("parses updates and noops correctly") {
+      val json =
+        """
+          |{
+          |  "took": 1234,
+          |  "errors": false,
+          |  "items": [
+          |    {
+          |      "update": {
+          |        "_index": "authoritative-concepts",
+          |        "_id": "lc-names:n83217500",
+          |        "_version": 1,
+          |        "result": "noop",
+          |        "_shards": {
+          |          "total": 2,
+          |          "successful": 1,
+          |          "failed": 0
+          |        },
+          |        "_seq_no": 12345678,
+          |        "_primary_term": 2,
+          |        "status": 200
+          |      }
+          |    },
+          |    {
+          |      "update": {
+          |        "_index": "authoritative-concepts",
+          |        "_id": "lc-names:no2008068818",
+          |        "_version": 2,
+          |        "result": "updated",
+          |        "_shards": {
+          |          "total": 2,
+          |          "successful": 1,
+          |          "failed": 0
+          |        },
+          |        "_seq_no": 23456789,
+          |        "_primary_term": 2,
+          |        "status": 200
+          |      }
+          |    },
+          |    {
+          |      "update": {
+          |        "_index": "authoritative-concepts",
+          |        "_id": "lc-subjects:sh2003010454",
+          |        "_version": 1,
+          |        "result": "created",
+          |        "_shards": {
+          |          "total": 2,
+          |          "successful": 1,
+          |          "failed": 0
+          |        },
+          |        "_seq_no": 87654321,
+          |        "_primary_term": 2,
+          |        "status": 200
+          |      }
+          |    }
+          |  ]
+          |}""".stripMargin
+      val result = BulkUpdateResult(ujson.read(json))
+
+      result.took shouldBe 1234
+      result.errored shouldBe empty
+      result.updated should contain theSameElementsAs Seq(
+        "lc-names:no2008068818",
+        "lc-subjects:sh2003010454"
+      )
+      result.noop should contain only "lc-names:n83217500"
+    }
+    it("parses errors correctly") {
+      val json = """
+        |{
+        |  "took": 1234,
+        |  "errors": true,
+        |  "items": [
+        |    {
+        |      "update": {
+        |        "_index": "authoritative-concepts",
+        |        "_id": "lc-names:n83217500",
+        |        "_version": 1,
+        |        "error": {
+        |          "type": "strict_dynamic_mapping_exception",
+        |          "reason": "mapping set to strict, dynamic introduction of [evil] within [_doc] is not allowed"
+        |        },
+        |        "status": 400
+        |      }
+        |    },
+        |    {
+        |      "update": {
+        |        "_index": "authoritative-concepts",
+        |        "_id": "lc-names:no2008068818",
+        |        "_version": 2,
+        |        "result": "updated",
+        |        "_shards": {
+        |          "total": 2,
+        |          "successful": 1,
+        |          "failed": 0
+        |        },
+        |        "_seq_no": 23456789,
+        |        "_primary_term": 2,
+        |        "status": 200
+        |      }
+        |    }
+        |  ]
+        |}""".stripMargin
+      val result = BulkUpdateResult(ujson.read(json))
+
+      result.took shouldBe 1234
+      result.errored should contain only "lc-names:n83217500"
+      result.updated should contain only "lc-names:no2008068818"
+      result.noop shouldBe empty
+    }
+  }
 }
