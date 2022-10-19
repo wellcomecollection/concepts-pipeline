@@ -67,8 +67,7 @@ abstract class BulkUpdateFlow[T](
   /** Given a stream of batches of BulkAPI action/document pairs, post them to
     * Elasticsearch, emitting the responses and the expected count of updates
     */
-  private def elasticsearchBulkFlow
-    : Flow[Seq[String], (HttpResponse, Seq[String]), NotUsed] =
+  private def elasticsearchBulkFlow: Flow[Seq[String], HttpResponse, NotUsed] =
     Flow[Seq[String]]
       .map { couplets =>
         val requestBody = couplets.mkString(start = "", sep = "\n", end = "\n")
@@ -76,12 +75,12 @@ abstract class BulkUpdateFlow[T](
           method = HttpMethods.POST,
           uri = "/_bulk",
           entity = HttpEntity(ContentTypes.`application/json`, requestBody)
-        ) -> couplets
+        ) -> ()
       }
-      .via(elasticHttpClient.flow[Seq[String]])
+      .via(elasticHttpClient.flow[Unit])
       .map {
-        case (Success(response), couplets) if response.status.isSuccess() =>
-          (response, couplets)
+        case (Success(response), _) if response.status.isSuccess() =>
+          response
         case (Success(errorResponse), _) =>
           error("Error response returned when sending bulk update")
           throw new RuntimeException(s"Response: $errorResponse")
@@ -93,26 +92,27 @@ abstract class BulkUpdateFlow[T](
   /** Given a Response from a BulkAPI call, log what it did. Emit the
     * created/updated/noop counts as a Map
     */
-  private def checkResultsFlow
-    : Flow[(HttpResponse, Seq[String]), BulkUpdateResult, NotUsed] =
+  private def checkResultsFlow: Flow[HttpResponse, BulkUpdateResult, NotUsed] =
     Flow
       .fromMaterializer { (materializer, _) =>
         implicit val mat: Materializer = materializer
         implicit val ec: ExecutionContext = mat.executionContext
-        Flow[(HttpResponse, Seq[String])].mapAsyncUnordered(10) {
-          case (response, couplets) =>
-            response.entity.dataBytes
-              .runReduce(_ ++ _)
-              .map(_.utf8String)
-              .map(ujson.read(_))
-              .map(BulkUpdateResult.apply)
-              .map { result =>
-                if (result.total != couplets.size) {
-                  warn("Bulk update executed fewer updates than requested")
-                  warn(s"Expected ${couplets.size}, got $result")
+        Flow[HttpResponse].mapAsyncUnordered(10) { response =>
+          response.entity.dataBytes
+            .runReduce(_ ++ _)
+            .map(_.utf8String)
+            .map(ujson.read(_))
+            .map(BulkUpdateResult.apply)
+            .map {
+              case result if result.errored.nonEmpty =>
+                result.errored.foreach { case (id, err) =>
+                  error(s"Update for $id failed: ${err.render(indent = 2)}")
                 }
-                result
-              }
+                throw new RuntimeException(
+                  s"Bulk update failed for ${result.errored.size} items (succeeded for ${result.total})"
+                )
+              case success => success
+            }
         }
       }
       .mapMaterializedValue(_ => NotUsed)
@@ -131,7 +131,7 @@ abstract class BulkUpdateFlow[T](
 
 case class BulkUpdateResult(
   took: Long,
-  errored: Seq[String],
+  errored: Map[String, ujson.Value],
   updated: Seq[String],
   noop: Seq[String]
 ) {
@@ -142,7 +142,10 @@ object BulkUpdateResult {
   import weco.concepts.common.json.JsonOps._
   def apply(responseJson: ujson.Value): BulkUpdateResult = BulkUpdateResult(
     took = responseJson.opt[Long]("took").getOrElse(0L),
-    errored = itemIds(_.opt[ujson.Value]("error").isDefined)(responseJson),
+    errored = itemIds(
+      pred = _.opt[ujson.Value]("error").isDefined,
+      transform = item => getId(item) zip item.opt[ujson.Value]("error")
+    )(responseJson).toMap,
     updated = itemIds(
       _.opt[String]("result").exists {
         case "updated" => true
@@ -153,15 +156,18 @@ object BulkUpdateResult {
     noop = itemIds(_.opt[String]("result").contains("noop"))(responseJson)
   )
 
-  private def itemIds(
-    pred: ujson.Value => Boolean
-  )(json: ujson.Value): Seq[String] =
+  private def getId(item: ujson.Value): Option[String] = item.opt[String]("_id")
+
+  private def itemIds[T](
+    pred: ujson.Value => Boolean,
+    transform: ujson.Value => Option[T] = getId _
+  )(json: ujson.Value): Seq[T] =
     json
       .opt[Seq[ujson.Value]]("items")
       .map {
         _.flatMap(_.opt[ujson.Value]("update"))
           .collect {
-            case item if pred(item) => item.opt[String]("_id")
+            case item if pred(item) => transform(item)
           }
           .flatten
       }

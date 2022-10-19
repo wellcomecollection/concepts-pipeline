@@ -107,7 +107,7 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
       .expectNext(
         BulkUpdateResult(
           took = 1234L,
-          errored = Nil,
+          errored = Map.empty,
           updated = Seq("some"),
           noop = Nil
         )
@@ -221,8 +221,17 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
         |}""".stripMargin
       val result = BulkUpdateResult(ujson.read(json))
 
+      result.errored.get("lc-names:n83217500") should contain(
+        ujson.read(
+          """
+             |{
+             |   "type": "strict_dynamic_mapping_exception",
+             |   "reason": "mapping set to strict, dynamic introduction of [evil] within [_doc] is not allowed"
+             |}""".stripMargin
+        )
+      )
+
       result.took shouldBe 1234
-      result.errored should contain only "lc-names:n83217500"
       result.updated should contain only "lc-names:no2008068818"
       result.noop shouldBe empty
     }
