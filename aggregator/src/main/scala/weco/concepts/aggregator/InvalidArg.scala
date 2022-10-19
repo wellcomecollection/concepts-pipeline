@@ -1,8 +1,7 @@
 package weco.concepts.aggregator
-import java.util.{Map => JavaMap}
 
 object InvalidArg {
-  def apply(arg: JavaMap[String, String]) =
+  def apply[T](arg: T) =
     new BadIdentifierTypeException(
       s"""Aggregator called with invalid arg: $arg. Should be {"workId": "$$canonicalid"}"""
     )

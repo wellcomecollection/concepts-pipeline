@@ -2,6 +2,10 @@ variable "namespace" {
   type = string
 }
 
+variable "catalogue_namespace" {
+  type = string
+}
+
 variable "logging_cluster_id" {
   type = string
 }
