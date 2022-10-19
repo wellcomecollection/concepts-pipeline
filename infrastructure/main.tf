@@ -1,7 +1,7 @@
 module "concepts_pipeline" {
   source = "./stack"
 
-  namespace           = "2022-08-31"
+  namespace = "2022-08-31"
   # This is the namespace of the works catalogue pipeline
   # that this concept pipeline should subscribe to for changes.
   catalogue_namespace = "2022-10-14"
