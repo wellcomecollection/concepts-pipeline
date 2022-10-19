@@ -2,40 +2,42 @@ package weco.concepts.aggregator
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import grizzled.slf4j.Logging
-import weco.concepts.aggregator.sources.WorksSnapshotSource
+import com.amazonaws.services.lambda.runtime.events.SQSEvent
+import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage
 
-import java.util.{Map => JavaMap}
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 
 /*
- * This will become the bulk-only version.
+ * A Lambda Request Handler that responds to SQS Events to run the aggregator
+ * over a list of SNS messages from the Works Ingestor.
+ *
+ * An SQS Event contains a list of SQS Messages, which contain, in the body,
+ * the message retrieved from the SNS topic (as a string of JSON)
+ *
+ * See: https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
  */
-object LambdaMain
-    extends RequestHandler[JavaMap[String, String], String]
+
+object SQSMain
+    extends RequestHandler[SQSEvent, String]
     with AggregatorMain
     with Logging {
 
   override def handleRequest(
-    event: JavaMap[String, String],
+    event: SQSEvent,
     context: Context
   ): String = {
-    val workId = event.get("workId")
+    val recordList: List[SQSMessage] = event.getRecords.asScala.toList
+    val workIds = recordList flatMap { message: SQSMessage =>
+      ujson.read(message.getBody).obj.get("Message").toList
+    } map (_.str)
 
     context.getLogger.log(
-      s"running aggregator lambda for $workId, Lambda request: ${context.getAwsRequestId}"
+      s"running aggregator lambda over ${workIds.length} works: $workIds, Lambda request: ${context.getAwsRequestId}"
     )
-    val source = workId match {
-      case "all" =>
-        WorksSnapshotSource(
-          maxFrameKiB,
-          snapshotUrl
-        )
-      case null => throw InvalidArg(event)
-      case _    => workIdSource(Array(workId).iterator)
-    }
     val f = aggregator
-      .run(source)
+      .run(workIdSource(workIds.iterator))
       .recover(err => error(err.getMessage))
       .map(_ => ())
 

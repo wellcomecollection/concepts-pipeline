@@ -30,7 +30,17 @@ services:
     build:
       context: .
       dockerfile: ./aggregator/Dockerfile
+      target: sqs_lambda
     ports:
       - "9000:8080"
+    environment:
+      - "AGGREGATOR_APP_CONTEXT=docker-compose"
+  aggregator-bulk:
+    build:
+      context: .
+      dockerfile: ./aggregator/Dockerfile
+      target: bulk_lambda
+    ports:
+      - "9002:8080"
     environment:
       - "AGGREGATOR_APP_CONTEXT=docker-compose"
