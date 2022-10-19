@@ -1,4 +1,4 @@
-package test.scala.weco.concepts.recorder
+package weco.concepts.recorder
 
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers

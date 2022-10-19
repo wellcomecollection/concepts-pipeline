@@ -44,3 +44,11 @@ services:
       - "9002:8080"
     environment:
       - "AGGREGATOR_APP_CONTEXT=docker-compose"
+  recorder:
+    build:
+      context: .
+      dockerfile: ./recorder/Dockerfile
+    ports:
+      - "9003:8080"
+    environment:
+      - "RECORDER_APP_CONTEXT=docker-compose"

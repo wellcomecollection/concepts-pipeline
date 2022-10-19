@@ -6,21 +6,21 @@ WORKDIR /app
 COPY ./build.sbt ./
 COPY ./project ./project
 # make use of layers, don't go fetching all the dependencies for every code change
-RUN /run_sbt.sh "project aggregator" "update"
+RUN /run_sbt.sh "project recorder" "update"
 COPY ./common ./common
-COPY ./aggregator ./aggregator
+COPY ./recorder ./recorder
 # Build a fat jar, as recommended for lambda here:
 # https://deepdive.codiply.com/aws-lambda-function-in-scala-with-container-image
 # https://aws.amazon.com/blogs/compute/writing-aws-lambda-functions-in-scala/
-RUN /run_sbt.sh "project aggregator" "assembly"
-ENTRYPOINT ["/run_sbt.sh", "project aggregator"]
+RUN /run_sbt.sh "project recorder" "assembly"
+ENTRYPOINT ["/run_sbt.sh", "project recorder"]
 
 FROM public.ecr.aws/docker/library/eclipse-temurin:11-jre-alpine as runtime
 
 RUN apk add --no-cache bash
 
-COPY --from=sbt /app/target/aggregator.jar /opt/docker/
-ENTRYPOINT ["java", "-jar", "/opt/docker/aggregator.jar"]
+COPY --from=sbt /app/target/recorder.jar /opt/docker/
+ENTRYPOINT ["java", "-jar", "/opt/docker/recorder.jar"]
 
 FROM public.ecr.aws/lambda/java:11 as lambda
 # A Lambda container, to be used to run/test the application in Lambda mode
@@ -30,11 +30,6 @@ FROM public.ecr.aws/lambda/java:11 as lambda
 # Prevent "Cannot list external agents" warning
 RUN mkdir -p /opt/extensions
 
-COPY --from=sbt /app/target/aggregator.jar ${LAMBDA_TASK_ROOT}/lib/
-ENV AGGREGATOR_APP_CONTEXT=remote
-
-FROM lambda as sqs_lambda
-CMD ["weco.concepts.aggregator.SQSMain::handleRequest"]
-
-FROM lambda as bulk_lambda
-CMD ["weco.concepts.aggregator.LambdaMain::handleRequest"]
+COPY --from=sbt /app/target/recorder.jar ${LAMBDA_TASK_ROOT}/lib/
+ENV recorder_APP_CONTEXT=remote
+CMD ["weco.concepts.recorder.SQSMain::handleRequest"]
