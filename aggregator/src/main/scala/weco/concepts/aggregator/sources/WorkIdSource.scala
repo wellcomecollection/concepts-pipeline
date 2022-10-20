@@ -35,6 +35,10 @@ class WorkIdSource(workUrlTemplate: String)(implicit actorSystem: ActorSystem)
         case (Success(HttpResponse(StatusCodes.OK, _, entity, _)), _) =>
           Some(entity)
         case (Success(HttpResponse(StatusCodes.Gone, _, _, _)), goneWorkId) =>
+          // This does mean that we don't handle the case that a deleted/suppressed work removes
+          // a concept from use in the catalogue (resulting in a concept page being "orphaned").
+          // In reality, we don't mind this, and deletions are more likely to be handled by
+          // whole-catalogue runs of the aggregator over the snapshots.
           info(s"Updated work was removed from API: $goneWorkId")
           None
         case (Success(errorResponse), failedWorkId) =>
