@@ -89,11 +89,11 @@ resource "aws_lambda_function" "pipeline_step" {
   reserved_concurrent_executions = 1
 
   environment {
-    variables = {
+    variables = merge({
       "${upper(var.service_name)}_APP_CONTEXT" = "remote"
       es_host                                  = var.elasticsearch_host_secret.name
       es_password                              = var.elasticsearch_user.password_secret_name
-    }
+    }, var.environment_variables)
   }
   role = aws_iam_role.lambda_role.arn
   lifecycle {

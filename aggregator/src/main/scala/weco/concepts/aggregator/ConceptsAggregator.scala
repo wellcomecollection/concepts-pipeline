@@ -1,10 +1,10 @@
 package weco.concepts.aggregator
 import akka.actor.ActorSystem
 import akka.{Done, NotUsed}
-import akka.stream.scaladsl.{Flow, Sink, Source}
+import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
-  BulkUpdateFlow,
+  BulkUpdateResult,
   ElasticHttpClient,
   Indices
 }
@@ -17,16 +17,16 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 class ConceptsAggregator(
   elasticHttpClient: ElasticHttpClient,
+  topicPublisher: TopicPublisher,
   indexName: String,
   maxRecordsPerBulkRequest: Int
 )(implicit
   actorSystem: ActorSystem
 ) extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-  private val bulkUpdateFlow = new BulkUpdateFlow(
-    formatter = UsedConceptFormatter,
-    max_bulk_records = maxRecordsPerBulkRequest,
+  private val bulkUpdateFlow = new UsedConceptBulkUpdateFlow(
     elasticHttpClient = elasticHttpClient,
+    maxBulkRecords = maxRecordsPerBulkRequest,
     indexName = indexName
   ).flow
   private val indices = new Indices(elasticHttpClient)
@@ -36,8 +36,9 @@ class ConceptsAggregator(
       conceptSource(jsonSource)
         .via(deduplicateFlow)
         .via(bulkUpdateFlow)
+        .alsoTo(publishIds)
         .runWith(
-          Sink.fold(0L)((acc, conceptCounts) => acc + conceptCounts("total"))
+          Sink.fold(0L)((acc, result) => acc + result.total)
         )
         .map(nConcepts => {
           info(s"Extracted $nConcepts distinct concepts")
@@ -86,5 +87,10 @@ class ConceptsAggregator(
         if (seen.add(id)) Some(concept) else None
       }
     }
+
+  private def publishIds: Sink[BulkUpdateResult, Future[Done]] =
+    Flow[BulkUpdateResult]
+      .mapConcat(_.updated)
+      .toMat(topicPublisher.sink)(Keep.right)
 
 }

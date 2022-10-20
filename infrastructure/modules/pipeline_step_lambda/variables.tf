@@ -46,3 +46,10 @@ variable "memory_size" {
   default     = 1024
   description = "lambda function memory size"
 }
+
+variable "environment_variables" {
+  type        = map(string)
+  description = "Arbitrary environment variables to give to the Lambda"
+  default     = {}
+}
+
