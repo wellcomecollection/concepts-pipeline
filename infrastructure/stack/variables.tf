@@ -30,3 +30,10 @@ variable "ingestor_repository" {
     url  = string
   })
 }
+
+variable "recorder_repository" {
+  type = object({
+    name = string
+    url  = string
+  })
+}

@@ -25,8 +25,8 @@ object SQSMain extends RequestHandler[SQSEvent, String] with Logging {
   ): String = {
     val recordList: List[SQSMessage] = event.getRecords.asScala.toList
     val conceptIds = recordList flatMap { message: SQSMessage =>
-      ujson.read(message.getBody).obj.get("Message").toList
-    } map (_.str)
+      message.getBody
+    }
 
     context.getLogger.log(
       s"running recorder lambda over ${conceptIds.length} concepts: $conceptIds, Lambda request: ${context.getAwsRequestId}"

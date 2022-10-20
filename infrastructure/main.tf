@@ -19,4 +19,9 @@ module "concepts_pipeline" {
     name = aws_ecr_repository.concepts_ingestor.name
     url  = aws_ecr_repository.concepts_ingestor.repository_url
   }
+  
+  recorder_repository = {
+    name = aws_ecr_repository.concepts_recorder.name
+    url  = aws_ecr_repository.concepts_recorder.repository_url
+  }
 }

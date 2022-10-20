@@ -96,4 +96,7 @@ resource "aws_lambda_function" "pipeline_step" {
     }
   }
   role = aws_iam_role.lambda_role.arn
+  lifecycle {
+    ignore_changes = [image_uri]
+  }
 }
