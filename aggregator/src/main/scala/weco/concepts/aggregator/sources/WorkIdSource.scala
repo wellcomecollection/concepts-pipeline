@@ -15,9 +15,10 @@ class WorkIdSource(workUrlTemplate: String)(implicit actorSystem: ActorSystem)
     extends Logging {
   private lazy val pool = Http().superPool[String]()
 
-  def apply(workIds: Seq[String]): Source[String, NotUsed] = {
+  def apply(workIds: Iterator[String]): Source[String, NotUsed] = {
     info(s"reading from catalogue API")
-    Source(workIds)
+    Source
+      .fromIterator(() => workIds)
       .via(jsonFromWorkId)
   }
 

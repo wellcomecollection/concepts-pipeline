@@ -37,7 +37,7 @@ object SQSMain
       s"running aggregator lambda over ${workIds.length} works: $workIds, Lambda request: ${context.getAwsRequestId}"
     )
     val f = aggregator
-      .run(workIdSource(workIds))
+      .run(workIdSource(workIds.iterator))
       .recover(err => error(err.getMessage))
       .map(_ => ())
 
