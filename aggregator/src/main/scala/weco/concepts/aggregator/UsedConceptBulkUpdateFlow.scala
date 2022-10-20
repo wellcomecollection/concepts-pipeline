@@ -1,12 +1,18 @@
 package weco.concepts.aggregator
 
-import weco.concepts.common.elasticsearch.BulkFormatter
+import weco.concepts.common.elasticsearch.{BulkUpdateFlow, ElasticHttpClient}
 import weco.concepts.common.model.UsedConcept
 
-/** Formatter to turn concepts into couplets for use in an Elasticsearch Bulk
-  * update request.
-  */
-object UsedConceptFormatter extends BulkFormatter[UsedConcept] {
+class UsedConceptBulkUpdateFlow(
+  elasticHttpClient: ElasticHttpClient,
+  maxBulkRecords: Int,
+  indexName: String
+) extends BulkUpdateFlow[UsedConcept](
+      elasticHttpClient,
+      maxBulkRecords,
+      indexName
+    ) {
+
   def identifier(concept: UsedConcept): Option[String] = Some(
     concept.identifier.toString
   )

@@ -49,11 +49,21 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
   })
 
   case class TestDoc(id: String, value: Int)
-  object TestDocFormatter extends BulkFormatter[TestDoc] {
+
+  class TestBulkUpdateFlow(
+    elasticHttpClient: ElasticHttpClient,
+    maxBulkRecords: Int,
+    indexName: String
+  ) extends BulkUpdateFlow[TestDoc](
+        elasticHttpClient,
+        maxBulkRecords,
+        indexName
+      ) {
     def identifier(item: TestDoc): Option[String] = item.id match {
       case "none" => None
       case id     => Some(id)
     }
+
     def doc(item: TestDoc): Option[ujson.Obj] =
       Some(ujson.Obj("id" -> item.id, "value" -> item.value))
   }
@@ -62,29 +72,27 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
     val groupSize = 10
     val nDocs = 1000
 
-    val bulkUpdateFlow = new BulkUpdateFlow[TestDoc](
-      formatter = TestDocFormatter,
-      max_bulk_records = groupSize,
+    val bulkUpdateFlow = new TestBulkUpdateFlow(
       elasticHttpClient = client,
+      maxBulkRecords = groupSize,
       indexName = "test-index"
     )
     val documents = (1 to nDocs).map(i => TestDoc(id = i.toString, value = i))
 
     val results = Source(documents)
       .via(bulkUpdateFlow.flow)
-      .runWith(TestSink.probe[Map[String, Int]])
+      .runWith(TestSink.probe[BulkUpdateResult])
       .request(nDocs / groupSize)
       .expectNextN(nDocs / groupSize)
 
-    results.map(_.getOrElse("total", 0)).sum shouldBe nDocs
+    results.map(_.total).sum shouldBe nDocs
     client.requests.length shouldBe nDocs / groupSize
   }
 
   it("filters out items that aren't transformed successfully") {
-    val bulkUpdateFlow = new BulkUpdateFlow[TestDoc](
-      formatter = TestDocFormatter,
-      max_bulk_records = 10,
+    val bulkUpdateFlow = new TestBulkUpdateFlow(
       elasticHttpClient = client,
+      maxBulkRecords = 10,
       indexName = "test-index"
     )
     val documents = Seq(
@@ -94,9 +102,138 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
 
     Source(documents)
       .via(bulkUpdateFlow.flow)
-      .runWith(TestSink.probe[Map[String, Int]])
+      .runWith(TestSink.probe[BulkUpdateResult])
       .request(1)
-      .expectNext(Map("created" -> 1, "total" -> 1))
+      .expectNext(
+        BulkUpdateResult(
+          took = 1234L,
+          errored = Map.empty,
+          updated = Seq("some"),
+          noop = Nil
+        )
+      )
       .expectComplete()
+  }
+
+  describe("BulkUpdateResult") {
+    it("parses updates and noops correctly") {
+      val json =
+        """
+          |{
+          |  "took": 1234,
+          |  "errors": false,
+          |  "items": [
+          |    {
+          |      "update": {
+          |        "_index": "authoritative-concepts",
+          |        "_id": "lc-names:n83217500",
+          |        "_version": 1,
+          |        "result": "noop",
+          |        "_shards": {
+          |          "total": 2,
+          |          "successful": 1,
+          |          "failed": 0
+          |        },
+          |        "_seq_no": 12345678,
+          |        "_primary_term": 2,
+          |        "status": 200
+          |      }
+          |    },
+          |    {
+          |      "update": {
+          |        "_index": "authoritative-concepts",
+          |        "_id": "lc-names:no2008068818",
+          |        "_version": 2,
+          |        "result": "updated",
+          |        "_shards": {
+          |          "total": 2,
+          |          "successful": 1,
+          |          "failed": 0
+          |        },
+          |        "_seq_no": 23456789,
+          |        "_primary_term": 2,
+          |        "status": 200
+          |      }
+          |    },
+          |    {
+          |      "update": {
+          |        "_index": "authoritative-concepts",
+          |        "_id": "lc-subjects:sh2003010454",
+          |        "_version": 1,
+          |        "result": "created",
+          |        "_shards": {
+          |          "total": 2,
+          |          "successful": 1,
+          |          "failed": 0
+          |        },
+          |        "_seq_no": 87654321,
+          |        "_primary_term": 2,
+          |        "status": 200
+          |      }
+          |    }
+          |  ]
+          |}""".stripMargin
+      val result = BulkUpdateResult(ujson.read(json))
+
+      result.took shouldBe 1234
+      result.errored shouldBe empty
+      result.updated should contain theSameElementsAs Seq(
+        "lc-names:no2008068818",
+        "lc-subjects:sh2003010454"
+      )
+      result.noop should contain only "lc-names:n83217500"
+    }
+    it("parses errors correctly") {
+      val json = """
+        |{
+        |  "took": 1234,
+        |  "errors": true,
+        |  "items": [
+        |    {
+        |      "update": {
+        |        "_index": "authoritative-concepts",
+        |        "_id": "lc-names:n83217500",
+        |        "_version": 1,
+        |        "error": {
+        |          "type": "strict_dynamic_mapping_exception",
+        |          "reason": "mapping set to strict, dynamic introduction of [evil] within [_doc] is not allowed"
+        |        },
+        |        "status": 400
+        |      }
+        |    },
+        |    {
+        |      "update": {
+        |        "_index": "authoritative-concepts",
+        |        "_id": "lc-names:no2008068818",
+        |        "_version": 2,
+        |        "result": "updated",
+        |        "_shards": {
+        |          "total": 2,
+        |          "successful": 1,
+        |          "failed": 0
+        |        },
+        |        "_seq_no": 23456789,
+        |        "_primary_term": 2,
+        |        "status": 200
+        |      }
+        |    }
+        |  ]
+        |}""".stripMargin
+      val result = BulkUpdateResult(ujson.read(json))
+
+      result.errored.get("lc-names:n83217500") should contain(
+        ujson.read(
+          """
+             |{
+             |   "type": "strict_dynamic_mapping_exception",
+             |   "reason": "mapping set to strict, dynamic introduction of [evil] within [_doc] is not allowed"
+             |}""".stripMargin
+        )
+      )
+
+      result.took shouldBe 1234
+      result.updated should contain only "lc-names:no2008068818"
+      result.noop shouldBe empty
+    }
   }
 }

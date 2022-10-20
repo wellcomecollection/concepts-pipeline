@@ -27,25 +27,24 @@ import scala.util.{Failure, Success}
  * it's prudent to break this up in order to ensure stability, and also to improve observability.
  * Saving it all up for one big hit, then sending it all to ES is a recipe for things to go
  * unpredictably wrong, and waiting for three minutes to see nothing happen is quite frustrating.
- *
- * TODO: I'm not sure what is the best thing to emit.  I think this is reusable by the ingestor,
- *  and that may need to know about specific changes made.  The aggregator doesn't care.
- *  the output is just ot allow it to report on some numbers.
  */
 
-/** Formatter to turn concepts into couplets for use in an Elasticsearch Bulk
-  * update request.
-  */
-trait BulkFormatter[T] {
+abstract class BulkUpdateFlow[T](
+  elasticHttpClient: ElasticHttpClient,
+  maxBulkRecords: Int,
+  indexName: String
+) extends Logging {
+
   def identifier(item: T): Option[String]
   def doc(item: T): Option[ujson.Obj]
-  def format(index: String)(item: T): Option[String] = for {
+
+  def format(item: T): Option[String] = for {
     id <- identifier(item)
     source <- doc(item)
   } yield {
     val action = ujson.Obj(
       "update" -> ujson.Obj(
-        "_index" -> index,
+        "_index" -> indexName,
         "_id" -> id
       )
     )
@@ -55,20 +54,12 @@ trait BulkFormatter[T] {
     )
     s"${action.render()}\n${document.render()}"
   }
-}
 
-class BulkUpdateFlow[T](
-  formatter: BulkFormatter[T],
-  max_bulk_records: Int,
-  elasticHttpClient: ElasticHttpClient,
-  indexName: String
-) extends Logging {
-
-  def flow: Flow[T, Map[String, Int], NotUsed] =
+  def flow: Flow[T, BulkUpdateResult, NotUsed] =
     Flow
-      .fromFunction(formatter.format(indexName))
+      .fromFunction(format)
       .collect { case Some(update) => update }
-      .grouped(max_bulk_records)
+      .grouped(maxBulkRecords)
       .via(elasticsearchBulkFlow)
       .via(checkResultsFlow)
       .via(accumulateTotals)
@@ -76,8 +67,7 @@ class BulkUpdateFlow[T](
   /** Given a stream of batches of BulkAPI action/document pairs, post them to
     * Elasticsearch, emitting the responses and the expected count of updates
     */
-  private def elasticsearchBulkFlow
-    : Flow[Seq[String], (HttpResponse, Seq[String]), NotUsed] =
+  private def elasticsearchBulkFlow: Flow[Seq[String], HttpResponse, NotUsed] =
     Flow[Seq[String]]
       .map { couplets =>
         val requestBody = couplets.mkString(start = "", sep = "\n", end = "\n")
@@ -85,12 +75,12 @@ class BulkUpdateFlow[T](
           method = HttpMethods.POST,
           uri = "/_bulk",
           entity = HttpEntity(ContentTypes.`application/json`, requestBody)
-        ) -> couplets
+        ) -> ()
       }
-      .via(elasticHttpClient.flow[Seq[String]])
+      .via(elasticHttpClient.flow[Unit])
       .map {
-        case (Success(response), couplets) if response.status.isSuccess() =>
-          (response, couplets)
+        case (Success(response), _) if response.status.isSuccess() =>
+          response
         case (Success(errorResponse), _) =>
           error("Error response returned when sending bulk update")
           throw new RuntimeException(s"Response: $errorResponse")
@@ -102,45 +92,84 @@ class BulkUpdateFlow[T](
   /** Given a Response from a BulkAPI call, log what it did. Emit the
     * created/updated/noop counts as a Map
     */
-  private def checkResultsFlow
-    : Flow[(HttpResponse, Seq[String]), Map[String, Int], NotUsed] =
+  private def checkResultsFlow: Flow[HttpResponse, BulkUpdateResult, NotUsed] =
     Flow
       .fromMaterializer { (materializer, _) =>
         implicit val mat: Materializer = materializer
         implicit val ec: ExecutionContext = mat.executionContext
-        Flow[(HttpResponse, Seq[String])].mapAsyncUnordered(10) {
-          case (response, couplets) =>
-            response.entity.dataBytes
-              .runReduce(_ ++ _)
-              .map(_.utf8String)
-              .map(ujson.read(_))
-              .map { rsJson =>
-                val items = rsJson.obj("items").arr
-                val result = items
-                  .groupBy(_.obj("update").obj("result").value.toString)
-                  .view
-                  .mapValues(_.size)
-                  .toMap + ("total" -> items.length)
-
-                if (!result.get("total").contains(couplets.size)) {
-                  warn("Bulk update executed fewer updates than requested")
-                  warn(s"Expected ${couplets.size}, got $result")
+        Flow[HttpResponse].mapAsyncUnordered(10) { response =>
+          response.entity.dataBytes
+            .runReduce(_ ++ _)
+            .map(_.utf8String)
+            .map(ujson.read(_))
+            .map(BulkUpdateResult.apply)
+            .map {
+              case result if result.errored.nonEmpty =>
+                result.errored.foreach { case (id, err) =>
+                  error(s"Update for $id failed: ${err.render(indent = 2)}")
                 }
-
-                result
-              }
+                throw new RuntimeException(
+                  s"Bulk update failed for ${result.errored.size} items (succeeded for ${result.total})"
+                )
+              case success => success
+            }
         }
       }
       .mapMaterializedValue(_ => NotUsed)
 
   private def accumulateTotals
-    : Flow[Map[String, Int], Map[String, Int], NotUsed] =
-    Flow[Map[String, Int]].statefulMapConcat(() => {
+    : Flow[BulkUpdateResult, BulkUpdateResult, NotUsed] =
+    Flow[BulkUpdateResult].statefulMapConcat(() => {
       var total = 0L
-      (result: Map[String, Int]) => {
-        total += result.getOrElse("total", 0)
+      (result: BulkUpdateResult) => {
+        total += result.total
         info(s"Total documents updated in $indexName: $total")
         Seq(result)
       }
     })
+}
+
+case class BulkUpdateResult(
+  took: Long,
+  errored: Map[String, ujson.Value],
+  updated: Seq[String],
+  noop: Seq[String]
+) {
+  lazy val total: Int = updated.size + noop.size
+}
+
+object BulkUpdateResult {
+  import weco.concepts.common.json.JsonOps._
+  def apply(responseJson: ujson.Value): BulkUpdateResult = BulkUpdateResult(
+    took = responseJson.opt[Long]("took").getOrElse(0L),
+    errored = itemIds(
+      pred = _.opt[ujson.Value]("error").isDefined,
+      transform = item => getId(item) zip item.opt[ujson.Value]("error")
+    )(responseJson).toMap,
+    updated = itemIds(
+      _.opt[String]("result").exists {
+        case "updated" => true
+        case "created" => true
+        case _         => false
+      }
+    )(responseJson),
+    noop = itemIds(_.opt[String]("result").contains("noop"))(responseJson)
+  )
+
+  private def getId(item: ujson.Value): Option[String] = item.opt[String]("_id")
+
+  private def itemIds[T](
+    pred: ujson.Value => Boolean,
+    transform: ujson.Value => Option[T] = getId _
+  )(json: ujson.Value): Seq[T] =
+    json
+      .opt[Seq[ujson.Value]]("items")
+      .map {
+        _.flatMap(_.opt[ujson.Value]("update"))
+          .collect {
+            case item if pred(item) => transform(item)
+          }
+          .flatten
+      }
+      .getOrElse(Nil)
 }

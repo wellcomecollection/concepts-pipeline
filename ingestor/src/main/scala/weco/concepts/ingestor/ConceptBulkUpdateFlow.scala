@@ -1,9 +1,17 @@
 package weco.concepts.ingestor
 
-import weco.concepts.common.elasticsearch.BulkFormatter
+import weco.concepts.common.elasticsearch.{BulkUpdateFlow, ElasticHttpClient}
 import weco.concepts.common.model.{Concept, Identifier, IdentifierType}
 
-object ConceptFormatter extends BulkFormatter[Concept] {
+class ConceptBulkUpdateFlow(
+  elasticHttpClient: ElasticHttpClient,
+  maxBulkRecords: Int,
+  indexName: String
+) extends BulkUpdateFlow[Concept](
+      elasticHttpClient,
+      maxBulkRecords,
+      indexName
+    ) {
   // Some LCSH identifiers have a suffix, `-781`
   // This seems to be a way of representing a subdivision
   // linking for geographic entities: in practice, an alternative

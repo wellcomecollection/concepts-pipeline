@@ -1,14 +1,11 @@
 package weco.concepts.common.secrets
 
 import grizzled.slf4j.Logging
-import software.amazon.awssdk.auth.credentials.{
-  AwsCredentialsProvider,
-  DefaultCredentialsProvider,
-  EnvironmentVariableCredentialsProvider
-}
-import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest
+import weco.concepts.common.aws.AuthenticatedClient
+
+import scala.util.Using
 
 /** Fetch secrets from AWS Secrets Manager.
   *
@@ -22,21 +19,20 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueReques
   * code cribbed from this Java sample:
   * https://github.com/awsdocs/aws-doc-sdk-examples/blob/af08838cbf272adbeda96ebbf7c5bfe14f0db80d/javav2/example_code/secretsmanager/src/main/java/com/example/secrets/GetSecretValue.java
   */
-class GetAWSSecretValues(credentialsProvider: AwsCredentialsProvider)
-    extends Logging {
+class GetAWSSecretValues(
+  credentialsProvider: AuthenticatedClient.CredentialsProvider
+) extends Logging {
+  private def client =
+    AuthenticatedClient(credentialsProvider, SecretsManagerClient.builder)
+
   def apply(keys: Seq[String]): Map[String, String] = {
-    val region = Region.EU_WEST_1
     info("building secretsManager client")
-    val secretsClient: SecretsManagerClient = SecretsManagerClient.builder
-      .region(region)
-      .credentialsProvider(credentialsProvider)
-      .build()
-    info("fetching secrets")
-    val secrets = keys
-      .map(secretName => secretName -> getValue(secretsClient, secretName))
-      .toMap
-    secretsClient.close()
-    secrets
+    Using.resource(client) { secretsClient =>
+      info("fetching secrets")
+      keys
+        .map(secretName => secretName -> getValue(secretsClient, secretName))
+        .toMap
+    }
   }
 
   private def getValue(
@@ -48,33 +44,4 @@ class GetAWSSecretValues(credentialsProvider: AwsCredentialsProvider)
     val valueResponse = secretsClient.getSecretValue(valueRequest)
     valueResponse.secretString
   }
-}
-
-object GetAWSSecretValues extends Logging {
-  // Choose a credentials provider for AWS to use to sign in in order to then
-  // fetch secrets.
-  // Default will run through a bunch of methods for working out who you are.
-  // Environment will look for AWS_ACCESS_KEY_ID and AWS_SECRET_KEY and fail if that does not work.
-  //
-  // Do not use Default in production, it is very slow on Lambda.
-
-  sealed trait CredentialsProvider
-  case object Environment extends CredentialsProvider
-  case object Default extends CredentialsProvider
-
-  def apply(
-    credentialsType: CredentialsProvider
-  ): GetAWSSecretValues = {
-    info("creating credentialsProvider")
-
-    val credentialsProvider: AwsCredentialsProvider = credentialsType match {
-      case Environment =>
-        EnvironmentVariableCredentialsProvider.create()
-      case Default =>
-        DefaultCredentialsProvider.create()
-    }
-
-    new GetAWSSecretValues(credentialsProvider)
-  }
-
 }

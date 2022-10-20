@@ -31,16 +31,21 @@ locals {
 module "aggregator_lambda" {
   source = "../modules/pipeline_step_lambda"
 
+  service_name   = "aggregator"
   ecr_repository = var.aggregator_repository
+  namespace      = var.namespace
+  description    = "Aggregate concepts used in Works when they are ingested by the works pipeline"
+  timeout        = local.lambda_timeout
+
   elasticsearch_host_secret = {
     name = "elasticsearch/concepts-${var.namespace}/public_host"
     arn  = module.host_secrets.arns[1]
   }
   elasticsearch_user = module.client_service_users["aggregator"]
-  namespace          = var.namespace
-  service_name       = "aggregator"
-  description        = "Aggregate concepts used in Works when they are ingested by the works pipeline"
-  timeout            = local.lambda_timeout
+
+  environment_variables = {
+    updates_topic = module.updates_topic.arn
+  }
 }
 
 module "input_queue" {
@@ -64,4 +69,22 @@ resource "aws_lambda_event_source_mapping" "event_source_mapping" {
   event_source_arn                   = module.input_queue.arn
   function_name                      = module.aggregator_lambda.lambda_function.arn
   maximum_batching_window_in_seconds = local.event_batching_window_timeout
+}
+
+module "updates_topic" {
+  source = "github.com/wellcomecollection/terraform-aws-sns-topic.git?ref=v1.0.1"
+
+  name = "catalogue-concept-updates"
+}
+
+resource "aws_iam_policy" "publish_to_updates_topic" {
+  name        = "${var.namespace}-publish-to-updates-topic"
+  description = "Allows publication of notifications to the concept updates topic"
+
+  policy = module.updates_topic.publish_policy
+}
+
+resource "aws_iam_role_policy_attachment" "publish_to_updates_topic" {
+  role       = module.aggregator_lambda.lambda_role.name
+  policy_arn = aws_iam_policy.publish_to_updates_topic.arn
 }

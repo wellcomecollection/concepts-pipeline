@@ -1,6 +1,7 @@
 package weco.concepts.common.secrets
 
 import grizzled.slf4j.Logging
+import weco.concepts.common.aws.AuthenticatedClient
 
 /*
  * Selector to govern how to resolve secrets in config files.
@@ -12,9 +13,14 @@ object SecretsResolver extends Logging {
   def apply(key: String): Seq[String] => Map[String, String] = {
     key match {
       case "AWSEnvironment" =>
-        GetAWSSecretValues(GetAWSSecretValues.Environment).apply
-      case "AWSDefault" => GetAWSSecretValues(GetAWSSecretValues.Default).apply
-      case "None"       => keys => keys.map(key => key -> key).toMap
+        new GetAWSSecretValues(
+          AuthenticatedClient.CredentialsProvider.Environment
+        ).apply
+      case "AWSDefault" =>
+        new GetAWSSecretValues(
+          AuthenticatedClient.CredentialsProvider.Default
+        ).apply
+      case "None" => keys => keys.map(key => key -> key).toMap
       case _ =>
         error(s"unknown secrets resolver key")
         keys => keys.map(key => key -> key).toMap
