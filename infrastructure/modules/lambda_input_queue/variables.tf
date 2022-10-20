@@ -7,7 +7,7 @@ variable "service_name" {
 }
 
 variable "topic_arns" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
@@ -24,11 +24,11 @@ variable "lambda_timeout" {
 }
 
 variable "event_batching_window_timeout" {
-  type = number
+  type    = number
   default = 20
 }
 
 variable "batch_size" {
-  type = number
+  type    = number
   default = 10
 }

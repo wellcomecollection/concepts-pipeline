@@ -1,7 +1,7 @@
 module "concepts_pipeline" {
   source = "./stack"
 
-  namespace           = "2022-08-31"
+  namespace = "2022-08-31"
 
   # This is the namespace of the works catalogue pipeline
   # that this concept pipeline should subscribe to for changes.
@@ -19,7 +19,7 @@ module "concepts_pipeline" {
     name = aws_ecr_repository.concepts_ingestor.name
     url  = aws_ecr_repository.concepts_ingestor.repository_url
   }
-  
+
   recorder_repository = {
     name = aws_ecr_repository.concepts_recorder.name
     url  = aws_ecr_repository.concepts_recorder.repository_url

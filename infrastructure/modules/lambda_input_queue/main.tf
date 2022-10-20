@@ -26,8 +26,8 @@ module "input_queue" {
   # so that we don't end up with loads of old messages on the queue if we switch things off,
   # but large enough that we can disable things and reinstate them and stillhave messages to process.
   # Work out what this number should really be, and whether it should be a variable.
-  message_retention_seconds  = 1200
-  alarm_topic_arn            = ""
+  message_retention_seconds = 1200
+  alarm_topic_arn           = ""
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_sqs_role_policy" {
