@@ -2,6 +2,7 @@ package weco.concepts.aggregator
 
 import akka.Done
 import akka.stream.scaladsl.{Flow, Keep, Sink}
+import grizzled.slf4j.Logging
 import software.amazon.awssdk.services.sns.SnsAsyncClient
 import software.amazon.awssdk.services.sns.model.{
   PublishBatchRequest,
@@ -13,10 +14,13 @@ import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.compat.java8.FutureConverters._
 
-class TopicPublisher(snsClient: SnsAsyncClient, topicArn: String) {
+class TopicPublisher(snsClient: SnsAsyncClient, topicArn: String)
+    extends Logging {
   private val batchSize = 10
   private val batchTimeout = 10 seconds
   private val concurrency = 10
+
+  lazy private val topicName = topicArn.split(":").last
 
   def sink: Sink[String, Future[Done]] =
     Flow[String]
@@ -32,7 +36,11 @@ class TopicPublisher(snsClient: SnsAsyncClient, topicArn: String) {
           throw new RuntimeException(
             s"Failed to publish messages: ${failures.mkString(",")}"
           )
-        case result => result
+        case result =>
+          info(
+            s"published ${result.successful().size()} messages to topic $topicName"
+          )
+          result
       }
       .toMat(Sink.ignore)(Keep.right)
 
