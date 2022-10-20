@@ -38,6 +38,17 @@ steps:
     agents:
       queue: "scala"
 
+  - label: "test: recorder"
+    plugins:
+      - docker-compose#v3.10.0:
+          config:
+            - docker-compose.yml
+            - docker-compose.test.yml
+          run: recorder
+          command: ["test"]
+    agents:
+      queue: "scala"
+
   - wait
 
   - label: "publish: ingestor"
@@ -70,6 +81,21 @@ steps:
     agents:
       queue: "scala"
 
+  - label: "publish: recorder"
+    branches: "main"
+    plugins:
+      - wellcomecollection/aws-assume-role#v0.2.2:
+          role: "arn:aws:iam::756629837203:role/catalogue-ci"
+      - ecr#v2.5.0:
+          login: true
+      - docker-compose#v3.10.0:
+          push:
+            - recorder:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_recorder:ref.${BUILDKITE_COMMIT}
+            - recorder:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_recorder:${LIVE_PIPELINE}
+            - recorder:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_recorder:latest
+    agents:
+      queue: "scala"
+
   - wait
 
   - label: "deploy aggregator to live pipeline"
@@ -87,3 +113,11 @@ steps:
           role: "arn:aws:iam::756629837203:role/catalogue-ci"
     commands:
       - sh .buildkite/scripts/deploy.sh ${LIVE_PIPELINE} "concepts_ingestor" ${BUILDKITE_COMMIT}
+      - -
+  - label: "deploy recorder to live pipeline"
+    branches: "main"
+    plugins:
+      - wellcomecollection/aws-assume-role#v0.2.2:
+          role: "arn:aws:iam::756629837203:role/catalogue-ci"
+    commands:
+      - sh .buildkite/scripts/deploy.sh ${LIVE_PIPELINE} "concepts_recorder" ${BUILDKITE_COMMIT}
