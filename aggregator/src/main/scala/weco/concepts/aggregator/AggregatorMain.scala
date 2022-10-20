@@ -40,7 +40,7 @@ trait AggregatorMain extends Logging {
   protected val maxFrameKiB: Int =
     config.as[Int]("data-source.maxframe.kib")
 
-  protected lazy val workIdSource: WorkIdSource = WorkIdSource(
+  protected lazy val workIdSource: WorkIdSource = new WorkIdSource(
     config.as[String]("data-source.workURL.template")
   )
   protected lazy val snapshotUrl: String =

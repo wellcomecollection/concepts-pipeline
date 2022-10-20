@@ -32,7 +32,7 @@ object LambdaMain
           snapshotUrl
         )
       case null => throw InvalidArg(event)
-      case _    => workIdSource(Array(workId).iterator)
+      case _    => workIdSource(Array(workId))
     }
     val f = aggregator
       .run(source)

@@ -1,47 +1,51 @@
 package weco.concepts.aggregator.sources
 
-import scala.util.{Failure, Success, Using}
-import scala.io.{Source => IoSource}
-import akka.stream.scaladsl.{Flow, Source => AkkaSource}
+import scala.util.{Failure, Success}
+import akka.stream.scaladsl.{Flow, Source}
 import akka.NotUsed
+import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import grizzled.slf4j.Logging
 
 /** Fetch works with given workIds from the Catalogue API
   */
-class WorkIdSource(workUrlTemplate: String) extends Logging {
-  def apply(workIds: Iterator[String]): AkkaSource[String, NotUsed] = {
+class WorkIdSource(workUrlTemplate: String)(implicit actorSystem: ActorSystem)
+    extends Logging {
+  private lazy val pool = Http().superPool[String]()
+
+  def apply(workIds: Seq[String]): Source[String, NotUsed] = {
     info(s"reading from catalogue API")
-    AkkaSource
-      .fromIterator(() => workIds.iterator)
-      .via(
-        Flow.fromFunction(JSonFromWorkId)
-      )
-      .mapConcat(identity)
+    Source(workIds)
+      .via(jsonFromWorkId)
   }
 
-  private def JSonFromWorkId(workId: String): Option[String] = {
-    val workUrl = workUrlTemplate.format(workId)
-    info(s"fetching $workUrl")
-    // TODO: fromURL won't time out, so if the catalogue API is
-    //   unresponsive (not immediately returning errors), then
-    //   each call could take "forever", hitting the timeout for the application
-    //   It may be a good idea to add a very short timeout here so that it
-    //   can fail faster and possibly in a more informative manner.
-    // TODO: Also, consider setting this up to maintain the connection between calls,
-    //   That way subsequent Lambdas will be faster.
-    Using(IoSource.fromURL(workUrlTemplate.format(workId))) { source =>
-      source.mkString
-    } match {
-      case Success(jsonString) =>
-        debug(s"fetched data for $workId")
-        Some(jsonString)
-      case Failure(exception) =>
-        error(s"could not fetch $workId, $exception")
-        None
-    }
-  }
-}
-
-object WorkIdSource {
-  def apply(workUrlTemplate: String) = new WorkIdSource(workUrlTemplate)
+  private def jsonFromWorkId: Flow[String, String, NotUsed] =
+    Flow[String]
+      .map { workId =>
+        HttpRequest(
+          method = HttpMethods.GET,
+          uri = Uri(workUrlTemplate.format(workId))
+        ) -> workId
+      }
+      .via(pool)
+      .map {
+        case (Success(HttpResponse(StatusCodes.OK, _, entity, _)), _) =>
+          Some(entity)
+        case (Success(HttpResponse(StatusCodes.Gone, _, _, _)), goneWorkId) =>
+          info(s"Updated work was removed from API: $goneWorkId")
+          None
+        case (Success(errorResponse), failedWorkId) =>
+          warn(
+            s"Could not fetch $failedWorkId: request returned ${errorResponse.status.value}"
+          )
+          None
+        case (Failure(_), failedWorkId) =>
+          throw new RuntimeException(
+            s"Failure connecting to Catalogue API when fetching $failedWorkId"
+          )
+      }
+      .collect { case Some(entity) => entity }
+      .mapAsyncUnordered(10) { Unmarshal(_).to[String] }
 }
