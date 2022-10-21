@@ -37,11 +37,9 @@ class ConceptsAggregator(
         .via(deduplicateFlow)
         .via(bulkUpdateFlow)
         .alsoTo(publishIds)
-        .runWith(
-          Sink.fold(0L)((acc, result) => acc + result.total)
-        )
-        .map(nConcepts => {
-          info(s"Extracted $nConcepts distinct concepts")
+        .runWith(Sink.fold(AggregationStats.empty)(_ + _))
+        .map(stats => {
+          info(stats.summarise)
           Done
         })
     }
@@ -92,5 +90,21 @@ class ConceptsAggregator(
     Flow[BulkUpdateResult]
       .mapConcat(_.updated)
       .toMat(topicPublisher.sink)(Keep.right)
+
+  private case class AggregationStats(updated: Long, noop: Long) {
+    lazy val total: Long = updated + noop
+
+    def +(nextResult: BulkUpdateResult): AggregationStats = AggregationStats(
+      updated = updated + nextResult.updated.size,
+      noop = noop + nextResult.noop.size
+    )
+
+    def summarise: String =
+      s"""Extracted $total distinct concepts ($updated of which had been updated)"""
+  }
+
+  private object AggregationStats {
+    def empty: AggregationStats = AggregationStats(0L, 0L)
+  }
 
 }
