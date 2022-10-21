@@ -2,7 +2,7 @@ import sbt._
 
 object ExternalDependencies {
   val versions = new {
-    val akka = "2.6.19"
+    val akka = "2.7.0"
     val akkaHttp =
       "10.2.9" // This is a separate library to the rest of the akka-* world
     val awsLambda = "1.2.1"
