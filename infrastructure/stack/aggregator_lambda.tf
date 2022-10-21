@@ -47,28 +47,17 @@ module "aggregator_lambda" {
   }
 }
 
-module "input_queue" {
-  source = "github.com/wellcomecollection/terraform-aws-sqs//queue?ref=v1.2.1"
+module "aggregator_input_queue" {
+  source = "../modules/lambda_input_queue"
 
-  queue_name = "${var.namespace}_aggregator_input"
-
-  topic_arns                 = [local.works_ingestor_output_topic]
-  visibility_timeout_seconds = local.queue_visibility_timeout
-  max_receive_count          = 1
-  message_retention_seconds  = 1200
-  alarm_topic_arn            = ""
+  lambda_function_arn = module.aggregator_lambda.lambda_function.arn
+  lambda_role_name    = module.aggregator_lambda.lambda_role.name
+  lambda_timeout      = module.aggregator_lambda.lambda_function.timeout
+  namespace           = var.namespace
+  service_name        = "aggregator"
+  topic_arns          = []
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_sqs_role_policy" {
-  role       = module.aggregator_lambda.lambda_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
-}
-
-resource "aws_lambda_event_source_mapping" "event_source_mapping" {
-  event_source_arn                   = module.input_queue.arn
-  function_name                      = module.aggregator_lambda.lambda_function.arn
-  maximum_batching_window_in_seconds = local.event_batching_window_timeout
-}
 
 module "updates_topic" {
   source = "github.com/wellcomecollection/terraform-aws-sns-topic.git?ref=v1.0.1"
