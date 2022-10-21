@@ -82,4 +82,8 @@ object ServiceDependencies {
   val aggregator: Seq[ModuleID] = {
     scalatest ++ logging ++ config ++ akkaDeps ++ awsLambda ++ awsLambdaEvents ++ awsSns
   }
+
+  val recorder: Seq[ModuleID] = {
+    scalatest ++ logging ++ config ++ awsLambda ++ awsLambdaEvents
+  }
 }

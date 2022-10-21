@@ -72,6 +72,19 @@ lazy val aggregator = setupProject(
   )
 )
 
+lazy val recorder = setupProject(
+  project,
+  folder = "recorder",
+  localDependencies = Seq(common),
+  externalDependencies = ServiceDependencies.recorder
+).settings(
+  assembly / assemblyOutputPath := file("target/recorder.jar"),
+  assembly / mainClass := Some("weco.concepts.recorder.Main"),
+  assembly / assemblyMergeStrategy := jarMergeStrategy(
+    (ThisBuild / assemblyMergeStrategy).value
+  )
+)
+
 // AWS Credentials to read from S3
 s3CredentialsProvider := { _ =>
   val builder = new STSAssumeRoleSessionCredentialsProvider.Builder(

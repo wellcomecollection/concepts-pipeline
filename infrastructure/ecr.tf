@@ -5,6 +5,7 @@ resource "aws_ecr_repository" "concepts_ingestor" {
     prevent_destroy = true
   }
 }
+
 resource "aws_ecr_repository" "concepts_aggregator" {
   name = "weco/concepts_aggregator"
 
@@ -12,3 +13,12 @@ resource "aws_ecr_repository" "concepts_aggregator" {
     prevent_destroy = true
   }
 }
+
+resource "aws_ecr_repository" "concepts_recorder" {
+  name = "weco/concepts_recorder"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
