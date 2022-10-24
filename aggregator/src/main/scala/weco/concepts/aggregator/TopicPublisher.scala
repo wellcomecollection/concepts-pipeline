@@ -38,7 +38,7 @@ class TopicPublisher(snsClient: SnsAsyncClient, topicArn: String)
           )
         case result =>
           info(
-            s"published ${result.successful().size()} messages to topic $topicName"
+            s"Published ${result.successful().size()} messages to topic $topicName"
           )
           result
       }
