@@ -38,7 +38,7 @@ class FetcherTest extends AnyFunSpec with Matchers {
 
     fetcher
       .fetchFromUrl(testUrl)
-      .runWith(TestSink.probe[ByteString])
+      .runWith(TestSink[ByteString]())
       .request(1)
       .expectNext(testData)
       .expectComplete()
@@ -78,7 +78,7 @@ class FetcherTest extends AnyFunSpec with Matchers {
 
     fetcher
       .fetchFromUrl(testInitialUrl)
-      .runWith(TestSink.probe[ByteString])
+      .runWith(TestSink[ByteString]())
       .request(1)
       .expectNext(testData)
       .expectComplete()
@@ -96,7 +96,7 @@ class FetcherTest extends AnyFunSpec with Matchers {
 
     fetcher
       .fetchFromUrl(testUrl)
-      .runWith(TestSink.probe[ByteString])
+      .runWith(TestSink[ByteString]())
       .request(1)
       .expectError()
       .getMessage should include("Unexpected status")
@@ -114,7 +114,7 @@ class FetcherTest extends AnyFunSpec with Matchers {
 
     fetcher
       .fetchFromUrl(testUrl)
-      .runWith(TestSink.probe[ByteString])
+      .runWith(TestSink[ByteString]())
       .request(1)
       .expectError()
       .getMessage should include("Failure making request")

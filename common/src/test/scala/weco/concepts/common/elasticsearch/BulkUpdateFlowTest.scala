@@ -81,7 +81,7 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
 
     val results = Source(documents)
       .via(bulkUpdateFlow.flow)
-      .runWith(TestSink.probe[BulkUpdateResult])
+      .runWith(TestSink[BulkUpdateResult]())
       .request(nDocs / groupSize)
       .expectNextN(nDocs / groupSize)
 
@@ -102,7 +102,7 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
 
     Source(documents)
       .via(bulkUpdateFlow.flow)
-      .runWith(TestSink.probe[BulkUpdateResult])
+      .runWith(TestSink[BulkUpdateResult]())
       .request(1)
       .expectNext(
         BulkUpdateResult(

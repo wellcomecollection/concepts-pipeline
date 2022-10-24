@@ -34,7 +34,7 @@ class ConceptBulkUpdateFlowTest extends AnyFunSpec with Matchers {
     Source
       .single(invalidConcept)
       .via(updateFlow.flow)
-      .runWith(TestSink.probe[BulkUpdateResult])
+      .runWith(TestSink[BulkUpdateResult]())
       .request(1)
       .expectComplete()
   }
