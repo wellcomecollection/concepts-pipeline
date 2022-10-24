@@ -12,7 +12,7 @@ import scala.concurrent.ExecutionContext
 
 trait IngestorMain extends Logging {
   private val config: Config = {
-    val configName = sys.env.getOrElse("INGESTOR_APP_CONTEXT", "local")
+    val configName = sys.env.getOrElse("APP_CONTEXT", "local")
     info(s"loading config $configName")
     ConfigFactory.load(configName)
   }
