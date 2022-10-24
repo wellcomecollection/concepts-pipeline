@@ -1,7 +1,7 @@
 package weco.concepts.aggregator
 import akka.actor.ActorSystem
 import akka.{Done, NotUsed}
-import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
+import akka.stream.scaladsl.{Broadcast, Flow, Keep, Sink, Source}
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
   BulkUpdateResult,
@@ -36,12 +36,20 @@ class ConceptsAggregator(
       conceptSource(jsonSource)
         .via(deduplicateFlow)
         .via(bulkUpdateFlow)
-        .alsoTo(publishIds)
-        .runWith(Sink.fold(AggregationStats.empty)(_ + _))
-        .map(stats => {
+        .runWith(
+          Sink.combineMat(
+            publishIds,
+            Sink.fold[AggregationStats, BulkUpdateResult](
+              AggregationStats.empty
+            )(_ + _)
+          )(
+            Broadcast[BulkUpdateResult](_)
+          )(_ zip _)
+        )
+        .map { case (done, stats) =>
           info(stats.summarise)
-          Done
-        })
+          done
+        }
     }
   }
 
