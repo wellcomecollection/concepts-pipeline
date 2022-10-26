@@ -5,7 +5,11 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.scaladsl._
 import grizzled.slf4j.Logging
-import weco.concepts.common.elasticsearch.{ElasticHttpClient, Indices}
+import weco.concepts.common.elasticsearch.{
+  BulkUpdateFlow,
+  ElasticHttpClient,
+  Indices
+}
 import weco.concepts.common.model._
 import weco.concepts.common.source.{Fetcher, Scroll}
 import weco.concepts.ingestor.stages.Transformer
@@ -28,10 +32,11 @@ class IngestStream(
     conceptSource[IdentifierType.LCSubjects.type](subjectsUrl)
   lazy val namesSource: Source[AuthoritativeConcept, NotUsed] =
     conceptSource[IdentifierType.LCNames.type](namesUrl)
-  lazy val bulkUpdater = new AuthoritativeConceptBulkUpdateFlow(
+  lazy val bulkUpdater = new BulkUpdateFlow[AuthoritativeConcept](
     elasticHttpClient = elasticHttpClient,
     maxBulkRecords = maxRecordsPerBulkRequest,
-    indexName = indexName
+    indexName = indexName,
+    filterDocuments = filterConcepts
   )
   lazy val indices = new Indices(elasticHttpClient)
 
@@ -58,4 +63,19 @@ class IngestStream(
       // So 128KiB should give sufficient overhead to catch any expansion
       .via(Scroll(128 * 1024))
       .via(Transformer.apply[T])
+
+  // Some LCSH identifiers have a suffix, `-781`
+  // This seems to be a way of representing a subdivision
+  // linking for geographic entities: in practice, an alternative
+  // name for a place. We don't really care about these
+  // as they're not used in our catalogue, and it would be non-trivial
+  // to work out how to merge the subdivisions with their parents,
+  // so we just filter them out here.
+  private def filterConcepts(concept: AuthoritativeConcept): Boolean =
+    concept.identifier match {
+      case Identifier(value, IdentifierType.LCSubjects, _)
+          if value.endsWith("-781") =>
+        false
+      case _ => true
+    }
 }

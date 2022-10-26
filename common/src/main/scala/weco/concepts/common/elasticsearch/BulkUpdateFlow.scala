@@ -4,6 +4,8 @@ import akka.NotUsed
 import akka.http.scaladsl.model._
 import akka.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
+import weco.concepts.common.json.Indexable
+import weco.concepts.common.json.Indexable._
 
 import scala.util.{Failure, Success}
 
@@ -27,36 +29,30 @@ import scala.util.{Failure, Success}
  * unpredictably wrong, and waiting for three minutes to see nothing happen is quite frustrating.
  */
 
-abstract class BulkUpdateFlow[T](
+class BulkUpdateFlow[T: Indexable](
   elasticHttpClient: ElasticHttpClient,
   maxBulkRecords: Int,
-  indexName: String
+  indexName: String,
+  filterDocuments: T => Boolean = (_: T) => true
 ) extends Logging {
-
-  def identifier(item: T): Option[String]
-  def doc(item: T): Option[ujson.Value]
-
-  def format(item: T): Option[String] = for {
-    id <- identifier(item)
-    source <- doc(item)
-  } yield {
+  def format(item: T): String = {
     val action = ujson.Obj(
       "update" -> ujson.Obj(
         "_index" -> indexName,
-        "_id" -> id
+        "_id" -> item.id
       )
     )
     val document = ujson.Obj(
       "doc_as_upsert" -> true,
-      "doc" -> source
+      "doc" -> item.toDoc
     )
     s"${action.render()}\n${document.render()}"
   }
 
   def flow: Flow[T, BulkUpdateResult, NotUsed] =
-    Flow
-      .fromFunction(format)
-      .collect { case Some(update) => update }
+    Flow[T]
+      .filter(filterDocuments)
+      .via(Flow.fromFunction(format))
       .grouped(maxBulkRecords)
       .via(elasticsearchBulkFlow)
       .via(ElasticAkkaHttpClient.deserializeJson)
