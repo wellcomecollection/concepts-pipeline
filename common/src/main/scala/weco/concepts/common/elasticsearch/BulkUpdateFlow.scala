@@ -2,11 +2,9 @@ package weco.concepts.common.elasticsearch
 
 import akka.NotUsed
 import akka.http.scaladsl.model._
-import akka.stream.Materializer
 import akka.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
 
-import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 /*
@@ -61,6 +59,7 @@ abstract class BulkUpdateFlow[T](
       .collect { case Some(update) => update }
       .grouped(maxBulkRecords)
       .via(elasticsearchBulkFlow)
+      .via(ElasticAkkaHttpClient.deserializeJson)
       .via(checkResultsFlow)
       .via(accumulateTotals)
 
@@ -92,30 +91,19 @@ abstract class BulkUpdateFlow[T](
   /** Given a Response from a BulkAPI call, log what it did. Emit the
     * created/updated/noop counts as a Map
     */
-  private def checkResultsFlow: Flow[HttpResponse, BulkUpdateResult, NotUsed] =
-    Flow
-      .fromMaterializer { (materializer, _) =>
-        implicit val mat: Materializer = materializer
-        implicit val ec: ExecutionContext = mat.executionContext
-        Flow[HttpResponse].mapAsyncUnordered(10) { response =>
-          response.entity.dataBytes
-            .runReduce(_ ++ _)
-            .map(_.utf8String)
-            .map(ujson.read(_))
-            .map(BulkUpdateResult.apply)
-            .map {
-              case result if result.errored.nonEmpty =>
-                result.errored.foreach { case (id, err) =>
-                  error(s"Update for $id failed: ${err.render(indent = 2)}")
-                }
-                throw new RuntimeException(
-                  s"Bulk update failed for ${result.errored.size} items (succeeded for ${result.total})"
-                )
-              case success => success
-            }
-        }
+  private def checkResultsFlow: Flow[ujson.Value, BulkUpdateResult, NotUsed] =
+    Flow[ujson.Value]
+      .map(BulkUpdateResult.apply)
+      .map {
+        case result if result.errored.nonEmpty =>
+          result.errored.foreach { case (id, err) =>
+            error(s"Update for $id failed: ${err.render(indent = 2)}")
+          }
+          throw new RuntimeException(
+            s"Bulk update failed for ${result.errored.size} items (succeeded for ${result.total})"
+          )
+        case success => success
       }
-      .mapMaterializedValue(_ => NotUsed)
 
   private def accumulateTotals
     : Flow[BulkUpdateResult, BulkUpdateResult, NotUsed] =
