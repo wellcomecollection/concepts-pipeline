@@ -24,9 +24,9 @@ class IngestStream(
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
 
   lazy val fetcher = new Fetcher(Http().superPool())
-  lazy val subjectsSource: Source[Concept, NotUsed] =
+  lazy val subjectsSource: Source[AuthoritativeConcept, NotUsed] =
     conceptSource[IdentifierType.LCSubjects.type](subjectsUrl)
-  lazy val namesSource: Source[Concept, NotUsed] =
+  lazy val namesSource: Source[AuthoritativeConcept, NotUsed] =
     conceptSource[IdentifierType.LCNames.type](namesUrl)
   lazy val bulkUpdater = new ConceptBulkUpdateFlow(
     elasticHttpClient = elasticHttpClient,
@@ -50,7 +50,7 @@ class IngestStream(
 
   private def conceptSource[T <: IdentifierType: Transformer](
     dataUrl: String
-  ): Source[Concept, NotUsed] =
+  ): Source[AuthoritativeConcept, NotUsed] =
     fetcher
       .fetchFromUrl(dataUrl)
       // At time of writing,

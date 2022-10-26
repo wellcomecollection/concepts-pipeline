@@ -7,15 +7,15 @@ import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import weco.concepts.common.elasticsearch.BulkUpdateResult
 import weco.concepts.common.fixtures.TestElasticHttpClient
-import weco.concepts.common.model.{Concept, Identifier, IdentifierType}
+import weco.concepts.common.model.{AuthoritativeConcept, Identifier, IdentifierType}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class ConceptBulkUpdateFlowTest extends AnyFunSpec with Matchers {
+class AuthoritativeConceptBulkUpdateFlowTest extends AnyFunSpec with Matchers {
   implicit val actorSystem: ActorSystem = ActorSystem("test")
 
   it("does not return documents for geographic subdivision records") {
-    val invalidConcept = Concept(
+    val invalidConcept = AuthoritativeConcept(
       identifier = Identifier(
         value = "sh2014000619-781",
         identifierType = IdentifierType.LCSubjects

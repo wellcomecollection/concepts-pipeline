@@ -1,13 +1,13 @@
 package weco.concepts.ingestor
 
 import weco.concepts.common.elasticsearch.{BulkUpdateFlow, ElasticHttpClient}
-import weco.concepts.common.model.{Concept, Identifier, IdentifierType}
+import weco.concepts.common.model.{AuthoritativeConcept, Identifier, IdentifierType}
 
 class ConceptBulkUpdateFlow(
   elasticHttpClient: ElasticHttpClient,
   maxBulkRecords: Int,
   indexName: String
-) extends BulkUpdateFlow[Concept](
+) extends BulkUpdateFlow[AuthoritativeConcept](
       elasticHttpClient,
       maxBulkRecords,
       indexName
@@ -19,14 +19,14 @@ class ConceptBulkUpdateFlow(
   // as they're not used in our catalogue, and it would be non-trivial
   // to work out how to merge the subdivisions with their parents,
   // so we just filter them out here.
-  def identifier(concept: Concept): Option[String] = concept.identifier match {
+  def identifier(concept: AuthoritativeConcept): Option[String] = concept.identifier match {
     case Identifier(value, IdentifierType.LCSubjects, _)
         if value.endsWith("-781") =>
       None
     case id => Some(id.toString)
   }
 
-  def doc(concept: Concept): Option[ujson.Obj] = Some(
+  def doc(concept: AuthoritativeConcept): Option[ujson.Obj] = Some(
     ujson.Obj(
       "authority" -> concept.identifier.identifierType.id,
       "identifier" -> concept.identifier.value,
