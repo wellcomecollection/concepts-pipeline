@@ -11,7 +11,8 @@ trait Transformer[SourceType <: IdentifierType] {
 }
 
 object Transformer extends Logging {
-  def apply[T <: IdentifierType: Transformer]: Flow[String, AuthoritativeConcept, NotUsed] =
+  def apply[T <: IdentifierType: Transformer]
+    : Flow[String, AuthoritativeConcept, NotUsed] =
     Flow
       .fromFunction(implicitly[Transformer[T]].transform)
       .mapConcat {

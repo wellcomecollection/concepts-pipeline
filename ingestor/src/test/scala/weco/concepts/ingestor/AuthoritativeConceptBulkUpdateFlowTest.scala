@@ -7,7 +7,11 @@ import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import weco.concepts.common.elasticsearch.BulkUpdateResult
 import weco.concepts.common.fixtures.TestElasticHttpClient
-import weco.concepts.common.model.{AuthoritativeConcept, Identifier, IdentifierType}
+import weco.concepts.common.model.{
+  AuthoritativeConcept,
+  Identifier,
+  IdentifierType
+}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

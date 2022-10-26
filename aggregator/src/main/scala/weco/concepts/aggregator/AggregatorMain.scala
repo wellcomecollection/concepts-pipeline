@@ -18,8 +18,8 @@ import scala.concurrent.ExecutionContext
 
 /** Common base for the entrypoint to aggregator, regardless of how it is called
   * This loads the appropriate configuration for the application, chosen by the
-  * APP_CONTEXT environment variable. If absent, the application will
-  * run as though Elasticsearch is running on the same host.
+  * APP_CONTEXT environment variable. If absent, the application will run as
+  * though Elasticsearch is running on the same host.
   *
   * Implementations inheriting from this trait are expected to determine a
   * source of Works JSON from their calling parameters and run the
