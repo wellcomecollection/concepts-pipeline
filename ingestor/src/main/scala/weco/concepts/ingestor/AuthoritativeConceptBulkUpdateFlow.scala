@@ -6,8 +6,9 @@ import weco.concepts.common.model.{
   Identifier,
   IdentifierType
 }
+import weco.concepts.common.json.Indexable._
 
-class ConceptBulkUpdateFlow(
+class AuthoritativeConceptBulkUpdateFlow(
   elasticHttpClient: ElasticHttpClient,
   maxBulkRecords: Int,
   indexName: String
@@ -28,15 +29,10 @@ class ConceptBulkUpdateFlow(
       case Identifier(value, IdentifierType.LCSubjects, _)
           if value.endsWith("-781") =>
         None
-      case id => Some(id.toString)
+      case _ => Some(concept.id)
     }
 
-  def doc(concept: AuthoritativeConcept): Option[ujson.Obj] = Some(
-    ujson.Obj(
-      "authority" -> concept.identifier.identifierType.id,
-      "identifier" -> concept.identifier.value,
-      "label" -> concept.label,
-      "alternativeLabels" -> concept.alternativeLabels
-    )
+  def doc(concept: AuthoritativeConcept): Option[ujson.Value] = Some(
+    concept.toDoc
   )
 }

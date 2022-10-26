@@ -27,7 +27,7 @@ class AuthoritativeConceptBulkUpdateFlowTest extends AnyFunSpec with Matchers {
       label = "Gabon--Parc national de Loango",
       alternativeLabels = Nil
     )
-    val updateFlow = new ConceptBulkUpdateFlow(
+    val updateFlow = new AuthoritativeConceptBulkUpdateFlow(
       elasticHttpClient = new TestElasticHttpClient({ case _ =>
         throw new RuntimeException("No request was expected!")
       }),
