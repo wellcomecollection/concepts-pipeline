@@ -1,0 +1,86 @@
+{
+  "@context": "http://v3/authorities/names/context.json",
+  "@graph": [
+    {
+      "@id": "http://id.loc.gov/authorities/names/n83217500",
+      "@type": "skos:AuthoritativeConcept",
+      "skos:altLabel": [
+        "Wellcome, H. S. (Henry Solomon), Sir, 1853-1936",
+        "Wellcome, Henry Solomon, Sir, 1853-1936",
+        "Wellcome, Henry, Sir, 1853-1936"
+      ],
+      "skos:changeNote": [
+        {
+          "@id": "_:n079ab77cc4fe49b6996027184c8e6630b1"
+        },
+        {
+          "@id": "_:n079ab77cc4fe49b6996027184c8e6630b2"
+        }
+      ],
+      "skos:exactMatch": {
+        "@id": "http://viaf.org/viaf/sourceID/LC%7Cn++83217500#skos:Concept"
+      },
+      "skos:inScheme": {
+        "@id": "http://id.loc.gov/authorities/names"
+      },
+      "skos:prefLabel": "Wellcome, Henry S. (Henry Solomon), Sir, 1853-1936",
+      "skosxl:altLabel": [
+        {
+          "@id": "_:n079ab77cc4fe49b6996027184c8e6630b3"
+        },
+        {
+          "@id": "_:n079ab77cc4fe49b6996027184c8e6630b4"
+        },
+        {
+          "@id": "_:n079ab77cc4fe49b6996027184c8e6630b5"
+        }
+      ]
+    },
+    {
+      "@id": "_:n079ab77cc4fe49b6996027184c8e6630b1",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "new",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "1983-09-13T00:00:00"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/names/n83217500"
+      }
+    },
+    {
+      "@id": "_:n079ab77cc4fe49b6996027184c8e6630b2",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "revised",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2021-05-07T07:01:04"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/mosu"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/names/n83217500"
+      }
+    },
+    {
+      "@id": "_:n079ab77cc4fe49b6996027184c8e6630b3",
+      "@type": "skosxl:Label",
+      "skosxl:literalForm": "Wellcome, Henry Solomon, Sir, 1853-1936"
+    },
+    {
+      "@id": "_:n079ab77cc4fe49b6996027184c8e6630b4",
+      "@type": "skosxl:Label",
+      "skosxl:literalForm": "Wellcome, Henry, Sir, 1853-1936"
+    },
+    {
+      "@id": "_:n079ab77cc4fe49b6996027184c8e6630b5",
+      "@type": "skosxl:Label",
+      "skosxl:literalForm": "Wellcome, H. S. (Henry Solomon), Sir, 1853-1936"
+    }
+  ],
+  "@id": "/authorities/names/n83217500"
+}

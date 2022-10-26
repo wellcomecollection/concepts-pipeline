@@ -1,0 +1,90 @@
+{
+  "@context": "http://v3/authorities/subjects/context.json",
+  "@graph": [
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh2004005949",
+      "@type": "skos:AuthoritativeConcept",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Library buildings--England"
+      }
+    },
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh2001005531",
+      "@type": "skos:AuthoritativeConcept",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Museum buildings--England"
+      }
+    },
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh92006359",
+      "@type": "skos:AuthoritativeConcept",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Office buildings--England"
+      }
+    },
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh2003010454",
+      "@type": "skos:AuthoritativeConcept",
+      "skos:broader": [
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh2001005531"
+        },
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh2004005949"
+        },
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh92006359"
+        }
+      ],
+      "skos:changeNote": [
+        {
+          "@id": "_:nbf5ed533a09847fd8fb49fd7da4a470db1"
+        },
+        {
+          "@id": "_:nbf5ed533a09847fd8fb49fd7da4a470db2"
+        }
+      ],
+      "skos:inScheme": {
+        "@id": "http://id.loc.gov/authorities/subjects"
+      },
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Wellcome Building (London, England)"
+      }
+    },
+    {
+      "@id": "_:nbf5ed533a09847fd8fb49fd7da4a470db1",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "new",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2004-01-07T00:00:00"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/uklw"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh2003010454"
+      }
+    },
+    {
+      "@id": "_:nbf5ed533a09847fd8fb49fd7da4a470db2",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "revised",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2004-02-13T14:12:52"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh2003010454"
+      }
+    }
+  ],
+  "@id": "/authorities/subjects/sh2003010454"
+}

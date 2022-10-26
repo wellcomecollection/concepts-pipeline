@@ -1,0 +1,95 @@
+[
+  {
+    "@id": "_:b20iddOtlocdOtgovauthoritiessubjectssh2009008863",
+    "@type": [
+      "http://purl.org/vocab/changeset/schema#ChangeSet"
+    ],
+    "http://purl.org/vocab/changeset/schema#subjectOfChange": [
+      {
+        "@id": "http://id.loc.gov/authorities/subjects/sh2009008863"
+      }
+    ],
+    "http://purl.org/vocab/changeset/schema#creatorName": [
+      {
+        "@id": "http://id.loc.gov/vocabulary/organizations/uk"
+      }
+    ],
+    "http://purl.org/vocab/changeset/schema#createdDate": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "2019-06-17T08:47:03"
+      }
+    ],
+    "http://purl.org/vocab/changeset/schema#changeReason": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#string",
+        "@value": "deprecated"
+      }
+    ]
+  },
+  {
+    "@id": "_:b12iddOtlocdOtgovauthoritiessubjectssh2009008863",
+    "@type": [
+      "http://purl.org/vocab/changeset/schema#ChangeSet"
+    ],
+    "http://purl.org/vocab/changeset/schema#subjectOfChange": [
+      {
+        "@id": "http://id.loc.gov/authorities/subjects/sh2009008863"
+      }
+    ],
+    "http://purl.org/vocab/changeset/schema#creatorName": [
+      {
+        "@id": "http://id.loc.gov/vocabulary/organizations/upb"
+      }
+    ],
+    "http://purl.org/vocab/changeset/schema#createdDate": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "2009-11-12T00:00:00"
+      }
+    ],
+    "http://purl.org/vocab/changeset/schema#changeReason": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#string",
+        "@value": "new"
+      }
+    ]
+  },
+  {
+    "@id": "http://id.loc.gov/authorities/subjects/sh2009008863",
+    "@type": [
+      "http://www.w3.org/2008/05/skos-xl#Label"
+    ],
+    "http://www.w3.org/2008/05/skos-xl#literalForm": [
+      {
+        "@language": "en",
+        "@value": "Langdon, Robert (Fictitious character)"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#seeAlso": [
+      {
+        "@id": "http://id.loc.gov/authorities/names/nb2019004203"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#closeMatch": [
+      {
+        "@id": "http://id.worldcat.org/fast/1749319"
+      },
+      {
+        "@id": "http://id.worldcat.org/fast/1749319"
+      }
+    ],
+    "http://www.w3.org/2004/02/skos/core#changeNote": [
+      {
+        "@language": "en",
+        "@value": "This authority record has been deleted because the subject heading is covered by an identical name heading (DLC)nb2019004203"
+      },
+      {
+        "@id": "_:b12iddOtlocdOtgovauthoritiessubjectssh2009008863"
+      },
+      {
+        "@id": "_:b20iddOtlocdOtgovauthoritiessubjectssh2009008863"
+      }
+    ]
+  }
+]
