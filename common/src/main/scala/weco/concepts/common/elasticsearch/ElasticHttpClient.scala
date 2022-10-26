@@ -6,8 +6,11 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.http.scaladsl.settings.ConnectionPoolSettings
+import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.Materializer
 import akka.stream.scaladsl.Flow
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import scala.util.Try
 
@@ -62,4 +65,18 @@ object ElasticAkkaHttpClient {
       username = clusterConfig.username,
       password = clusterConfig.password
     )
+
+  // This isn't part of the main client as we may wish to stream responses or handle statuses
+  // differently - the parallelism is rather arbitrary as in a non-streaming context
+  // it's a CPU-bound operation.
+  def deserializeJson: Flow[HttpResponse, ujson.Value, NotUsed] =
+    Flow
+      .fromMaterializer { (materializer, _) =>
+        implicit val mat: Materializer = materializer
+        implicit val ec: ExecutionContext = mat.executionContext
+        Flow[HttpResponse]
+          .mapAsyncUnordered(10)(Unmarshal(_).to[String])
+          .map(ujson.read(_))
+      }
+      .mapMaterializedValue(_ => NotUsed)
 }

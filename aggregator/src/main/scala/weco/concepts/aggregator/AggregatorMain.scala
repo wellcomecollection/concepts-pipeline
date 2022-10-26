@@ -18,8 +18,8 @@ import scala.concurrent.ExecutionContext
 
 /** Common base for the entrypoint to aggregator, regardless of how it is called
   * This loads the appropriate configuration for the application, chosen by the
-  * AGGREGATOR_APP_CONTEXT environment variable. If absent, the application will
-  * run as though Elasticsearch is running on the same host.
+  * APP_CONTEXT environment variable. If absent, the application will run as
+  * though Elasticsearch is running on the same host.
   *
   * Implementations inheriting from this trait are expected to determine a
   * source of Works JSON from their calling parameters and run the
@@ -32,7 +32,7 @@ import scala.concurrent.ExecutionContext
   */
 trait AggregatorMain extends Logging {
   private val config: Config = {
-    val configName = sys.env.getOrElse("AGGREGATOR_APP_CONTEXT", "local")
+    val configName = sys.env.getOrElse("APP_CONTEXT", "local")
     info(s"loading config $configName")
     ConfigFactory.load(configName)
   }

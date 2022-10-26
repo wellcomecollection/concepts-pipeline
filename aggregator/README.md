@@ -11,16 +11,16 @@ sbt "project aggregator" assembly
 Given a locally running instance of Elasticsearch, you can then run it locally.
 #### Extract all concepts from the latest snapshot
 ```shell 
-AGGREGATOR_APP_CONTEXT=local java -jar target/aggregator.jar
+APP_CONTEXT=local java -jar target/aggregator.jar
 ```
 #### Extract all concepts from some piped NDJSON
 
 ```shell 
-AGGREGATOR_APP_CONTEXT=local head works.json | java -jar target/aggregator.jar
+APP_CONTEXT=local head works.json | java -jar target/aggregator.jar
 ```
 #### Extract the concepts from a list of work ids
 ```shell 
-AGGREGATOR_APP_CONTEXT=local java -jar target/aggregator.jar uk4kymkq yn8nshmc  
+APP_CONTEXT=local java -jar target/aggregator.jar uk4kymkq yn8nshmc  
 ```
 
 ### In Docker

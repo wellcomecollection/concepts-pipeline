@@ -1,6 +1,6 @@
 package weco.concepts.common.model
 
-case class Concept(
+case class AuthoritativeConcept(
   identifier: Identifier,
   label: String,
   alternativeLabels: Seq[String]

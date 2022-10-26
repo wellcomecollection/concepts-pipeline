@@ -16,5 +16,5 @@ shift
 AWS_PROFILE=catalogue-developer
 ES_HOST="elasticsearch/concepts-$CONCEPTS_PIPELINE_DATE/public_host"
 ES_PASSWORD="elasticsearch/concepts-$CONCEPTS_PIPELINE_DATE/aggregator/password"
-AGGREGATOR_APP_CONTEXT=remote
+APP_CONTEXT=remote
 (cd $ROOT && java -jar target/aggregator.jar "$@")

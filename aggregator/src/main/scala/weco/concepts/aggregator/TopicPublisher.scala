@@ -10,21 +10,19 @@ import software.amazon.awssdk.services.sns.model.{
 }
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 import scala.compat.java8.FutureConverters._
 
 class TopicPublisher(snsClient: SnsAsyncClient, topicArn: String)
     extends Logging {
   private val batchSize = 10
-  private val batchTimeout = 10 seconds
   private val concurrency = 10
 
   lazy private val topicName = topicArn.split(":").last
 
   def sink: Sink[String, Future[Done]] =
     Flow[String]
-      .groupedWithin(batchSize, batchTimeout)
+      .grouped(batchSize)
       .mapAsyncUnordered(concurrency) { messages =>
         snsClient
           .publishBatch(batchRequest(messages))

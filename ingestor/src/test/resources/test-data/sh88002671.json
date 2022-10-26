@@ -1,0 +1,175 @@
+{
+  "@context": "http://v3/authorities/subjects/context.json",
+  "@graph": [
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh88002671",
+      "@type": "skos:AuthoritativeConcept",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Hypertext systems"
+      }
+    },
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh92002381",
+      "@type": "skos:AuthoritativeConcept",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Multimedia systems"
+      }
+    },
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh95000541",
+      "@type": "skos:AuthoritativeConcept",
+      "skos:altLabel": [
+        {
+          "@language": "en",
+          "@value": "W3 (World Wide Web)"
+        },
+        {
+          "@language": "en",
+          "@value": "WWW (World Wide Web)"
+        },
+        {
+          "@language": "en",
+          "@value": "Web (World Wide Web)"
+        },
+        {
+          "@language": "en",
+          "@value": "World Wide Web (Information retrieval system)"
+        }
+      ],
+      "skos:broader": [
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh88002671"
+        },
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh92002381"
+        }
+      ],
+      "skos:changeNote": [
+        {
+          "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b1"
+        },
+        {
+          "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b2"
+        }
+      ],
+      "skos:editorial": "headings beginning with the words [Web] or [Web-based]",
+      "skos:inScheme": {
+        "@id": "http://id.loc.gov/authorities/subjects"
+      },
+      "skos:narrower": [
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh2002000569"
+        },
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh2003001415"
+        },
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh2007008317"
+        },
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh2007008319"
+        },
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh2008009697"
+        },
+        {
+          "@id": "http://id.loc.gov/authorities/subjects/sh97003254"
+        }
+      ],
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "World Wide Web"
+      },
+      "skos:related": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh92002816"
+      },
+      "skosxl:altLabel": [
+        {
+          "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b3"
+        },
+        {
+          "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b4"
+        },
+        {
+          "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b5"
+        },
+        {
+          "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b6"
+        }
+      ]
+    },
+    {
+      "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b1",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "revised",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2021-11-23T12:02:16"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh95000541"
+      }
+    },
+    {
+      "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b2",
+      "@type": "cs:ChangeSet",
+      "cs:changeReason": "new",
+      "cs:createdDate": {
+        "@type": "xsd:dateTime",
+        "@value": "2000-04-28T00:00:00"
+      },
+      "cs:creatorName": {
+        "@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+      },
+      "cs:subjectOfChange": {
+        "@id": "http://id.loc.gov/authorities/subjects/sh95000541"
+      }
+    },
+    {
+      "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b3",
+      "@type": "skosxl:Label",
+      "skosxl:literalForm": {
+        "@language": "en",
+        "@value": "W3 (World Wide Web)"
+      }
+    },
+    {
+      "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b4",
+      "@type": "skosxl:Label",
+      "skosxl:literalForm": {
+        "@language": "en",
+        "@value": "Web (World Wide Web)"
+      }
+    },
+    {
+      "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b5",
+      "@type": "skosxl:Label",
+      "skosxl:literalForm": {
+        "@language": "en",
+        "@value": "World Wide Web (Information retrieval system)"
+      }
+    },
+    {
+      "@id": "_:n5b4760e689dd4c3fad46356fb72f9ca2b6",
+      "@type": "skosxl:Label",
+      "skosxl:literalForm": {
+        "@language": "en",
+        "@value": "WWW (World Wide Web)"
+      }
+    },
+    {
+      "@id": "http://id.loc.gov/authorities/subjects/sh92002816",
+      "@type": "skos:AuthoritativeConcept",
+      "skos:prefLabel": {
+        "@language": "en",
+        "@value": "Internet"
+      }
+    }
+  ],
+  "@id": "/authorities/subjects/sh95000541"
+}

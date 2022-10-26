@@ -28,7 +28,7 @@ object SQSMain extends RequestHandler[SQSEvent, String] with Logging {
       message.getBody
     }
 
-    context.getLogger.log(
+    info(
       s"running recorder lambda over ${conceptIds.length} concepts: $conceptIds, Lambda request: ${context.getAwsRequestId}"
     )
     "Done"

@@ -29,5 +29,6 @@ FROM public.ecr.aws/lambda/java:11 as lambda
 RUN mkdir -p /opt/extensions
 
 COPY --from=sbt /app/target/ingestor.jar ${LAMBDA_TASK_ROOT}/lib/
-ENV AGGREGATOR_APP_CONTEXT=remote
+
+ENV APP_CONTEXT=remote
 CMD ["weco.concepts.ingestor.LambdaMain::handleRequest"]

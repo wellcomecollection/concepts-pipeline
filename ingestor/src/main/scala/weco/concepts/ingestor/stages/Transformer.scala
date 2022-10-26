@@ -7,11 +7,12 @@ import weco.concepts.common.json.JsonOps._
 import weco.concepts.common.model._
 
 trait Transformer[SourceType <: IdentifierType] {
-  def transform(sourceString: String): Option[Concept]
+  def transform(sourceString: String): Option[AuthoritativeConcept]
 }
 
 object Transformer extends Logging {
-  def apply[T <: IdentifierType: Transformer]: Flow[String, Concept, NotUsed] =
+  def apply[T <: IdentifierType: Transformer]
+    : Flow[String, AuthoritativeConcept, NotUsed] =
     Flow
       .fromFunction(implicitly[Transformer[T]].transform)
       .mapConcat {
@@ -61,7 +62,7 @@ object Transformer extends Logging {
             .opt[String]
             .orElse(label.opt[String]("@value"))
         )
-      } yield Concept(
+      } yield AuthoritativeConcept(
         identifier = Identifier(
           // As above, this is initially a path: the leaf is all we care about,
           // because our IdentifierType tells us the relevant context
