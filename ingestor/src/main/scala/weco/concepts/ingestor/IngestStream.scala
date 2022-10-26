@@ -36,7 +36,7 @@ class IngestStream(
     elasticHttpClient = elasticHttpClient,
     maxBulkRecords = maxRecordsPerBulkRequest,
     indexName = indexName,
-    filterDocuments = filterConcepts
+    filterDocuments = IngestStream.filterConcepts
   )
   lazy val indices = new Indices(elasticHttpClient)
 
@@ -63,7 +63,9 @@ class IngestStream(
       // So 128KiB should give sufficient overhead to catch any expansion
       .via(Scroll(128 * 1024))
       .via(Transformer.apply[T])
+}
 
+object IngestStream {
   // Some LCSH identifiers have a suffix, `-781`
   // This seems to be a way of representing a subdivision
   // linking for geographic entities: in practice, an alternative
@@ -71,7 +73,7 @@ class IngestStream(
   // as they're not used in our catalogue, and it would be non-trivial
   // to work out how to merge the subdivisions with their parents,
   // so we just filter them out here.
-  private def filterConcepts(concept: AuthoritativeConcept): Boolean =
+  def filterConcepts(concept: AuthoritativeConcept): Boolean =
     concept.identifier match {
       case Identifier(value, IdentifierType.LCSubjects, _)
           if value.endsWith("-781") =>
