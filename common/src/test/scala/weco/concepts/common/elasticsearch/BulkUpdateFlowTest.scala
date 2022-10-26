@@ -7,7 +7,9 @@ import akka.stream.scaladsl.Source
 import akka.stream.testkit.scaladsl.TestSink
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
+import ujson.Value
 import weco.concepts.common.fixtures.TestElasticHttpClient
+import weco.concepts.common.json.Indexable
 
 import scala.util.Success
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -49,30 +51,23 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
   })
 
   case class TestDoc(id: String, value: Int)
+  object TestDoc {
+    implicit val indexableTestDoc: Indexable[TestDoc] = new Indexable[TestDoc] {
+      def id(t: TestDoc): String = t.id
+      def toDoc(t: TestDoc): ujson.Value =
+        ujson.Obj("id" -> t.id, "value" -> t.value)
 
-  class TestBulkUpdateFlow(
-    elasticHttpClient: ElasticHttpClient,
-    maxBulkRecords: Int,
-    indexName: String
-  ) extends BulkUpdateFlow[TestDoc](
-        elasticHttpClient,
-        maxBulkRecords,
-        indexName
-      ) {
-    def identifier(item: TestDoc): Option[String] = item.id match {
-      case "none" => None
-      case id     => Some(id)
+      def fromDoc(doc: Value): Option[TestDoc] = throw new RuntimeException(
+        "Not required!"
+      )
     }
-
-    def doc(item: TestDoc): Option[ujson.Obj] =
-      Some(ujson.Obj("id" -> item.id, "value" -> item.value))
   }
 
   it("bulk indexes records in groups") {
     val groupSize = 10
     val nDocs = 1000
 
-    val bulkUpdateFlow = new TestBulkUpdateFlow(
+    val bulkUpdateFlow = new BulkUpdateFlow[TestDoc](
       elasticHttpClient = client,
       maxBulkRecords = groupSize,
       indexName = "test-index"
@@ -90,10 +85,11 @@ class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
   }
 
   it("filters out items that aren't transformed successfully") {
-    val bulkUpdateFlow = new TestBulkUpdateFlow(
+    val bulkUpdateFlow = new BulkUpdateFlow[TestDoc](
       elasticHttpClient = client,
       maxBulkRecords = 10,
-      indexName = "test-index"
+      indexName = "test-index",
+      filterDocuments = _.id != "none"
     )
     val documents = Seq(
       TestDoc(id = "none", value = 123),

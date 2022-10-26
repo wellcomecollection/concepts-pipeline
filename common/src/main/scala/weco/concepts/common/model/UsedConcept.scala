@@ -26,7 +26,7 @@ object UsedConcept {
 
   implicit val indexableUsedConcept: Indexable[UsedConcept] =
     new Indexable[UsedConcept] {
-      def id(t: UsedConcept): String = t.identifier.value
+      def id(t: UsedConcept): String = t.identifier.toString
       def toDoc(t: UsedConcept): ujson.Value = ujson.Obj(
         "authority" -> t.identifier.identifierType.id,
         "identifier" -> t.identifier.value,
