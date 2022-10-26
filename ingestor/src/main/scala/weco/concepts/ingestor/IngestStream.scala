@@ -28,7 +28,7 @@ class IngestStream(
     conceptSource[IdentifierType.LCSubjects.type](subjectsUrl)
   lazy val namesSource: Source[AuthoritativeConcept, NotUsed] =
     conceptSource[IdentifierType.LCNames.type](namesUrl)
-  lazy val bulkUpdater = new ConceptBulkUpdateFlow(
+  lazy val bulkUpdater = new AuthoritativeConceptBulkUpdateFlow(
     elasticHttpClient = elasticHttpClient,
     maxBulkRecords = maxRecordsPerBulkRequest,
     indexName = indexName

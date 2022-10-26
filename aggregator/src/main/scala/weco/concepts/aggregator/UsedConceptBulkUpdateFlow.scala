@@ -2,6 +2,7 @@ package weco.concepts.aggregator
 
 import weco.concepts.common.elasticsearch.{BulkUpdateFlow, ElasticHttpClient}
 import weco.concepts.common.model.UsedConcept
+import weco.concepts.common.json.Indexable._
 
 class UsedConceptBulkUpdateFlow(
   elasticHttpClient: ElasticHttpClient,
@@ -13,15 +14,6 @@ class UsedConceptBulkUpdateFlow(
       indexName
     ) {
 
-  def identifier(concept: UsedConcept): Option[String] = Some(
-    concept.identifier.toString
-  )
-  def doc(concept: UsedConcept): Option[ujson.Obj] = Some(
-    ujson.Obj(
-      "authority" -> concept.identifier.identifierType.id,
-      "identifier" -> concept.identifier.value,
-      "label" -> concept.label,
-      "canonicalId" -> concept.canonicalId
-    )
-  )
+  def identifier(concept: UsedConcept): Option[String] = Some(concept.id)
+  def doc(concept: UsedConcept): Option[ujson.Value] = Some(concept.toDoc)
 }

@@ -34,7 +34,7 @@ abstract class BulkUpdateFlow[T](
 ) extends Logging {
 
   def identifier(item: T): Option[String]
-  def doc(item: T): Option[ujson.Obj]
+  def doc(item: T): Option[ujson.Value]
 
   def format(item: T): Option[String] = for {
     id <- identifier(item)
