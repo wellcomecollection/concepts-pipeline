@@ -66,6 +66,9 @@ object ElasticAkkaHttpClient {
       password = clusterConfig.password
     )
 
+  // This isn't part of the main client as we may wish to stream responses or handle statuses
+  // differently - the parallelism is rather arbitrary as in a non-streaming context
+  // it's a CPU-bound operation.
   def deserializeJson: Flow[HttpResponse, ujson.Value, NotUsed] =
     Flow
       .fromMaterializer { (materializer, _) =>
