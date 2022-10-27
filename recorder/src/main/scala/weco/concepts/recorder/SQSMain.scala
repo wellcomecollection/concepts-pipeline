@@ -5,7 +5,7 @@ import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import grizzled.slf4j.Logging
 import com.amazonaws.services.lambda.runtime.events.SQSEvent
 import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage
-import weco.concepts.common.elasticsearch.{BulkUpdateResult, Indices}
+import weco.concepts.common.elasticsearch.BulkUpdateResult
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
