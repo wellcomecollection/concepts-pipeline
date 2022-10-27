@@ -4,6 +4,7 @@ import weco.concepts.common.json.Indexable
 
 case class Concept(
   canonicalId: String,
+  // Making this an array now to express future intent to merge different concepts
   identifiers: Seq[Identifier],
   label: String,
   alternativeLabels: Seq[String],
