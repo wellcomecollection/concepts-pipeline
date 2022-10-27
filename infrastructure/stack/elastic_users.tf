@@ -3,7 +3,7 @@ locals {
   service_roles = {
     ingestor   = ["authoritative-concepts_read", "authoritative-concepts_write"]
     aggregator = ["concepts-used_read", "concepts-used_write"]
-    recorder   = ["concepts-used_read", "authoritative-concepts_read"]
+    recorder   = ["concepts-used_read", "authoritative-concepts_read", "concepts-store_write"]
   }
 }
 
