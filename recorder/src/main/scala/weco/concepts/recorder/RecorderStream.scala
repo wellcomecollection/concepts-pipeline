@@ -28,9 +28,19 @@ class RecorderStream(
     maxBulkRecords = maxRecordsPerBulkRequest
   ).flow
 
+  /*
+   * This flow is constructed of a graph that looks like this:
+   *
+   *
+   *                   - (get authoritative) -
+   *                 /                         \
+   * (doc ids) --> ()                       (merge) --> (update)
+   *                 \                         /
+   *                   ----- (get used) ------
+   */
   def recordIds: Flow[String, BulkUpdateResult, NotUsed] =
     Flow.fromGraph(GraphDSL.createGraph(bulkUpdateFlow) {
-      implicit builder => indexResults =>
+      implicit builder => bulkUpdate =>
         import GraphDSL.Implicits._
 
         val fork = builder.add(Broadcast[String](2))
@@ -44,8 +54,8 @@ class RecorderStream(
 
         fork.out(1) ~> getAuthoritativeConcept ~> merge.in0
         fork.out(0) ~> getUsedConcept ~> merge.in1
-        merge.out ~> indexResults
+        merge.out ~> bulkUpdate
 
-        FlowShape(fork.in, indexResults.out)
+        FlowShape(fork.in, bulkUpdate.out)
     })
 }
