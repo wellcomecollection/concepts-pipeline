@@ -45,7 +45,7 @@ class MergeConceptsTest extends AnyFunSpec with Matchers {
     val usedConcept = UsedConcept(
       identifier = Identifier(
         value = "things",
-        identifierType = IdentifierType.LCSubjects
+        identifierType = IdentifierType.LabelDerived
       ),
       label = "Things",
       canonicalId = "123abcde"

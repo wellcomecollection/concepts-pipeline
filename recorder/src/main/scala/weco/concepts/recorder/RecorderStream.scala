@@ -3,6 +3,7 @@ package weco.concepts.recorder
 import akka.NotUsed
 import akka.stream.FlowShape
 import akka.stream.scaladsl.{Broadcast, Flow, GraphDSL, ZipWith}
+import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
   BulkUpdateFlow,
   BulkUpdateResult,
@@ -16,7 +17,7 @@ class RecorderStream(
   targetIndexName: String,
   elasticHttpClient: ElasticHttpClient,
   maxRecordsPerBulkRequest: Int = 1000
-) {
+) extends Logging {
   private lazy val mget = new MultiGetFlow(
     elasticHttpClient = elasticHttpClient,
     maxBatchSize = maxRecordsPerBulkRequest
@@ -28,22 +29,23 @@ class RecorderStream(
   ).flow
 
   def recordIds: Flow[String, BulkUpdateResult, NotUsed] =
-    Flow.fromGraph(GraphDSL.create() { implicit builder =>
-      import GraphDSL.Implicits._
+    Flow.fromGraph(GraphDSL.createGraph(bulkUpdateFlow) {
+      implicit builder => indexResults =>
+        import GraphDSL.Implicits._
 
-      val fork = builder.add(Broadcast[String](2))
-      val merge = builder.add(
-        ZipWith(MergeConcepts(_, _))
-      )
+        val fork = builder.add(Broadcast[String](2))
+        val merge = builder.add(
+          ZipWith(MergeConcepts(_, _))
+        )
 
-      val getAuthoritativeConcept =
-        mget.forIndex[AuthoritativeConcept](authoritativeConceptsIndexName)
-      val getUsedConcept = mget.forIndex[UsedConcept](usedConceptsIndexName)
+        val getAuthoritativeConcept =
+          mget.forIndex[AuthoritativeConcept](authoritativeConceptsIndexName)
+        val getUsedConcept = mget.forIndex[UsedConcept](usedConceptsIndexName)
 
-      fork.out(1) ~> getAuthoritativeConcept ~> merge.in0
-      fork.out(0) ~> getUsedConcept ~> merge.in1
-      merge.out ~> bulkUpdateFlow
+        fork.out(1) ~> getAuthoritativeConcept ~> merge.in0
+        fork.out(0) ~> getUsedConcept ~> merge.in1
+        merge.out ~> indexResults
 
-      FlowShape(fork.in, bulkUpdateFlow.shape.out)
+        FlowShape(fork.in, indexResults.out)
     })
 }

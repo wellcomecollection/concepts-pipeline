@@ -3,11 +3,13 @@ package weco.concepts.common.fixtures
 import akka.NotUsed
 import akka.stream.scaladsl.Flow
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.Materializer
 import weco.concepts.common.elasticsearch.ElasticHttpClient
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
+import scala.util.{Success, Try}
 
 class TestElasticHttpClient(
   mapping: PartialFunction[HttpRequest, Future[Try[HttpResponse]]]
@@ -43,4 +45,41 @@ object TestElasticHttpClient {
     ec: ExecutionContext
   ) =
     new TestElasticHttpClient(mapping.andThen(Future.successful(_)))
+
+  def defaultBulkHandler(implicit
+    mat: Materializer
+  ): PartialFunction[HttpRequest, Future[Try[HttpResponse]]] = {
+    case HttpRequest(HttpMethods.POST, uri, _, entity, _)
+        if uri.path.toString() == "/_bulk" =>
+      implicit val ec: ExecutionContext = mat.executionContext
+      Unmarshal(entity).to[String].map { bulkUpdateRequest =>
+        val couplets = bulkUpdateRequest
+          .split('\n')
+          .map(ujson.read(_))
+          .grouped(2)
+          .collect { case Array(a, b) => a -> b }
+          .toSeq
+        val result = ujson.Obj(
+          "took" -> 1234,
+          "errors" -> false,
+          "items" -> couplets.map { case (action, _) =>
+            ujson.Obj(
+              "update" -> ujson.Obj(
+                "_id" -> action("update")("_id").str,
+                "result" -> "created"
+              )
+            )
+          }
+        )
+        Success(
+          HttpResponse(
+            StatusCodes.OK,
+            entity = HttpEntity(
+              ContentTypes.`application/json`,
+              ujson.write(result)
+            )
+          )
+        )
+      }
+  }
 }

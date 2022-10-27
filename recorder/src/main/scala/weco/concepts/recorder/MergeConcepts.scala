@@ -1,14 +1,21 @@
 package weco.concepts.recorder
 
+import grizzled.slf4j.Logging
 import weco.concepts.common.model.{AuthoritativeConcept, Concept, UsedConcept}
 
-object MergeConcepts {
+object MergeConcepts extends Logging {
   def apply(
     authoritative: Option[AuthoritativeConcept],
     used: Option[UsedConcept]
   ): Concept = (authoritative, used) match {
-    case (Some(authoritative), Some(used)) => merge(authoritative, used)
-    case (None, Some(used))                => fromUsedOnly(used)
+    case (Some(authoritative), Some(used)) =>
+      info(
+        s"Merging ${used.canonicalId} and ${authoritative.identifier.toString}"
+      )
+      merge(authoritative, used)
+    case (None, Some(used)) =>
+      info(s"Forwarding ${used.identifier.toString}")
+      fromUsedOnly(used)
     case (Some(authoritative), None) =>
       throw new IllegalArgumentException(
         s"This error should never occur: we've been asked to merge a concept (${authoritative.identifier}) which isn't used in the catalogue"
