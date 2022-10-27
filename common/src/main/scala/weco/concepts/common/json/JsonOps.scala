@@ -12,6 +12,7 @@ object JsonOps {
   implicit val doubleOpt: JsonOption[Double] = _.numOpt
   implicit val intOpt: JsonOption[Int] = doubleOpt(_).map(_.toInt)
   implicit val longOpt: JsonOption[Long] = doubleOpt(_).map(_.toLong)
+  implicit val boolOpt: JsonOption[Boolean] = _.boolOpt
   implicit def seqOpt[T: JsonOption]: JsonOption[Seq[T]] =
     (node: ujson.Value) =>
       node.arrOpt.map { array =>
