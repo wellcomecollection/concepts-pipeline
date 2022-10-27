@@ -1,12 +1,11 @@
 package weco.concepts.recorder
 
-import akka.Done
 import akka.stream.scaladsl.{Sink, Source}
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import grizzled.slf4j.Logging
 import com.amazonaws.services.lambda.runtime.events.SQSEvent
 import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage
-import weco.concepts.common.elasticsearch.BulkUpdateResult
+import weco.concepts.common.elasticsearch.{BulkUpdateResult, Indices}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
@@ -38,13 +37,15 @@ object SQSMain
       s"Running recorder lambda over ${conceptIds.length} concepts: $conceptIds, Lambda request: ${context.getAwsRequestId}"
     )
 
-    val f = Source(conceptIds)
-      .via(recorderStream.recordIds)
-      .runWith(Sink.fold[Long, BulkUpdateResult](0L)(_ + _.updated.size))
-      .map { total =>
-        info(s"Recorded $total concepts")
-        Done
-      }
+    val f = indices.create(targetIndex).flatMap { done =>
+      Source(conceptIds)
+        .via(recorderStream.recordIds)
+        .runWith(Sink.fold[Long, BulkUpdateResult](0L)(_ + _.updated.size))
+        .map { total =>
+          info(s"Recorded $total concepts")
+          done
+        }
+    }
 
     // Wait here so that lambda can run correctly.
     // Without waiting here, handleRequest finishes immediately.

@@ -7,7 +7,8 @@ import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
   ElasticAkkaHttpClient,
-  ElasticHttpClient
+  ElasticHttpClient,
+  Indices
 }
 import weco.concepts.common.secrets.{ClusterConfWithSecrets, SecretsResolver}
 
@@ -29,12 +30,14 @@ trait RecorderMain extends Logging {
   private val elasticHttpClient: ElasticHttpClient = ElasticAkkaHttpClient(
     clusterConfig
   )
+  val indices: Indices = new Indices(elasticHttpClient)
+  val targetIndex: String = config.as[String]("data-target.index.name")
 
   val recorderStream: RecorderStream = new RecorderStream(
     elasticHttpClient = elasticHttpClient,
     authoritativeConceptsIndexName =
       config.as[String]("data-source.index.authoritative.name"),
     usedConceptsIndexName = config.as[String]("data-source.index.used.name"),
-    targetIndexName = config.as[String]("data-target.index.name")
+    targetIndexName = targetIndex
   )
 }
