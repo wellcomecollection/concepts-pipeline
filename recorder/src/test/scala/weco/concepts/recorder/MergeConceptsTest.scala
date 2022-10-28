@@ -113,6 +113,6 @@ class MergeConceptsTest extends AnyFunSpec with Matchers {
     the[IllegalArgumentException] thrownBy MergeConcepts(
       None,
       None
-    ) should have message "This error should never occur: we've been asked to merge 2 concepts which don't exist"
+    ) should have message "This error should never occur: we've been asked to merge a concept which exists in neither the authoritative nor the used concepts indices. Has something gone wrong in the aggregator?"
   }
 }

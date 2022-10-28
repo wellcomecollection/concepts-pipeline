@@ -22,7 +22,7 @@ object MergeConcepts extends Logging {
       )
     case (None, None) =>
       throw new IllegalArgumentException(
-        "This error should never occur: we've been asked to merge 2 concepts which don't exist"
+        "This error should never occur: we've been asked to merge a concept which exists in neither the authoritative nor the used concepts indices. Has something gone wrong in the aggregator?"
       )
   }
 
