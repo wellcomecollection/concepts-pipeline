@@ -37,14 +37,10 @@ object UsedConcept {
       def fromDoc(doc: ujson.Value): Option[UsedConcept] = for {
         id <- doc.opt[String]("identifier")
         canonicalId <- doc.opt[String]("canonicalId")
-        authority <- doc.opt[String]("authority")
-        identifierType <- IdentifierType.typeMap.get(authority)
+        identifier <- Indexable[Identifier].fromDoc(doc)
         label <- doc.opt[String]("label")
       } yield UsedConcept(
-        identifier = Identifier(
-          value = id,
-          identifierType = identifierType
-        ),
+        identifier = identifier,
         label = label,
         canonicalId = canonicalId
       )

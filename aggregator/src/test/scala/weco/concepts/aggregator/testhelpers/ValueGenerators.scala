@@ -6,7 +6,7 @@ import weco.concepts.common.model.IdentifierType
 import scala.util.Random
 
 trait ValueGenerators {
-  private val keys = IdentifierType.typeMap.keys.toList
+  private val keys = IdentifierType.types.map(_.id).toList
 
   def anAuthority: String =
     keys(Random.nextInt(keys.length))
