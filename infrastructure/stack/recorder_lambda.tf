@@ -19,5 +19,5 @@ module "recorder_input_queue" {
   lambda_timeout      = module.recorder_lambda.lambda_function.timeout
   namespace           = var.namespace
   service_name        = "recorder"
-  topic_arns          = []
+  topic_arns          = [module.updates_topic.arn]
 }
