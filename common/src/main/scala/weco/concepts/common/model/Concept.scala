@@ -32,8 +32,8 @@ object Concept {
     def fromDoc(doc: ujson.Value): Option[Concept] = for {
       canonicalId <- doc.opt[String]("canonicalId")
       identifiers <- doc
-        .opt[Seq[ujson.Value]]("identifiers")
-        .map(_.flatMap(fromIdentifierDoc))
+        .opt[ujson.Value]("identifiers")
+        .flatMap(Indexable[Seq[Identifier]].fromDoc)
       label <- doc.opt[String]("label")
       alternativeLabels <- doc.opt[Seq[String]]("alternativeLabels")
       ontologyType <- doc.opt[String]("type")
@@ -43,15 +43,6 @@ object Concept {
       label = label,
       alternativeLabels = alternativeLabels,
       ontologyType = ontologyType
-    )
-
-    private def fromIdentifierDoc(doc: ujson.Value): Option[Identifier] = for {
-      value <- doc.opt[String]("identifier")
-      authority <- doc.opt[String]("authority")
-      identifierType <- IdentifierType.typeMap.get(authority)
-    } yield Identifier(
-      value = value,
-      identifierType = identifierType
     )
   }
 }

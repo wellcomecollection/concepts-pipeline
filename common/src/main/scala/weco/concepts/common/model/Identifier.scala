@@ -1,5 +1,7 @@
 package weco.concepts.common.model
 
+import weco.concepts.common.json.Indexable
+
 case class Identifier(
   value: String,
   identifierType: IdentifierType,
@@ -8,12 +10,36 @@ case class Identifier(
   override def toString: String = s"$identifierType:$value"
 }
 
+object Identifier {
+  import weco.concepts.common.json.JsonOps._
+
+  implicit val indexableIdentifier: Indexable[Identifier] =
+    new Indexable[Identifier] {
+      def id(t: Identifier): String = t.toString
+      def toDoc(t: Identifier): ujson.Value = ujson.Obj(
+        "identifier" -> t.value,
+        "authority" -> t.identifierType.id
+      )
+
+      def fromDoc(doc: ujson.Value): Option[Identifier] = for {
+        value <- doc.opt[String]("identifier")
+        authority <- doc.opt[String]("authority")
+        identifierType <- IdentifierType.fromId(authority)
+      } yield Identifier(
+        value = value,
+        identifierType = identifierType
+      )
+    }
+}
+
 sealed trait IdentifierType {
   val id: String
   override def toString: String = id
 }
 
 object IdentifierType {
+  def fromId(id: String): Option[IdentifierType] = typeMap.get(id)
+
   case object Fihrist extends IdentifierType {
     val id = "fihrist"
   }
@@ -33,8 +59,11 @@ object IdentifierType {
     val id = "viaf"
   }
 
-  val typeMap: Map[String, IdentifierType] =
-    Seq(Fihrist, LabelDerived, LCNames, LCSubjects, MeSH, Viaf)
+  val types: Set[IdentifierType] =
+    Set(Fihrist, LabelDerived, LCNames, LCSubjects, MeSH, Viaf)
+
+  private val typeMap: Map[String, IdentifierType] =
+    types
       .map(i => i.id -> i)
       .toMap
 }

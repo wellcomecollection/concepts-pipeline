@@ -23,15 +23,11 @@ object AuthoritativeConcept {
 
       def fromDoc(doc: ujson.Value): Option[AuthoritativeConcept] = for {
         id <- doc.opt[String]("identifier")
-        authority <- doc.opt[String]("authority")
-        identifierType <- IdentifierType.typeMap.get(authority)
+        identifier <- Indexable[Identifier].fromDoc(doc)
         label <- doc.opt[String]("label")
         alternativeLabels <- doc.opt[Seq[String]]("alternativeLabels")
       } yield AuthoritativeConcept(
-        identifier = Identifier(
-          value = id,
-          identifierType = identifierType
-        ),
+        identifier = identifier,
         label = label,
         alternativeLabels = alternativeLabels
       )
