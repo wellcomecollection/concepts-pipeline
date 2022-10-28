@@ -40,10 +40,10 @@ In this situation:
 * Be authorised to make changes on the catalogue account (See [accounts](https://github.com/wellcomecollection/platform-infrastructure/blob/main/accounts/README.md))
 * Find a tag for the image you wish to use (ref.89blahblah0 in the example below)
 * Call retag.sh to set this as the image for the pipeline (2022-08-31, in the example below)
-* call notify_services to make the pipeline pick up the change.
+* Call notify_lambda to make the pipeline pick up the change.
 
 ```shell
-sh scripts/retag.sh weco/concepts_aggregator ref.89blahblah0  2022-08-31
-sh scripts/notify_services.sh 2022-08-31
+sh scripts/retag.sh weco/concepts_aggregator ref.89blahblah0 2022-08-31
+sh scripts/notify_lambda.sh 2022-08-31 concepts_aggregator
 ```
 
