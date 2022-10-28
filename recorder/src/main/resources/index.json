@@ -1,0 +1,38 @@
+{
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "canonicalId": {
+        "type": "keyword"
+      },
+      "identifiers": {
+        "properties": {
+          "authority": {
+            "type": "keyword"
+          },
+          "identifier": {
+            "type": "keyword"
+          }
+        }
+      },
+      "label": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "alternativeLabels": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
+
+
