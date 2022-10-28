@@ -44,7 +44,7 @@ class Indices(elasticHttpClient: ElasticHttpClient)(implicit mat: Materializer)
                 Done
               case errorBody =>
                 throw new RuntimeException(
-                  s"Error when creating index: ${errorResponse.status.toString()} : $errorBody"
+                  s"Error when creating index $name: ${errorResponse.status} : $errorBody"
                 )
             }
         case (Failure(exception), _) => throw exception
