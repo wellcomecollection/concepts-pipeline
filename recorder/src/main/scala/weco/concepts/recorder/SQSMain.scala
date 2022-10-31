@@ -31,7 +31,9 @@ object SQSMain
     context: Context
   ): String = {
     val recordList: List[SQSMessage] = event.getRecords.asScala.toList
-    val conceptIds = recordList.map(_.getBody)
+    val conceptIds = recordList flatMap { message: SQSMessage =>
+      ujson.read(message.getBody).obj.get("Message").toList
+    } map (_.str)
 
     info(
       s"Running recorder lambda over ${conceptIds.length} concepts: $conceptIds, Lambda request: ${context.getAwsRequestId}"

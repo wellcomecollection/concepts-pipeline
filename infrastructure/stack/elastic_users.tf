@@ -1,5 +1,5 @@
 locals {
-  indices = ["authoritative-concepts", "concepts-used"]
+  indices = ["authoritative-concepts", "concepts-used", "concepts-store"]
   service_roles = {
     ingestor   = ["authoritative-concepts_read", "authoritative-concepts_write"]
     aggregator = ["concepts-used_read", "concepts-used_write"]

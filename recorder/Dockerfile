@@ -31,4 +31,7 @@ FROM public.ecr.aws/lambda/java:11 as lambda
 RUN mkdir -p /opt/extensions
 
 COPY --from=sbt /app/target/recorder.jar ${LAMBDA_TASK_ROOT}/lib/
+ENV APP_CONTEXT=remote
+
+FROM lambda as sqs_lambda
 CMD ["weco.concepts.recorder.SQSMain::handleRequest"]

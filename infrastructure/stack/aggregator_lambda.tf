@@ -55,7 +55,7 @@ module "aggregator_input_queue" {
   lambda_timeout      = module.aggregator_lambda.lambda_function.timeout
   namespace           = var.namespace
   service_name        = "aggregator"
-  topic_arns          = []
+  topic_arns          = [local.works_ingestor_output_topic]
 }
 
 

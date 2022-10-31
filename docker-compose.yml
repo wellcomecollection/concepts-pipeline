@@ -48,6 +48,7 @@ services:
     build:
       context: .
       dockerfile: ./recorder/Dockerfile
+      target: sqs_lambda
     ports:
       - "9003:8080"
     environment:
