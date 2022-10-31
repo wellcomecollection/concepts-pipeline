@@ -15,7 +15,8 @@ import weco.concepts.common.json.Indexable
 case class UsedConcept(
   identifier: Identifier,
   label: String,
-  canonicalId: String
+  canonicalId: String,
+  ontologyType: String
 ) {
   override def toString: String =
     s"\n$canonicalId\t${identifier.toString.padTo(70, ' ')}$label"
@@ -31,7 +32,8 @@ object UsedConcept {
         "authority" -> t.identifier.identifierType.id,
         "identifier" -> t.identifier.value,
         "label" -> t.label,
-        "canonicalId" -> t.canonicalId
+        "canonicalId" -> t.canonicalId,
+        "type" -> t.ontologyType
       )
 
       def fromDoc(doc: ujson.Value): Option[UsedConcept] = for {
@@ -39,10 +41,12 @@ object UsedConcept {
         canonicalId <- doc.opt[String]("canonicalId")
         identifier <- Indexable[Identifier].fromDoc(doc)
         label <- doc.opt[String]("label")
+        ontologyType <- doc.opt[String]("type")
       } yield UsedConcept(
         identifier = identifier,
         label = label,
-        canonicalId = canonicalId
+        canonicalId = canonicalId,
+        ontologyType = ontologyType
       )
     }
 }

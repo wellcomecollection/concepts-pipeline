@@ -21,6 +21,7 @@ class ConceptExtractorTest
     info("- the authority's identifier")
     info("- the name used in the original document")
     info("- the wellcome canonical identifier")
+    info("- the ontology type")
 
     Scenario("a real example") {
       // Choose an actual document from the API output and
@@ -61,6 +62,9 @@ class ConceptExtractorTest
 
       Then("there is one resulting concept")
       val concept = ConceptExtractor(json).loneElement
+
+      And(s"the concept's ontologyType is $ontologyType")
+      concept.ontologyType shouldBe ontologyType
 
       And(s"the concept's identifierType is $identifierType")
       concept.identifier.identifierType.id shouldBe identifierType
@@ -266,7 +270,8 @@ class ConceptExtractorTest
         Then("that concept is extracted")
         ConceptExtractor(json).loneElement should have(
           Symbol("label")(sourceConcept.label),
-          Symbol("canonicalId")(sourceConcept.canonicalId)
+          Symbol("canonicalId")(sourceConcept.canonicalId),
+          Symbol("ontologyType")(ontologyType)
         )
       }
     }

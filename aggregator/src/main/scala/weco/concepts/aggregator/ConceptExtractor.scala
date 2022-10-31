@@ -89,7 +89,8 @@ object UsedConcepts extends Logging {
             identifierType = identifierTypeFromAuthority(authority)
           ),
           label = conceptJson.opt[String]("label").get,
-          canonicalId = conceptJson.opt[String]("id").get
+          canonicalId = conceptJson.opt[String]("id").get,
+          ontologyType = conceptJson.opt[String]("type").get
         )
       )
     } catch {
