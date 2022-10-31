@@ -30,7 +30,8 @@ class MergeConceptsTest extends AnyFunSpec with Matchers {
         identifierType = IdentifierType.LCSubjects
       ),
       label = "The Internet",
-      canonicalId = "123abcde"
+      canonicalId = "123abcde",
+      ontologyType = "Concept"
     )
     val result = MergeConcepts(Some(authoritativeConcept), Some(usedConcept))
 
@@ -48,7 +49,8 @@ class MergeConceptsTest extends AnyFunSpec with Matchers {
         identifierType = IdentifierType.LabelDerived
       ),
       label = "Things",
-      canonicalId = "123abcde"
+      canonicalId = "123abcde",
+      ontologyType = "Concept"
     )
     val result = MergeConcepts(None, Some(usedConcept))
 
@@ -79,7 +81,8 @@ class MergeConceptsTest extends AnyFunSpec with Matchers {
         identifierType = IdentifierType.LCSubjects
       ),
       label = "The Internet",
-      canonicalId = "123abcde"
+      canonicalId = "123abcde",
+      ontologyType = "Concept"
     )
 
     the[IllegalArgumentException] thrownBy MergeConcepts(
