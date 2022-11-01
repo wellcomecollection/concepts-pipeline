@@ -42,6 +42,37 @@ class MergeConceptsTest extends AnyFunSpec with Matchers {
     result.ontologyType shouldBe "Concept"
   }
 
+  it(
+    "uses the used concept's ontologyType when merging an AuthoritativeConcept and a UsedConcept"
+  ) {
+    val authoritativeConcept = AuthoritativeConcept(
+      identifier = Identifier(
+        value = "n78095637",
+        identifierType = IdentifierType.LCNames
+      ),
+      label = "Darwin, Charles, 1809-1882",
+      alternativeLabels = Seq(
+        "Chuck D."
+      )
+    )
+    val usedConcept = UsedConcept(
+      identifier = Identifier(
+        value = "n78095637",
+        identifierType = IdentifierType.LCNames
+      ),
+      label = "Charles Darwin",
+      canonicalId = "123abcde",
+      ontologyType = "Person"
+    )
+    val result = MergeConcepts(Some(authoritativeConcept), Some(usedConcept))
+
+    result.identifiers shouldBe Seq(authoritativeConcept.identifier)
+    result.label shouldBe authoritativeConcept.label
+    result.alternativeLabels shouldBe authoritativeConcept.alternativeLabels
+    result.canonicalId shouldBe usedConcept.canonicalId
+    result.ontologyType shouldBe "Person"
+  }
+
   it("creates a Concept from a UsedConcept without an AuthoritativeConcept") {
     val usedConcept = UsedConcept(
       identifier = Identifier(
@@ -59,6 +90,25 @@ class MergeConceptsTest extends AnyFunSpec with Matchers {
     result.label shouldBe usedConcept.label
     result.alternativeLabels shouldBe Nil
     result.ontologyType shouldBe "Concept"
+  }
+
+  it("extracts the ontology type from a used concept on its own") {
+    val usedConcept = UsedConcept(
+      identifier = Identifier(
+        value = "roland le petour",
+        identifierType = IdentifierType.LabelDerived
+      ),
+      label = "Roland le Petour",
+      canonicalId = "123abcde",
+      ontologyType = "Person"
+    )
+    val result = MergeConcepts(None, Some(usedConcept))
+
+    result.canonicalId shouldBe usedConcept.canonicalId
+    result.identifiers shouldBe Seq(usedConcept.identifier)
+    result.label shouldBe usedConcept.label
+    result.alternativeLabels shouldBe Nil
+    result.ontologyType shouldBe "Person"
   }
 
   it("errors if the concepts do not have matching identifiers") {
