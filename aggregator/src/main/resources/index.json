@@ -14,7 +14,7 @@
       "label": {
         "type": "keyword"
       },
-      "type": {
+      "ontologyType": {
         "type": "keyword"
       }
     }

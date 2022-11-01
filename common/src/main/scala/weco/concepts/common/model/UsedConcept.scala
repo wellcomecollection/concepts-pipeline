@@ -33,7 +33,7 @@ object UsedConcept {
         "identifier" -> t.identifier.value,
         "label" -> t.label,
         "canonicalId" -> t.canonicalId,
-        "type" -> t.ontologyType
+        "ontologyType" -> t.ontologyType
       )
 
       def fromDoc(doc: ujson.Value): Option[UsedConcept] = for {
@@ -41,7 +41,7 @@ object UsedConcept {
         canonicalId <- doc.opt[String]("canonicalId")
         identifier <- Indexable[Identifier].fromDoc(doc)
         label <- doc.opt[String]("label")
-        ontologyType <- doc.opt[String]("type")
+        ontologyType <- doc.opt[String]("ontologyType")
       } yield UsedConcept(
         identifier = identifier,
         label = label,

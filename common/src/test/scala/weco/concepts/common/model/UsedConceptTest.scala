@@ -23,7 +23,7 @@ class UsedConceptTest extends AnyFunSpec with Matchers {
         |  "identifier": "n84165387",
         |  "label": "Pujol, Joseph, 1857-1945",
         |  "canonicalId":"baadbeef",
-        |  "type": "Person"
+        |  "ontologyType": "Person"
         |}""".stripMargin
 
     it("serializes correctly") {
