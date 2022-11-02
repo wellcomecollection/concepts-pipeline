@@ -63,7 +63,8 @@ class RecorderStreamTest extends AnyFunSpec with Matchers {
           identifierType = IdentifierType.LCNames
         ),
         label = "Henry Wellcome",
-        canonicalId = "123abcde"
+        canonicalId = "123abcde",
+        ontologyType = "Person"
       ),
       UsedConcept(
         identifier = Identifier(
@@ -71,7 +72,8 @@ class RecorderStreamTest extends AnyFunSpec with Matchers {
           identifierType = IdentifierType.LCSubjects
         ),
         label = "The Internet",
-        canonicalId = "123abcde"
+        canonicalId = "123abcde",
+        ontologyType = "Concept"
       ),
       UsedConcept(
         identifier = Identifier(
@@ -79,7 +81,8 @@ class RecorderStreamTest extends AnyFunSpec with Matchers {
           identifierType = IdentifierType.LabelDerived
         ),
         label = "Things",
-        canonicalId = "123abcde"
+        canonicalId = "123abcde",
+        ontologyType = "Concept"
       )
     )
     val (stream, testClient) = testStream(authoritativeConcepts, usedConcepts)

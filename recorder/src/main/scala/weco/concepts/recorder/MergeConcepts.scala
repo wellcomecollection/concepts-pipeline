@@ -39,8 +39,7 @@ object MergeConcepts extends Logging {
       identifiers = Seq(authoritative.identifier),
       label = authoritative.label,
       alternativeLabels = authoritative.alternativeLabels,
-      // TODO: deal with ontology types properly here
-      ontologyType = "Concept"
+      ontologyType = used.ontologyType
     )
   }
 
@@ -49,8 +48,6 @@ object MergeConcepts extends Logging {
     identifiers = Seq(usedConcept.identifier),
     label = usedConcept.label,
     alternativeLabels = Nil,
-    // TODO: deal with ontology types properly, likely by getting them from the catalogue
-    // and including them in UsedConcept
-    ontologyType = "Concept"
+    ontologyType = usedConcept.ontologyType
   )
 }

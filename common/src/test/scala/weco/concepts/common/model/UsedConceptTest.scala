@@ -14,14 +14,16 @@ class UsedConceptTest extends AnyFunSpec with Matchers {
         identifierType = IdentifierType.LCNames
       ),
       label = "Pujol, Joseph, 1857-1945",
-      canonicalId = "baadbeef"
+      canonicalId = "baadbeef",
+      ontologyType = "Person"
     )
     val expectedJson =
       """{
         |  "authority": "lc-names",
         |  "identifier": "n84165387",
         |  "label": "Pujol, Joseph, 1857-1945",
-        |  "canonicalId":"baadbeef"
+        |  "canonicalId":"baadbeef",
+        |  "ontologyType": "Person"
         |}""".stripMargin
 
     it("serializes correctly") {
