@@ -5,6 +5,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 import akka.{Done, NotUsed}
 import akka.stream.scaladsl.Source
+import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.ElasticHttpClient
 import weco.concepts.common.json.Indexable
 import weco.concepts.common.json.JsonOps._
@@ -12,7 +13,7 @@ import weco.concepts.common.json.JsonOps._
 import scala.concurrent.{duration, ExecutionContext, Future}
 import scala.concurrent.duration._
 
-object IndexSource {
+object IndexSource extends Logging {
   def apply[T: Indexable](
     elasticHttpClient: ElasticHttpClient,
     indexName: String,
@@ -28,7 +29,14 @@ object IndexSource {
         read = _.nextPage,
         close = _.close
       )
-      .mapConcat(identity)
+      .statefulMapConcat(() => {
+        var total = 0L
+        (nextBatch: Seq[T]) => {
+          total += nextBatch.size
+          info(s"Total documents streamed from index: $total")
+          nextBatch
+        }
+      })
 
   // https://www.elastic.co/guide/en/elasticsearch/reference/current/point-in-time-api.html
   private case class PointInTime(

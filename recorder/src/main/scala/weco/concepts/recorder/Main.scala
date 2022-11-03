@@ -9,8 +9,11 @@ object Main extends RecorderMain with Logging with App {
     .create(targetIndex)
     .map { _ =>
       if (args.length > 0) {
-        Source.fromIterator(() => args.iterator).via(recorderStream.recordIds)
+        val ids = args.toSeq
+        info(s"Recording IDs: ${ids.mkString(", ")}")
+        Source(ids).via(recorderStream.recordIds)
       } else {
+        info("Recording all used concepts")
         recorderStream.recordAllUsedConcepts
       }
     }
