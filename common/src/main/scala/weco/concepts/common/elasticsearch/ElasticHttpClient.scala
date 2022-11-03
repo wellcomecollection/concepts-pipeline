@@ -8,14 +8,24 @@ import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
-import akka.stream.scaladsl.Flow
+import akka.stream.scaladsl.{Flow, Sink, Source}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 import scala.util.Try
 
 trait ElasticHttpClient {
   def flow[T]: Flow[(HttpRequest, T), (Try[HttpResponse], T), NotUsed]
+  def singleRequest(
+    request: HttpRequest
+  )(implicit mat: Materializer): Future[HttpResponse] =
+    Source
+      .single(request -> ())
+      .via(flow[Unit])
+      .mapAsyncUnordered(10) { case (tryResponse, _) =>
+        Future.fromTry(tryResponse)
+      }
+      .runWith(Sink.head)
 }
 
 class ElasticAkkaHttpClient(
