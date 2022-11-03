@@ -50,12 +50,14 @@ class RecorderStream(
           .map(Option(_))
           // This buffer is necessary because, without it, the combination of
           // the `Broadcast`, the `grouped()` in the mget flow, and the `ZipWith`
-          // stage afterwards causes a deadlock: Broadcast will not request
-          // an element from the source until *both* downstream sides are ready for
-          // it, ZipWith will not emit until both its upstreams have completed,
-          // and grouped will not emit unless there is demand from the downstream.
-          // This means that a buffer is required for the non-mget half of the flow
-          // to keep receiving elements while the mget is waiting for the rest of the group.
+          // stage afterwards causes a deadlock:
+          // 1. The `fork` stage `Broadcast`s one `UsedConcept` to `getUsedConceptId` and `toOptionBuffer`
+          // 2. `getAuthoritativeConcept` waits to receive a full group (`maxRecordsPerBulkRequest`) before emitting
+          // 3. The `ZipWith` in `merge` receives 1 element from `toOptionBuffer` but won't emit
+          //    until it receives one from `getAuthoritativeConcept` as well.
+          // 4. We are deadlocked: `getAuthoritativeConcept` is waiting for the rest of the group and so won't emit,
+          //    meaning that `ZipWith` won't emit, `toOptionBuffer` is "full" and so the `Broadcast` won't emit. We
+          //    need to introduce a buffer at least as big as the group size (minus one, for the "in-flight" element).
           .buffer(maxRecordsPerBulkRequest, OverflowStrategy.backpressure)
         val getAuthoritativeConcept =
           mget.forIndex[AuthoritativeConcept](authoritativeConceptsIndexName)
