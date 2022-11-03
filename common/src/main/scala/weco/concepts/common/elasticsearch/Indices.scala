@@ -4,11 +4,9 @@ import akka.Done
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
-import akka.stream.scaladsl.{Sink, Source}
 import grizzled.slf4j.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 import scala.io.{Source => IOSource}
 
 class Indices(elasticHttpClient: ElasticHttpClient)(implicit mat: Materializer)
@@ -22,20 +20,19 @@ class Indices(elasticHttpClient: ElasticHttpClient)(implicit mat: Materializer)
     )
 
   def create(name: String, config: String): Future[Done] =
-    Source
-      .single(
+    elasticHttpClient
+      .singleRequest(
         HttpRequest(
           method = HttpMethods.PUT,
           uri = s"/$name",
           entity = HttpEntity(ContentTypes.`application/json`, config)
-        ) -> name
+        )
       )
-      .via(elasticHttpClient.flow)
-      .mapAsync(1) {
-        case (Success(response), _) if response.status.isSuccess() =>
+      .flatMap {
+        case response if response.status.isSuccess() =>
           response.entity.discardBytes()
           Future.successful(Done)
-        case (Success(errorResponse), _) =>
+        case errorResponse =>
           Unmarshal(errorResponse.entity)
             .to[String]
             .map {
@@ -47,8 +44,6 @@ class Indices(elasticHttpClient: ElasticHttpClient)(implicit mat: Materializer)
                   s"Error when creating index $name: ${errorResponse.status} : $errorBody"
                 )
             }
-        case (Failure(exception), _) => throw exception
       }
-      .runWith(Sink.head)
 
 }
