@@ -124,7 +124,8 @@ class RecorderStreamTest
       UsedConcept(
         identifier = identifier(i),
         label = s"Used concept $i",
-        canonicalId = canonicalId(i)
+        canonicalId = canonicalId(i),
+        ontologyType = "Subject"
       )
     )
     val authoritativeConcepts = (1 to (0.8 * nUsedConcepts).toInt).map(i =>
