@@ -9,7 +9,7 @@ import java.util.{Map => JavaMap}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-object BulkMain
+object BulkLambdaMain
     extends RequestHandler[JavaMap[String, String], String]
     with RecorderMain
     with Logging {
