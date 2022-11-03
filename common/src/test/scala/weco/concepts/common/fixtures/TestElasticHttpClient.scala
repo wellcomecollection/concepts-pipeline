@@ -3,18 +3,18 @@ package weco.concepts.common.fixtures
 import akka.NotUsed
 import akka.stream.scaladsl.Flow
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.Materializer
+import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.ElasticHttpClient
 
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Success, Try}
+import scala.util.{Failure, Success, Try}
 
 class TestElasticHttpClient(
   mapping: PartialFunction[HttpRequest, Future[Try[HttpResponse]]]
 )(implicit ec: ExecutionContext)
-    extends ElasticHttpClient {
+    extends ElasticHttpClient
+    with Logging {
   private val _requests: mutable.Buffer[HttpRequest] = mutable.Buffer.empty
 
   def requests: Seq[HttpRequest] = _requests.toSeq
@@ -36,7 +36,23 @@ class TestElasticHttpClient(
             unhandled =>
               throw new RuntimeException(s"Unhandled request: $unhandled")
           )
-          .map(_ -> context)
+          .map(result => {
+            val responseLog = result match {
+              case Success(
+                    HttpResponse(status, _, entity: HttpEntity.Strict, _)
+                  ) =>
+                s"${status.value}: ${entity.data.utf8String}"
+              case Success(response)  => response.status.value
+              case Failure(exception) => s"Failure: ${exception.getMessage}"
+            }
+            if (!isDebugEnabled) {
+              info(s"${request.method.value}: ${request.uri.toString()}")
+            }
+            debug(
+              s"${request.method.value}: ${request.uri.toString()} -> $responseLog"
+            )
+            result -> context
+          })
       }
 }
 
@@ -45,41 +61,4 @@ object TestElasticHttpClient {
     ec: ExecutionContext
   ) =
     new TestElasticHttpClient(mapping.andThen(Future.successful(_)))
-
-  def defaultBulkHandler(implicit
-    mat: Materializer
-  ): PartialFunction[HttpRequest, Future[Try[HttpResponse]]] = {
-    case HttpRequest(HttpMethods.POST, uri, _, entity, _)
-        if uri.path.toString() == "/_bulk" =>
-      implicit val ec: ExecutionContext = mat.executionContext
-      Unmarshal(entity).to[String].map { bulkUpdateRequest =>
-        val couplets = bulkUpdateRequest
-          .split('\n')
-          .map(ujson.read(_))
-          .grouped(2)
-          .collect { case Array(a, b) => a -> b }
-          .toSeq
-        val result = ujson.Obj(
-          "took" -> 1234,
-          "errors" -> false,
-          "items" -> couplets.map { case (action, _) =>
-            ujson.Obj(
-              "update" -> ujson.Obj(
-                "_id" -> action("update")("_id").str,
-                "result" -> "created"
-              )
-            )
-          }
-        )
-        Success(
-          HttpResponse(
-            StatusCodes.OK,
-            entity = HttpEntity(
-              ContentTypes.`application/json`,
-              ujson.write(result)
-            )
-          )
-        )
-      }
-  }
 }
