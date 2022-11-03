@@ -20,11 +20,12 @@ trait ElasticHttpClient {
     request: HttpRequest
   )(implicit mat: Materializer): Future[HttpResponse] =
     Source
-      .single(request -> ())
-      .via(flow[Unit])
-      .mapAsyncUnordered(10) { case (tryResponse, _) =>
-        Future.fromTry(tryResponse)
+      .single(request -> request)
+      .via(flow[HttpRequest])
+      .collect {
+        case (result, matchingRequest) if matchingRequest == request => result
       }
+      .mapAsyncUnordered(10)(Future.fromTry)
       .runWith(Sink.head)
 }
 
