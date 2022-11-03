@@ -62,7 +62,8 @@ class ConceptsAggregator(
       .mapConcat(identity)
   }
 
-  private def extractConceptsFlow: Flow[String, Seq[CatalogueConcept], NotUsed] =
+  private def extractConceptsFlow
+    : Flow[String, Seq[CatalogueConcept], NotUsed] =
     Flow.fromFunction(ConceptExtractor.apply)
 
   /** Remove duplicate concepts from the stream.
@@ -86,7 +87,8 @@ class ConceptsAggregator(
     * amount of data we have to send. (In the 2022-08-22 snapshot I found over
     * 3.7M concepts, but fewer than 0.25M different concepts)
     */
-  private def deduplicateFlow: Flow[CatalogueConcept, CatalogueConcept, NotUsed] =
+  private def deduplicateFlow
+    : Flow[CatalogueConcept, CatalogueConcept, NotUsed] =
     Flow[CatalogueConcept].statefulMapConcat { () =>
       val seen: MutableSet[Int] = MutableSet.empty[Int];
       { concept: CatalogueConcept =>
