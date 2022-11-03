@@ -1,14 +1,23 @@
 locals {
-  indices = ["authoritative-concepts", "catalogue-concepts", "concepts-store"]
   service_roles = {
-    ingestor   = ["authoritative-concepts_read", "authoritative-concepts_write"]
-    aggregator = ["catalogue-concepts_read", "catalogue-concepts_write"]
-    recorder   = ["catalogue-concepts_read", "authoritative-concepts_read", "concepts-store_write"]
+    ingestor = [
+      "${local.elastic_indices.authoritative-concepts}_read",
+      "${local.elastic_indices.authoritative-concepts}_write"
+    ]
+    aggregator = [
+      "${local.elastic_indices.catalogue-concepts}_read",
+      "${local.elastic_indices.catalogue-concepts}_write"
+    ]
+    recorder = [
+      "${local.elastic_indices.catalogue-concepts}_read",
+      "${local.elastic_indices.authoritative-concepts}_read",
+      "${local.elastic_indices.concepts-store}_write"
+    ]
   }
 }
 
 resource "elasticstack_elasticsearch_security_role" "read_indices" {
-  for_each = toset(local.indices)
+  for_each = toset(values(local.elastic_indices))
 
   name = "${each.key}_read"
   indices {
@@ -18,7 +27,7 @@ resource "elasticstack_elasticsearch_security_role" "read_indices" {
 }
 
 resource "elasticstack_elasticsearch_security_role" "write_indices" {
-  for_each = toset(local.indices)
+  for_each = toset(values(local.elastic_indices))
 
   name = "${each.key}_write"
   indices {

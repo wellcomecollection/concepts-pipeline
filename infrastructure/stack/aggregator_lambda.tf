@@ -43,6 +43,7 @@ module "aggregator_lambda" {
   elasticsearch_user = module.client_service_users["aggregator"]
 
   environment_variables = {
+    index_name    = local.elastic_indices.catalogue-concepts
     updates_topic = module.updates_topic.arn
   }
 }

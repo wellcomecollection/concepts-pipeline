@@ -16,4 +16,8 @@ module "ingestor_lambda" {
   elasticsearch_user = module.client_service_users["ingestor"]
   namespace          = var.namespace
   service_name       = "ingestor"
+
+  environment_variables = {
+    index_name = local.elastic_indices.authoritative-concepts
+  }
 }

@@ -9,6 +9,12 @@ module "recorder_lambda" {
   elasticsearch_user = module.client_service_users["recorder"]
   namespace          = var.namespace
   service_name       = "recorder"
+
+  environment_variables = {
+    catalogue_concepts_index     = local.elastic_indices.catalogue-concepts
+    authoritative_concepts_index = local.elastic_indices.authoritative-concepts
+    concepts_store_index         = local.elastic_indices.concepts-store
+  }
 }
 
 module "recorder_input_queue" {

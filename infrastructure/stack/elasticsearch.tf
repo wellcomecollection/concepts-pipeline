@@ -5,6 +5,12 @@ locals {
   cluster_alias        = ec_deployment.concepts.alias
   cluster_public_host  = "${local.cluster_alias}.es.${local.elastic_cloud_region}.aws.found.io"
   cluster_private_host = "${local.cluster_id}.vpce.${local.elastic_cloud_region}.aws.elastic-cloud.com"
+
+  elastic_indices = {
+    authoritative-concepts = "authoritative-concepts"
+    catalogue-concepts     = "catalogue-concepts"
+    concepts-store         = "concepts-store"
+  }
 }
 
 data "ec_stack" "latest_patch" {
