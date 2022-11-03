@@ -1,12 +1,12 @@
 package weco.concepts.recorder
 
 import grizzled.slf4j.Logging
-import weco.concepts.common.model.{AuthoritativeConcept, Concept, UsedConcept}
+import weco.concepts.common.model.{AuthoritativeConcept, Concept, CatalogueConcept}
 
 object MergeConcepts extends Logging {
   def apply(
     authoritative: Option[AuthoritativeConcept],
-    used: Option[UsedConcept]
+    used: Option[CatalogueConcept]
   ): Concept = (authoritative, used) match {
     case (Some(authoritative), Some(used)) =>
       info(
@@ -28,7 +28,7 @@ object MergeConcepts extends Logging {
 
   private def merge(
     authoritative: AuthoritativeConcept,
-    used: UsedConcept
+    used: CatalogueConcept
   ): Concept = {
     require(
       authoritative.identifier == used.identifier,
@@ -43,7 +43,7 @@ object MergeConcepts extends Logging {
     )
   }
 
-  private def fromUsedOnly(usedConcept: UsedConcept): Concept = Concept(
+  private def fromUsedOnly(usedConcept: CatalogueConcept): Concept = Concept(
     canonicalId = usedConcept.canonicalId,
     identifiers = Seq(usedConcept.identifier),
     label = usedConcept.label,

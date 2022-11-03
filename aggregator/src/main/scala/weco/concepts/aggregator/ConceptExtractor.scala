@@ -10,7 +10,7 @@ import scala.annotation.tailrec
 object ConceptExtractor extends Logging {
   val conceptTypes =
     Seq("Concept", "Person", "Organisation", "Meeting", "Period", "Subject")
-  def apply(jsonString: String): Seq[UsedConcept] = {
+  def apply(jsonString: String): Seq[CatalogueConcept] = {
     val jsonObj = ujson.read(jsonString)
     val concepts = allConcepts(List(jsonObj), Nil).toList
       .distinctBy(_.identifier)
@@ -23,8 +23,8 @@ object ConceptExtractor extends Logging {
   @tailrec
   private def allConcepts(
     jsons: Seq[Value],
-    acc: Seq[UsedConcept]
-  ): Seq[UsedConcept] = {
+    acc: Seq[CatalogueConcept]
+  ): Seq[CatalogueConcept] = {
     jsons match {
       case Nil => acc
       case _ =>
@@ -65,10 +65,10 @@ object UsedConcepts extends Logging {
     * into one or more UsedConcepts
     *
     * A Catalogue API Concept contains a list of identifiers from one or more
-    * authorities, whereas a UsedConcept contains just one. So a catalogue
-    * concept may produce more than one UsedConcept.
+    * authorities, whereas a CatalogueConcept contains just one. So a catalogue
+    * concept may produce more than one CatalogueConcept.
     */
-  def apply(conceptJson: ujson.Obj): Seq[UsedConcept] = {
+  def apply(conceptJson: ujson.Obj): Seq[CatalogueConcept] = {
     // straight to get, it should have been verified before now
     // that identifiers exists.
     conceptJson.optSeq("identifiers").get.flatMap {
@@ -79,11 +79,11 @@ object UsedConcepts extends Logging {
   private def conceptWithSource(
     conceptJson: Obj,
     sourceIdentifier: Value
-  ): Option[UsedConcept] = {
+  ): Option[CatalogueConcept] = {
     try {
       val authority = sourceIdentifier.opt[Value]("identifierType").get
       Some(
-        UsedConcept(
+        CatalogueConcept(
           identifier = Identifier(
             value = sourceIdentifier.opt[String]("value").get,
             identifierType = identifierTypeFromAuthority(authority)

@@ -2,7 +2,7 @@ package weco.concepts.common.model
 
 import weco.concepts.common.json.Indexable
 
-/** A UsedConcept represents a concept in use in Works in the Catalogue. It
+/** A CatalogueConcept represents a concept in use in Works in the Catalogue. It
   * links a Wellcome canonicalId to an identifier from an external authority.
   *
   * The label is included in all records, but only really required for
@@ -12,7 +12,7 @@ import weco.concepts.common.json.Indexable
   * record it anyway to help understand the resulting records in the aggregated
   * concepts database.
   */
-case class UsedConcept(
+case class CatalogueConcept(
   identifier: Identifier,
   label: String,
   canonicalId: String,
@@ -22,13 +22,13 @@ case class UsedConcept(
     s"\n$canonicalId\t${identifier.toString.padTo(70, ' ')}$label"
 }
 
-object UsedConcept {
+object CatalogueConcept {
   import weco.concepts.common.json.JsonOps._
 
-  implicit val indexableUsedConcept: Indexable[UsedConcept] =
-    new Indexable[UsedConcept] {
-      def id(t: UsedConcept): String = t.identifier.toString
-      def toDoc(t: UsedConcept): ujson.Value = ujson.Obj(
+  implicit val indexableUsedConcept: Indexable[CatalogueConcept] =
+    new Indexable[CatalogueConcept] {
+      def id(t: CatalogueConcept): String = t.identifier.toString
+      def toDoc(t: CatalogueConcept): ujson.Value = ujson.Obj(
         "authority" -> t.identifier.identifierType.id,
         "identifier" -> t.identifier.value,
         "label" -> t.label,
@@ -36,13 +36,12 @@ object UsedConcept {
         "ontologyType" -> t.ontologyType
       )
 
-      def fromDoc(doc: ujson.Value): Option[UsedConcept] = for {
-        id <- doc.opt[String]("identifier")
+      def fromDoc(doc: ujson.Value): Option[CatalogueConcept] = for {
         canonicalId <- doc.opt[String]("canonicalId")
         identifier <- Indexable[Identifier].fromDoc(doc)
         label <- doc.opt[String]("label")
         ontologyType <- doc.opt[String]("ontologyType")
-      } yield UsedConcept(
+      } yield CatalogueConcept(
         identifier = identifier,
         label = label,
         canonicalId = canonicalId,

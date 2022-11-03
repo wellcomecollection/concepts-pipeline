@@ -14,7 +14,7 @@ import weco.concepts.common.model.{
   AuthoritativeConcept,
   Identifier,
   IdentifierType,
-  UsedConcept
+  CatalogueConcept
 }
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -59,7 +59,7 @@ class RecorderStreamTest
       )
     )
     val usedConcepts = Seq(
-      UsedConcept(
+      CatalogueConcept(
         identifier = Identifier(
           value = "n83217500",
           identifierType = IdentifierType.LCNames
@@ -68,7 +68,7 @@ class RecorderStreamTest
         canonicalId = "123abcde",
         ontologyType = "Person"
       ),
-      UsedConcept(
+      CatalogueConcept(
         identifier = Identifier(
           value = "sh95000541",
           identifierType = IdentifierType.LCSubjects
@@ -77,7 +77,7 @@ class RecorderStreamTest
         canonicalId = "123abcde",
         ontologyType = "Concept"
       ),
-      UsedConcept(
+      CatalogueConcept(
         identifier = Identifier(
           value = "things",
           identifierType = IdentifierType.LabelDerived
@@ -145,7 +145,7 @@ class RecorderStreamTest
 
   def testStream(
     authoritativeConcepts: Seq[AuthoritativeConcept],
-    usedConcepts: Seq[UsedConcept]
+    usedConcepts: Seq[CatalogueConcept]
   )(implicit mat: Materializer): (RecorderStream, TestElasticHttpClient) = {
     import weco.concepts.common.fixtures.ElasticsearchResponses._
     implicit val ec: ExecutionContext = mat.executionContext

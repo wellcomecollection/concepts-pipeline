@@ -4,11 +4,11 @@ import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import weco.concepts.common.json.Indexable
 
-class UsedConceptTest extends AnyFunSpec with Matchers {
-  describe("Indexable[UsedConcept]") {
+class CatalogueConceptTest extends AnyFunSpec with Matchers {
+  describe("Indexable[CatalogueConcept]") {
     import weco.concepts.common.json.Indexable._
 
-    val testConcept = UsedConcept(
+    val testConcept = CatalogueConcept(
       identifier = Identifier(
         value = "n84165387",
         identifierType = IdentifierType.LCNames
@@ -35,7 +35,7 @@ class UsedConceptTest extends AnyFunSpec with Matchers {
     }
 
     it("deserializes correctly") {
-      Indexable[UsedConcept].fromDoc(
+      Indexable[CatalogueConcept].fromDoc(
         ujson.read(expectedJson)
       ) shouldBe Some(testConcept)
     }
