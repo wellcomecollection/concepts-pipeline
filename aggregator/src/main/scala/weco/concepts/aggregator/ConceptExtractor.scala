@@ -30,7 +30,7 @@ object ConceptExtractor extends Logging {
       case _ =>
         val (nextJsons, concepts) = jsons.map {
           case obj: ujson.Obj if isConcept(obj) =>
-            (obj.obj.values, UsedConcepts(obj))
+            (obj.obj.values, CatalogueConcepts(obj))
           case arr: ujson.Arr => (arr.arr, Nil)
           case obj: ujson.Obj => (obj.obj.values, Nil)
           case _              => (Nil, Nil)
@@ -59,10 +59,10 @@ object ConceptExtractor extends Logging {
   }
 }
 
-object UsedConcepts extends Logging {
+object CatalogueConcepts extends Logging {
 
   /** Transform a block of JSON representing a Concept from the Catalogue API
-    * into one or more UsedConcepts
+    * into one or more CatalogueConcepts
     *
     * A Catalogue API Concept contains a list of identifiers from one or more
     * authorities, whereas a CatalogueConcept contains just one. So a catalogue

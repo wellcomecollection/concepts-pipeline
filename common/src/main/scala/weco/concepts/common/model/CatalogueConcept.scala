@@ -25,7 +25,7 @@ case class CatalogueConcept(
 object CatalogueConcept {
   import weco.concepts.common.json.JsonOps._
 
-  implicit val indexableUsedConcept: Indexable[CatalogueConcept] =
+  implicit val indexableCatalogueConcept: Indexable[CatalogueConcept] =
     new Indexable[CatalogueConcept] {
       def id(t: CatalogueConcept): String = t.identifier.toString
       def toDoc(t: CatalogueConcept): ujson.Value = ujson.Obj(

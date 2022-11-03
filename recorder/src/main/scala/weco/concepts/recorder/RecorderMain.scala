@@ -37,7 +37,7 @@ trait RecorderMain extends Logging {
     elasticHttpClient = elasticHttpClient,
     authoritativeConceptsIndexName =
       config.as[String]("data-source.index.authoritative.name"),
-    usedConceptsIndexName = config.as[String]("data-source.index.used.name"),
+    catalogueConceptsIndexName = config.as[String]("data-source.index.catalogue.name"),
     targetIndexName = targetIndex
   )
 }

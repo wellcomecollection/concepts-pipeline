@@ -22,7 +22,7 @@ import scala.util.{Failure, Success}
  * involved here, because it is very much determined by the nature of the cluster and data.
  * This means that the value of max_bulk_records should be chosen by the author by experimentation.
  *
- * Although (theoretically) it may be possible to send the whole set of used concepts in one
+ * Although (theoretically) it may be possible to send the whole set of catalogue concepts in one
  * bulk request (The 22 Aug snapshot amounts to 17MB of documents, well within "few tens of MB"),
  * it's prudent to break this up in order to ensure stability, and also to improve observability.
  * Saving it all up for one big hit, then sending it all to ES is a recipe for things to go

@@ -9,14 +9,18 @@ import weco.concepts.common.elasticsearch.{
   BulkUpdateResult,
   ElasticHttpClient
 }
-import weco.concepts.common.model.{AuthoritativeConcept, Concept, UsedConcept}
+import weco.concepts.common.model.{
+  AuthoritativeConcept,
+  CatalogueConcept,
+  Concept
+}
 import weco.concepts.common.json.Indexable._
 
 import scala.concurrent.ExecutionContext
 
 class RecorderStream(
   authoritativeConceptsIndexName: String,
-  usedConceptsIndexName: String,
+  catalogueConceptsIndexName: String,
   targetIndexName: String,
   elasticHttpClient: ElasticHttpClient,
   maxRecordsPerBulkRequest: Int = 1000
@@ -33,25 +37,25 @@ class RecorderStream(
   ).flow
 
   private implicit val ec: ExecutionContext = mat.executionContext
-  def recordAllUsedConcepts: Source[BulkUpdateResult, NotUsed] =
+  def recordAllCatalogueConcepts: Source[BulkUpdateResult, NotUsed] =
     Source.fromGraph(GraphDSL.createGraph(bulkUpdateFlow) {
       implicit builder => bulkUpdate =>
         import GraphDSL.Implicits._
 
-        val source = IndexSource[UsedConcept](
+        val source = IndexSource[CatalogueConcept](
           elasticHttpClient,
-          usedConceptsIndexName,
+          catalogueConceptsIndexName,
           pageSize = maxRecordsPerBulkRequest
         )
 
-        val fork = builder.add(Broadcast[UsedConcept](2))
-        val getUsedConceptId = Flow[UsedConcept].map(_.id)
-        val toOptionBuffer = Flow[UsedConcept]
+        val fork = builder.add(Broadcast[CatalogueConcept](2))
+        val getCatalogueConceptId = Flow[CatalogueConcept].map(_.id)
+        val toOptionBuffer = Flow[CatalogueConcept]
           .map(Option(_))
           // This buffer is necessary because, without it, the combination of
           // the `Broadcast`, the `grouped()` in the mget flow, and the `ZipWith`
           // stage afterwards causes a deadlock:
-          // 1. The `fork` stage `Broadcast`s one `UsedConcept` to `getUsedConceptId` and `toOptionBuffer`
+          // 1. The `fork` stage `Broadcast`s one `CatalogueConcept` to `getCatalogueConceptId` and `toOptionBuffer`
           // 2. `getAuthoritativeConcept` waits to receive a full group (`maxRecordsPerBulkRequest`) before emitting
           // 3. The `ZipWith` in `merge` receives 1 element from `toOptionBuffer` but won't emit
           //    until it receives one from `getAuthoritativeConcept` as well.
@@ -65,7 +69,9 @@ class RecorderStream(
         val merge = builder.add(ZipWith(MergeConcepts(_, _)))
 
         source ~> fork.in
-        fork.out(0) ~> getUsedConceptId ~> getAuthoritativeConcept ~> merge.in0
+        fork.out(
+          0
+        ) ~> getCatalogueConceptId ~> getAuthoritativeConcept ~> merge.in0
         fork.out(1) ~> toOptionBuffer ~> merge.in1
         merge.out ~> bulkUpdate
 
@@ -94,10 +100,11 @@ class RecorderStream(
 
         val getAuthoritativeConcept =
           mget.forIndex[AuthoritativeConcept](authoritativeConceptsIndexName)
-        val getUsedConcept = mget.forIndex[UsedConcept](usedConceptsIndexName)
+        val getCatalogueConcept =
+          mget.forIndex[CatalogueConcept](catalogueConceptsIndexName)
 
         fork.out(1) ~> getAuthoritativeConcept ~> merge.in0
-        fork.out(0) ~> getUsedConcept ~> merge.in1
+        fork.out(0) ~> getCatalogueConcept ~> merge.in1
         merge.out ~> bulkUpdate
 
         FlowShape(fork.in, bulkUpdate.out)

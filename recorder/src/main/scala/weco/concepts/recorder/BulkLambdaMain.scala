@@ -21,7 +21,7 @@ object BulkLambdaMain
     info("Running recorder in bulk mode")
 
     val f = indices.create(targetIndex).flatMap { done =>
-      recorderStream.recordAllUsedConcepts
+      recorderStream.recordAllCatalogueConcepts
         .runWith(Sink.fold[Long, BulkUpdateResult](0L)(_ + _.updated.size))
         .map { total =>
           info(s"Recorded $total concepts")
