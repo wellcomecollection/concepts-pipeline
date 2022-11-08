@@ -66,7 +66,7 @@ object CatalogueConcepts extends Logging {
     *
     * A Catalogue API Concept contains a list of identifiers from one or more
     * authorities, whereas a CatalogueConcept contains just one. So a catalogue
-    * concept may produce more than one CatalogueConcept.
+    * API concept may produce more than one CatalogueConcept.
     */
   def apply(conceptJson: ujson.Obj): Seq[CatalogueConcept] = {
     // straight to get, it should have been verified before now
