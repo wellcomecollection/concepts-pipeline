@@ -86,10 +86,15 @@ class IndexSourceTest extends AnyFunSpec with Matchers with ScalaFutures {
       .request(1000)
       .expectNextN(1000)
 
-    testClient.requests.filter(_.method == HttpMethods.DELETE) shouldBe empty
     val usedPitIds = getPitsUsedInSearch(testClient.requests)
     whenReady(usedPitIds) { ids =>
       ids.toSet.size shouldBe 1
+      testClient.requests
+        .map(_.method)
+        .count(_ == HttpMethods.DELETE) shouldBe 1
+      testClient.requests.map(_.method).lastOption should contain(
+        HttpMethods.DELETE
+      )
     }
   }
 
