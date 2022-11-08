@@ -3,6 +3,7 @@ package weco.concepts.recorder
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.Materializer
 import akka.stream.testkit.scaladsl.TestSink
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.funspec.AnyFunSpec
@@ -19,14 +20,14 @@ class IndexSourceTest extends AnyFunSpec with Matchers with ScalaFutures {
   it("creates a point-in-time ID when initialised") {
     implicit val actorSystem: ActorSystem = ActorSystem("test")
     implicit val ec: ExecutionContext = actorSystem.dispatcher
-    val testClient = new TestElasticHttpClient(handlePitCreation)
+    val testClient = indexSourceTestClient()
 
     IndexSource[TestDoc](elasticHttpClient = testClient, indexName = "test")
       .runWith(TestSink[TestDoc]())
-      .request(1)
-      .expectError()
+      .ensureSubscription()
+      .expectComplete()
 
-    testClient.requests should contain(
+    testClient.requests.headOption should contain(
       HttpRequest(
         method = HttpMethods.POST,
         uri = Uri("/test/_pit?keep_alive=1m")
@@ -38,11 +39,7 @@ class IndexSourceTest extends AnyFunSpec with Matchers with ScalaFutures {
     implicit val actorSystem: ActorSystem = ActorSystem("test")
     implicit val ec: ExecutionContext = actorSystem.dispatcher
     val testDocs = (1 to 1000).map(id => TestDoc(id.toString))
-    val testClient =
-      new TestElasticHttpClient(
-        handlePitCreation orElse
-          handleSearch(testDocs)
-      )
+    val testClient = indexSourceTestClient(testDocs)
 
     val results = IndexSource[TestDoc](
       elasticHttpClient = testClient,
@@ -60,10 +57,7 @@ class IndexSourceTest extends AnyFunSpec with Matchers with ScalaFutures {
     implicit val actorSystem: ActorSystem = ActorSystem("test")
     implicit val ec: ExecutionContext = actorSystem.dispatcher
     val testDocs = (1 to 1000).map(id => TestDoc(id.toString))
-    val testClient = new TestElasticHttpClient(
-      handlePitCreation orElse
-        handleSearch(testDocs)
-    )
+    val testClient = indexSourceTestClient(testDocs)
 
     val results = IndexSource[TestDoc](
       elasticHttpClient = testClient,
@@ -81,10 +75,7 @@ class IndexSourceTest extends AnyFunSpec with Matchers with ScalaFutures {
     implicit val actorSystem: ActorSystem = ActorSystem("test")
     implicit val ec: ExecutionContext = actorSystem.dispatcher
     val testDocs = (1 to 1000).map(id => TestDoc(id.toString))
-    val testClient = new TestElasticHttpClient(
-      handlePitCreation orElse
-        handleSearch(testDocs)
-    )
+    val testClient = indexSourceTestClient(testDocs)
 
     IndexSource[TestDoc](
       elasticHttpClient = testClient,
@@ -95,17 +86,8 @@ class IndexSourceTest extends AnyFunSpec with Matchers with ScalaFutures {
       .request(1000)
       .expectNextN(1000)
 
-    val usedPitIds = Future
-      .sequence(testClient.requests.collect {
-        case HttpRequest(HttpMethods.POST, uri, _, entity, _)
-            if uri.path.endsWith("_search") =>
-          Unmarshal(entity)
-            .to[String]
-            .map(ujson.read(_))
-            .map(_.opt[String]("pit", "id"))
-      })
-      .map(_.flatten)
-
+    testClient.requests.filter(_.method == HttpMethods.DELETE) shouldBe empty
+    val usedPitIds = getPitsUsedInSearch(testClient.requests)
     whenReady(usedPitIds) { ids =>
       ids.toSet.size shouldBe 1
     }
@@ -115,11 +97,7 @@ class IndexSourceTest extends AnyFunSpec with Matchers with ScalaFutures {
     implicit val actorSystem: ActorSystem = ActorSystem("test")
     implicit val ec: ExecutionContext = actorSystem.dispatcher
     val testDocs = (1 to 200).map(id => TestDoc(id.toString))
-    val testClient = new TestElasticHttpClient(
-      handlePitCreation orElse
-        handleSearch(testDocs, _.reverse) orElse
-        handlePitDeletion
-    )
+    val testClient = indexSourceTestClient(testDocs, _.reverse)
 
     IndexSource[TestDoc](
       elasticHttpClient = testClient,
@@ -130,17 +108,7 @@ class IndexSourceTest extends AnyFunSpec with Matchers with ScalaFutures {
       .request(200)
       .expectNextN(200)
 
-    val usedPitIds = Future
-      .sequence(testClient.requests.collect {
-        case HttpRequest(HttpMethods.POST, uri, _, entity, _)
-            if uri.path.endsWith("_search") =>
-          Unmarshal(entity)
-            .to[String]
-            .map(ujson.read(_))
-            .map(_.opt[String]("pit", "id"))
-      })
-      .map(_.flatten)
-
+    val usedPitIds = getPitsUsedInSearch(testClient.requests)
     whenReady(usedPitIds) { ids =>
       ids.toSet.size shouldBe 2
     }
@@ -151,11 +119,7 @@ class IndexSourceTest extends AnyFunSpec with Matchers with ScalaFutures {
   ) {
     implicit val actorSystem: ActorSystem = ActorSystem("test")
     implicit val ec: ExecutionContext = actorSystem.dispatcher
-    val testClient = new TestElasticHttpClient(
-      handlePitCreation orElse
-        handleSearch(Nil) orElse
-        handlePitDeletion
-    )
+    val testClient = indexSourceTestClient()
 
     IndexSource[TestDoc](
       elasticHttpClient = testClient,
@@ -166,12 +130,21 @@ class IndexSourceTest extends AnyFunSpec with Matchers with ScalaFutures {
       .ensureSubscription()
       .expectComplete()
 
-    testClient.requests.find {
-      case HttpRequest(HttpMethods.DELETE, uri, _, _, _)
-          if uri.path.endsWith("_pit") =>
-        true
-      case _ => false
-    } should not be None
+    val pitsFuture = getPitsUsedInSearch(testClient.requests)
+    whenReady(pitsFuture) { pits =>
+      val pit = pits.headOption
+      pit should not be empty
+      testClient.requests.lastOption should contain(
+        HttpRequest(
+          method = HttpMethods.DELETE,
+          uri = Uri("/_pit"),
+          entity = HttpEntity(
+            ContentTypes.`application/json`,
+            ujson.write(ujson.Obj("id" -> pit.get))
+          )
+        )
+      )
+    }
   }
 
   case class TestDoc(id: String)
@@ -183,4 +156,27 @@ class IndexSourceTest extends AnyFunSpec with Matchers with ScalaFutures {
     def fromDoc(doc: ujson.Value): Option[TestDoc] =
       doc.opt[String]("id").map(TestDoc)
   }
+
+  def getPitsUsedInSearch(
+    requests: Seq[HttpRequest]
+  )(implicit ec: ExecutionContext, mat: Materializer): Future[Seq[String]] =
+    Future
+      .sequence(requests.collect {
+        case HttpRequest(HttpMethods.POST, uri, _, entity, _)
+            if uri.path.endsWith("_search") =>
+          Unmarshal(entity)
+            .to[String]
+            .map(ujson.read(_))
+            .map(_.opt[String]("pit", "id"))
+      })
+      .map(_.flatten)
+  def indexSourceTestClient(
+    records: Seq[TestDoc] = Nil,
+    transformPit: String => String = identity
+  )(implicit ec: ExecutionContext, mat: Materializer): TestElasticHttpClient =
+    new TestElasticHttpClient(
+      handlePitCreation orElse
+        handleSearch(records, transformPit) orElse
+        handlePitDeletion
+    )
 }
