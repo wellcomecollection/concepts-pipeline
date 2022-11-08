@@ -1,8 +1,8 @@
-# Deduplicating Used Concepts
+# Deduplicating Catalogue Concepts
 
 ## Why?
 Although the database is perfectly capable of handling requests to add duplicate data, 
-the scale of duplication in the full set of used concepts means that it is prudent 
+the scale of duplication in the full set of catalogue concepts means that it is prudent 
 to filter duplicates out in the aggregator, rather than allowing the database to 
 deal with it.
 
@@ -41,10 +41,10 @@ The chosen approach had to beat these two naive baselines:
 ### statefulMapConcat
 First was a Flow using statefulMapConcat and a mutable Set.
 ```
-   def deduplicateFlow: Flow[UsedConcept, UsedConcept, NotUsed] = 
-    Flow[UsedConcept].statefulMapConcat { () =>
+   def deduplicateFlow: Flow[CatalogueConcept, CatalogueConcept, NotUsed] = 
+    Flow[CatalogueConcept].statefulMapConcat { () =>
     val seen: MutableSet[String] = MutableSet.empty[String];
-        { concept: UsedConcept =>
+        { concept: CatalogueConcept =>
             val id = concept.identifier.toString
             if (seen.add(id)) Some(concept) else None
         }
@@ -77,21 +77,21 @@ Working with larger groups proportionally increased the memory usage, but withou
 taken.
 
 ```
-  def deduplicateBatch(size: Int): Flow[UsedConcept, UsedConcept, NotUsed] = {
-    def fn(seq: Seq[UsedConcept]): Iterable[UsedConcept] = {
+  def deduplicateBatch(size: Int): Flow[CatalogueConcept, CatalogueConcept, NotUsed] = {
+    def fn(seq: Seq[CatalogueConcept]): Iterable[CatalogueConcept] = {
       val s = seq.distinctBy(_.identifier)
       info(s"deduped ${seq.length} records down to ${s.length} records")
       s
     }
 
-    Flow[UsedConcept]
+    Flow[CatalogueConcept]
       .grouped(size)
       .via(Flow.fromFunction(fn))
       .mapConcat(identity)
   }
 
-  def deduplicateFlow: Flow[UsedConcept, UsedConcept, NotUsed] = 
-    Flow[UsedConcept]
+  def deduplicateFlow: Flow[CatalogueConcept, CatalogueConcept, NotUsed] = 
+    Flow[CatalogueConcept]
       .via(deduplicateBatch(500000))
       .via(deduplicateBatch(5000000))
   

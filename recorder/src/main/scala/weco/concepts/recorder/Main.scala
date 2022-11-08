@@ -13,8 +13,8 @@ object Main extends RecorderMain with Logging with App {
         info(s"Recording IDs: ${ids.mkString(", ")}")
         Source(ids).via(recorderStream.recordIds)
       } else {
-        info("Recording all used concepts")
-        recorderStream.recordAllUsedConcepts
+        info("Recording all catalogue concepts")
+        recorderStream.recordAllCatalogueConcepts
       }
     }
     .flatMap {

@@ -12,9 +12,9 @@ import weco.concepts.common.elasticsearch.BulkUpdateResult
 import weco.concepts.common.fixtures.TestElasticHttpClient
 import weco.concepts.common.model.{
   AuthoritativeConcept,
+  CatalogueConcept,
   Identifier,
-  IdentifierType,
-  UsedConcept
+  IdentifierType
 }
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,7 +26,7 @@ class RecorderStreamTest
     with ScalaFutures
     with IntegrationPatience {
   val authoritativeConceptsIndex = "authoritative-concepts-test"
-  val usedConceptsIndex = "used-concepts-test"
+  val catalogueConceptsIndex = "catalogue-concepts-test"
   var targetIndex = "concepts-test"
 
   it("indexes merged concepts from a given identifier Source") {
@@ -58,8 +58,8 @@ class RecorderStreamTest
         )
       )
     )
-    val usedConcepts = Seq(
-      UsedConcept(
+    val catalogueConcepts = Seq(
+      CatalogueConcept(
         identifier = Identifier(
           value = "n83217500",
           identifierType = IdentifierType.LCNames
@@ -68,7 +68,7 @@ class RecorderStreamTest
         canonicalId = "123abcde",
         ontologyType = "Person"
       ),
-      UsedConcept(
+      CatalogueConcept(
         identifier = Identifier(
           value = "sh95000541",
           identifierType = IdentifierType.LCSubjects
@@ -77,7 +77,7 @@ class RecorderStreamTest
         canonicalId = "123abcde",
         ontologyType = "Concept"
       ),
-      UsedConcept(
+      CatalogueConcept(
         identifier = Identifier(
           value = "things",
           identifierType = IdentifierType.LabelDerived
@@ -87,9 +87,10 @@ class RecorderStreamTest
         ontologyType = "Concept"
       )
     )
-    val (stream, testClient) = testStream(authoritativeConcepts, usedConcepts)
+    val (stream, testClient) =
+      testStream(authoritativeConcepts, catalogueConcepts)
 
-    Source(usedConcepts.map(_.identifier.toString))
+    Source(catalogueConcepts.map(_.identifier.toString))
       .via(stream.recordIds)
       .runWith(TestSink[BulkUpdateResult]())
       .request(1)
@@ -97,7 +98,7 @@ class RecorderStreamTest
         BulkUpdateResult(
           took = 1234L,
           errored = Map.empty,
-          updated = usedConcepts.map(_.canonicalId),
+          updated = catalogueConcepts.map(_.canonicalId),
           noop = Nil
         )
       )
@@ -107,7 +108,7 @@ class RecorderStreamTest
       _.uri.path.toString() == s"/$authoritativeConceptsIndex/_mget"
     ) shouldBe 1
     testClient.requests.count(
-      _.uri.path.toString() == s"/$usedConceptsIndex/_mget"
+      _.uri.path.toString() == s"/$catalogueConceptsIndex/_mget"
     ) shouldBe 1
     testClient.requests.count(_.uri.path.toString() == "/_bulk") shouldBe 1
   }
@@ -119,34 +120,36 @@ class RecorderStreamTest
       identifierType = IdentifierType.LCSubjects
     )
     def canonicalId(i: Int): String = f"$i%08x"
-    val nUsedConcepts = 5000
-    val usedConcepts = (1 to nUsedConcepts).map(i =>
-      UsedConcept(
+    val nCatalogueConcepts = 5000
+    val catalogueConcepts = (1 to nCatalogueConcepts).map(i =>
+      CatalogueConcept(
         identifier = identifier(i),
-        label = s"Used concept $i",
+        label = s"Catalogue concept $i",
         canonicalId = canonicalId(i),
         ontologyType = "Subject"
       )
     )
-    val authoritativeConcepts = (1 to (0.8 * nUsedConcepts).toInt).map(i =>
+    val authoritativeConcepts = (1 to (0.8 * nCatalogueConcepts).toInt).map(i =>
       AuthoritativeConcept(
         identifier = identifier(i),
         label = s"Authoritative concept $i",
         alternativeLabels = Nil
       )
     )
-    val (stream, _) = testStream(authoritativeConcepts, usedConcepts)
+    val (stream, _) = testStream(authoritativeConcepts, catalogueConcepts)
 
-    val allResultsFuture = stream.recordAllUsedConcepts
+    val allResultsFuture = stream.recordAllCatalogueConcepts
       .runWith(Sink.seq)
     whenReady(allResultsFuture) { allResults =>
-      allResults.flatMap(_.updated) shouldBe usedConcepts.map(_.canonicalId)
+      allResults.flatMap(_.updated) shouldBe catalogueConcepts.map(
+        _.canonicalId
+      )
     }
   }
 
   def testStream(
     authoritativeConcepts: Seq[AuthoritativeConcept],
-    usedConcepts: Seq[UsedConcept]
+    catalogueConcepts: Seq[CatalogueConcept]
   )(implicit mat: Materializer): (RecorderStream, TestElasticHttpClient) = {
     import weco.concepts.common.fixtures.ElasticsearchResponses._
     implicit val ec: ExecutionContext = mat.executionContext
@@ -159,10 +162,10 @@ class RecorderStreamTest
           entity = entity
         )
       case HttpRequest(HttpMethods.GET, uri, _, entity, _)
-          if uri.path.toString() == s"/$usedConceptsIndex/_mget" =>
+          if uri.path.toString() == s"/$catalogueConceptsIndex/_mget" =>
         mgetResponse(
-          index = usedConceptsIndex,
-          existing = usedConcepts,
+          index = catalogueConceptsIndex,
+          existing = catalogueConcepts,
           entity = entity
         )
     }
@@ -170,12 +173,12 @@ class RecorderStreamTest
       handleBulkUpdate orElse
         handleMget orElse
         handlePitCreation orElse
-        handleSearch(usedConcepts) orElse
+        handleSearch(catalogueConcepts) orElse
         handlePitDeletion
     )
     new RecorderStream(
       authoritativeConceptsIndexName = authoritativeConceptsIndex,
-      usedConceptsIndexName = usedConceptsIndex,
+      catalogueConceptsIndexName = catalogueConceptsIndex,
       targetIndexName = targetIndex,
       elasticHttpClient = client,
       maxRecordsPerBulkRequest = 10

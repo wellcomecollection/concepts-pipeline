@@ -1,7 +1,7 @@
 # On Bundling Concepts for the Bulk API
 
 ## Background
-Used Concepts are inserted into an Elasticsearch index via the Bulk API.
+Catalogue Concepts are inserted into an Elasticsearch index via the Bulk API.
 
 Elasticsearch documentation is (deliberately) rather vague about sizing bulk 
 requests. We, as developers of our specific ES-backed solution, 
