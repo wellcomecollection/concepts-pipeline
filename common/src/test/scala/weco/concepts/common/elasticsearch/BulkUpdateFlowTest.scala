@@ -6,7 +6,10 @@ import akka.stream.testkit.scaladsl.TestSink
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import ujson.Value
-import weco.concepts.common.fixtures.TestElasticHttpClient
+import weco.concepts.common.fixtures.{
+  ElasticsearchResponses,
+  TestElasticHttpClient
+}
 import weco.concepts.common.json.Indexable
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -14,7 +17,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class BulkUpdateFlowTest extends AnyFunSpec with Matchers {
   implicit val actorSystem: ActorSystem = ActorSystem("test")
   val client = new TestElasticHttpClient(
-    TestElasticHttpClient.defaultBulkHandler
+    ElasticsearchResponses.handleBulkUpdate
   )
 
   case class TestDoc(id: String, value: Int)

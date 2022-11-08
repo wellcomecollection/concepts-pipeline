@@ -35,3 +35,6 @@ ENV APP_CONTEXT=remote
 
 FROM lambda as sqs_lambda
 CMD ["weco.concepts.recorder.SQSMain::handleRequest"]
+
+FROM lambda as bulk_lambda
+CMD ["weco.concepts.recorder.BulkLambdaMain::handleRequest"]
