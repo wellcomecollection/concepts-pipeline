@@ -50,8 +50,13 @@ class ConceptTest extends AnyFunSpec with Matchers {
         |    ],
         |    "identifiers": [
         |      {
-        |        "identifier": "sh95000541",
-        |        "authority": "lc-subjects"
+        |        "value": "sh95000541",
+        |        "identifierType": {
+        |          "id": "lc-subjects",
+        |          "label": "Library of Congress Subject Headings (LCSH)",
+        |          "type": "IdentifierType"
+        |        },
+        |        "type": "Identifier"
         |      }
         |    ],
         |    "type": "Concept"
