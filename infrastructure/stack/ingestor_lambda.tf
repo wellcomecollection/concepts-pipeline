@@ -17,6 +17,10 @@ module "ingestor_lambda" {
   namespace          = var.namespace
   service_name       = "ingestor"
 
+  # The ingestor only runs in bulk mode, which takes some time
+  # 900s (15 minutes) is the maximum lambda execution time allowed
+  timeout = 900
+
   environment_variables = {
     index_name = local.elastic_indices.authoritative-concepts
   }
