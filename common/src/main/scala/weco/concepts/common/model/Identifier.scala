@@ -34,6 +34,7 @@ object Identifier {
 
 sealed trait IdentifierType {
   val id: String
+  val label: String
   override def toString: String = id
 }
 
@@ -42,21 +43,27 @@ object IdentifierType {
 
   case object Fihrist extends IdentifierType {
     val id = "fihrist"
+    val label = "Fihrist Authority"
   }
   case object LabelDerived extends IdentifierType {
     val id = "label-derived"
+    val label = "Identifier derived from the label of the referent"
   }
   case object LCNames extends IdentifierType {
     val id = "lc-names"
+    val label = "Library of Congress Name authority records"
   }
   case object LCSubjects extends IdentifierType {
     val id = "lc-subjects"
+    val label = "Library of Congress Subject Headings (LCSH)"
   }
   case object MeSH extends IdentifierType {
     val id = "nlm-mesh"
+    val label = "Medical Subject Headings (MeSH) identifier"
   }
   case object Viaf extends IdentifierType {
     val id = "viaf"
+    val label = "VIAF: The Virtual International Authority File"
   }
 
   val types: Set[IdentifierType] =

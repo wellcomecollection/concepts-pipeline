@@ -28,8 +28,13 @@ object Concept {
         "id" -> t.canonicalId,
         "identifiers" -> t.identifiers.map(id =>
           ujson.Obj(
-            "identifier" -> id.value,
-            "authority" -> id.identifierType.id
+            "identifierType" -> ujson.Obj(
+              "id" -> id.identifierType.id,
+              "label" -> id.identifierType.label,
+              "type" -> "IdentifierType"
+            ),
+            "value" -> id.value,
+            "type" -> "Identifier"
           )
         ),
         "label" -> t.label,
