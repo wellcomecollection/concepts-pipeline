@@ -13,6 +13,9 @@ locals {
       "${local.elastic_indices.authoritative-concepts}_read",
       "${local.elastic_indices.concepts-store}_write"
     ]
+    api = [
+      "${local.elastic_indices.concepts-store}_read"
+    ]
   }
 }
 
