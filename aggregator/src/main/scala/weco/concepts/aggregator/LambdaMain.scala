@@ -1,11 +1,13 @@
 package weco.concepts.aggregator
 
+import akka.Done
+import akka.stream.scaladsl.Sink
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import grizzled.slf4j.Logging
 import weco.concepts.aggregator.sources.WorksSnapshotSource
 
 import java.util.{Map => JavaMap}
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.DurationInt
 
 /*
@@ -15,6 +17,10 @@ object LambdaMain
     extends RequestHandler[JavaMap[String, String], String]
     with AggregatorMain
     with Logging {
+
+  // Running the aggregator in bulk mode does not require publishing updates
+  override protected val updatesSink: Sink[String, Future[Done]] =
+    Sink.ignore
 
   override def handleRequest(
     event: JavaMap[String, String],
