@@ -5,6 +5,9 @@ import grizzled.slf4j.Logging
 import akka.stream.scaladsl.Source
 import weco.concepts.aggregator.sources._
 
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
+
 object Main extends AggregatorMain with Logging with App {
   // If you give it ids, it will fetch those records individually
   // If you don't it will either look at stdin or fetch the snapshot.
@@ -21,7 +24,13 @@ object Main extends AggregatorMain with Logging with App {
   aggregator
     .run(source)
     .recover(err => error(err.getMessage))
-    .onComplete(_ => {
+    .onComplete { result =>
+      result match {
+        case Success(_) =>
+          info("Execution completed successfully")
+        case Failure(exception) =>
+          error(s"Execution failed with $exception")
+      }
       actorSystem.terminate()
-    })
+    }
 }

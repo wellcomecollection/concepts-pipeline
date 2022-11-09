@@ -4,6 +4,8 @@ import akka.stream.scaladsl.{Sink, Source}
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.BulkUpdateResult
 
+import scala.util.{Failure, Success}
+
 object Main extends RecorderMain with Logging with App {
   indices
     .create(targetIndex)
@@ -23,7 +25,13 @@ object Main extends RecorderMain with Logging with App {
           info(s"Recorded $total concepts")
         }
     }
-    .onComplete(_ => {
+    .onComplete { result =>
+      result match {
+        case Success(_) =>
+          info("Execution completed successfully")
+        case Failure(exception) =>
+          error(s"Execution failed with $exception")
+      }
       actorSystem.terminate()
-    })
+    }
 }
