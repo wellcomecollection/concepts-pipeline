@@ -27,7 +27,7 @@ class ConceptTest extends AnyFunSpec with Matchers {
     )
     val expectedJson =
       """{
-        |  "canonicalId": "123abcde",
+        |  "id": "123abcde",
         |  "label": "World Wide Web",
         |  "alternativeLabels": [
         |    "W3 (World Wide Web)",

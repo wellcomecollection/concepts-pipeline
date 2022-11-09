@@ -17,7 +17,7 @@ object Concept {
   implicit val indexableConcept: Indexable[Concept] = new Indexable[Concept] {
     def id(t: Concept): String = t.canonicalId
     def toDoc(t: Concept): ujson.Value = ujson.Obj(
-      "canonicalId" -> t.canonicalId,
+      "id" -> t.canonicalId,
       "identifiers" -> t.identifiers.map(id =>
         ujson.Obj(
           "identifier" -> id.value,
