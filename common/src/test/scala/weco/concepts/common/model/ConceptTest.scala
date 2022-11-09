@@ -29,7 +29,12 @@ class ConceptTest extends AnyFunSpec with Matchers {
       """{
         |  "query": {
         |    "id": "123abcde",
-        |    "identifiers": ["sh95000541"],
+        |    "identifiers": [
+        |      {
+        |        "value": "sh95000541",
+        |        "identifierType": "lc-subjects"
+        |      }
+        |    ],
         |    "label": "World Wide Web",
         |    "alternativeLabels": [
         |      "W3 (World Wide Web)",

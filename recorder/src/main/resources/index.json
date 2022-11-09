@@ -12,7 +12,14 @@
             "type": "keyword"
           },
           "identifiers": {
-            "type": "keyword"
+            "properties": {
+              "value": {
+                "type": "keyword"
+              },
+              "identifierType": {
+                "type": "keyword"
+              }
+            }
           },
           "label": {
             "type": "text",

@@ -19,7 +19,12 @@ object Concept {
     def toDoc(t: Concept): ujson.Value = ujson.Obj(
       "query" -> ujson.Obj(
         "id" -> t.canonicalId,
-        "identifiers" -> t.identifiers.map(_.value),
+        "identifiers" -> t.identifiers.map(id =>
+          ujson.Obj(
+            "value" -> id.value,
+            "identifierType" -> id.identifierType.id
+          )
+        ),
         "label" -> t.label,
         "alternativeLabels" -> t.alternativeLabels,
         "type" -> t.ontologyType
