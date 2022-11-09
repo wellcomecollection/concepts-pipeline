@@ -1,12 +1,17 @@
 package weco.concepts.aggregator
 
+import akka.Done
+import akka.stream.scaladsl.Sink
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
+import net.ceedubs.ficus.Ficus._
 import grizzled.slf4j.Logging
 import com.amazonaws.services.lambda.runtime.events.SQSEvent
 import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage
+import software.amazon.awssdk.services.sns.SnsAsyncClient
+import weco.concepts.common.aws.AuthenticatedClient
 
 import scala.jdk.CollectionConverters._
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.DurationInt
 
 /*
@@ -23,6 +28,17 @@ object SQSMain
     extends RequestHandler[SQSEvent, String]
     with AggregatorMain
     with Logging {
+
+  private val updatesTopicArn = config.as[String]("updates-topic")
+
+  override protected val updatesSink: Sink[String, Future[Done]] =
+    new TopicPublisher(
+      snsClient = AuthenticatedClient(
+        AuthenticatedClient.CredentialsProvider.Environment,
+        SnsAsyncClient.builder()
+      ),
+      topicArn = updatesTopicArn
+    ).sink
 
   override def handleRequest(
     event: SQSEvent,

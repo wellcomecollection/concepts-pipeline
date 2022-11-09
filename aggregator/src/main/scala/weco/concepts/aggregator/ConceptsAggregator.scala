@@ -18,7 +18,7 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 class ConceptsAggregator(
   elasticHttpClient: ElasticHttpClient,
-  topicPublisher: TopicPublisher,
+  updatesSink: Sink[String, Future[Done]],
   indexName: String,
   maxRecordsPerBulkRequest: Int
 )(implicit
@@ -100,7 +100,7 @@ class ConceptsAggregator(
   private def publishIds: Sink[BulkUpdateResult, Future[Done]] =
     Flow[BulkUpdateResult]
       .mapConcat(_.updated)
-      .toMat(topicPublisher.sink)(Keep.right)
+      .toMat(updatesSink)(Keep.right)
 
   private case class AggregationStats(updated: Long, noop: Long) {
     lazy val total: Long = updated + noop

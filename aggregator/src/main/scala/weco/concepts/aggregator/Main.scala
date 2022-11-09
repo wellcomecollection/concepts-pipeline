@@ -1,13 +1,20 @@
 package weco.concepts.aggregator
 
-import akka.NotUsed
+import akka.{Done, NotUsed}
 import grizzled.slf4j.Logging
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{Sink, Source}
 import weco.concepts.aggregator.sources._
+
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 object Main extends AggregatorMain with Logging with App {
   // If you give it ids, it will fetch those records individually
   // If you don't it will either look at stdin or fetch the snapshot.
+
+  // Running the aggregator locally does not require publishing updates
+  override protected val updatesSink: Sink[String, Future[Done]] =
+    Sink.ignore
 
   val source: Source[String, NotUsed] =
     if (args.length > 0) workIdSource(args.iterator)
@@ -21,7 +28,13 @@ object Main extends AggregatorMain with Logging with App {
   aggregator
     .run(source)
     .recover(err => error(err.getMessage))
-    .onComplete(_ => {
+    .onComplete { result =>
+      result match {
+        case Success(_) =>
+          info("Execution completed successfully")
+        case Failure(exception) =>
+          error(s"Execution failed with $exception")
+      }
       actorSystem.terminate()
-    })
+    }
 }

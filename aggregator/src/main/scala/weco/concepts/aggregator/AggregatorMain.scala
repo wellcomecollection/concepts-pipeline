@@ -1,20 +1,20 @@
 package weco.concepts.aggregator
 
+import akka.Done
 import com.typesafe.config.{Config, ConfigFactory}
 import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import akka.actor.ActorSystem
+import akka.stream.scaladsl.Sink
 import grizzled.slf4j.Logging
-import software.amazon.awssdk.services.sns.SnsAsyncClient
 import weco.concepts.aggregator.sources.WorkIdSource
-import weco.concepts.common.aws.AuthenticatedClient
 import weco.concepts.common.elasticsearch.{
   ElasticAkkaHttpClient,
   ElasticHttpClient
 }
 import weco.concepts.common.secrets.{ClusterConfWithSecrets, SecretsResolver}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 /** Common base for the entrypoint to aggregator, regardless of how it is called
   * This loads the appropriate configuration for the application, chosen by the
@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext
   * is that which differs per-call.
   */
 trait AggregatorMain extends Logging {
-  private val config: Config = {
+  protected val config: Config = {
     val configName = sys.env.getOrElse("APP_CONTEXT", "local")
     info(s"loading config $configName")
     ConfigFactory.load(configName)
@@ -56,18 +56,12 @@ trait AggregatorMain extends Logging {
   private val elasticHttpClient: ElasticHttpClient = ElasticAkkaHttpClient(
     clusterConfig
   )
-  private val updatesTopicArn = config.as[String]("updates-topic")
-  private val topicPublisher = new TopicPublisher(
-    snsClient = AuthenticatedClient(
-      AuthenticatedClient.CredentialsProvider.Environment,
-      SnsAsyncClient.builder()
-    ),
-    topicArn = updatesTopicArn
-  )
+
+  protected val updatesSink: Sink[String, Future[Done]]
 
   val aggregator: ConceptsAggregator = new ConceptsAggregator(
     elasticHttpClient = elasticHttpClient,
-    topicPublisher = topicPublisher,
+    updatesSink = updatesSink,
     indexName = config.as[String]("data-target.index.name"),
     maxRecordsPerBulkRequest = config.as[Int]("data-target.bulk.max-records")
   )
