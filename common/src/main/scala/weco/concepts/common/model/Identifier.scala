@@ -38,6 +38,8 @@ sealed trait IdentifierType {
   override def toString: String = id
 }
 
+// These are expected to match those in
+// https://github.com/wellcomecollection/catalogue-pipeline/blob/main/common/internal_model/src/main/scala/weco/catalogue/internal_model/identifiers/IdentifierType.scala
 object IdentifierType {
   def fromId(id: String): Option[IdentifierType] = typeMap.get(id)
 
