@@ -2,37 +2,45 @@
   "mappings": {
     "dynamic": "strict",
     "properties": {
-      "canonicalId": {
-        "type": "keyword"
+      "display": {
+        "type": "object",
+        "enabled": false
       },
-      "identifiers": {
+      "query": {
         "properties": {
-          "authority": {
+          "id": {
             "type": "keyword"
           },
-          "identifier": {
+          "identifiers": {
+            "properties": {
+              "value": {
+                "type": "keyword"
+              },
+              "identifierType": {
+                "type": "keyword"
+              }
+            }
+          },
+          "label": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword"
+              }
+            }
+          },
+          "alternativeLabels": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword"
+              }
+            }
+          },
+          "type": {
             "type": "keyword"
           }
         }
-      },
-      "label": {
-        "type": "text",
-        "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
-        }
-      },
-      "alternativeLabels": {
-        "type": "text",
-        "fields": {
-          "keyword": {
-            "type": "keyword"
-          }
-        }
-      },
-      "type": {
-        "type": "keyword"
       }
     }
   }

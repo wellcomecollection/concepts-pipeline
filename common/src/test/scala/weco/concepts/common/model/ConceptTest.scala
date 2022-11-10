@@ -27,21 +27,45 @@ class ConceptTest extends AnyFunSpec with Matchers {
     )
     val expectedJson =
       """{
-        |  "canonicalId": "123abcde",
-        |  "label": "World Wide Web",
-        |  "alternativeLabels": [
-        |    "W3 (World Wide Web)",
-        |    "WWW (World Wide Web)",
-        |    "Web (World Wide Web)",
-        |    "World Wide Web (Information retrieval system)"
-        |  ],
-        |  "identifiers": [
-        |    {
-        |      "identifier": "sh95000541",
-        |      "authority": "lc-subjects"
-        |    }
-        |  ],
-        |  "type": "Concept"
+        |  "query": {
+        |    "id": "123abcde",
+        |    "identifiers": [
+        |      {
+        |        "value": "sh95000541",
+        |        "identifierType": "lc-subjects"
+        |      }
+        |    ],
+        |    "label": "World Wide Web",
+        |    "alternativeLabels": [
+        |      "W3 (World Wide Web)",
+        |      "WWW (World Wide Web)",
+        |      "Web (World Wide Web)",
+        |      "World Wide Web (Information retrieval system)"
+        |    ],
+        |    "type": "Concept"
+        |  },
+        |  "display": {
+        |    "id": "123abcde",
+        |    "label": "World Wide Web",
+        |    "alternativeLabels": [
+        |      "W3 (World Wide Web)",
+        |      "WWW (World Wide Web)",
+        |      "Web (World Wide Web)",
+        |      "World Wide Web (Information retrieval system)"
+        |    ],
+        |    "identifiers": [
+        |      {
+        |        "value": "sh95000541",
+        |        "identifierType": {
+        |          "id": "lc-subjects",
+        |          "label": "Library of Congress Subject Headings (LCSH)",
+        |          "type": "IdentifierType"
+        |        },
+        |        "type": "Identifier"
+        |      }
+        |    ],
+        |    "type": "Concept"
+        |  }
         |}""".stripMargin
 
     it("serializes correctly") {
@@ -52,9 +76,9 @@ class ConceptTest extends AnyFunSpec with Matchers {
       testConcept.id shouldBe "123abcde"
     }
 
-    it("deserializes correctly") {
-      Indexable[Concept].fromDoc(ujson.read(expectedJson)) shouldBe Some(
-        testConcept
+    it("does not support deserialization") {
+      a[NotImplementedError] should be thrownBy Indexable[Concept].fromDoc(
+        ujson.read(expectedJson)
       )
     }
   }
