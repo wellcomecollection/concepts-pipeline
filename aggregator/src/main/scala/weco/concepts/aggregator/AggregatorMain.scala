@@ -59,7 +59,7 @@ trait AggregatorMain extends Logging {
 
   protected val updatesSink: Sink[String, Future[Done]]
 
-  val aggregator: ConceptsAggregator = new ConceptsAggregator(
+  lazy val aggregator: ConceptsAggregator = new ConceptsAggregator(
     elasticHttpClient = elasticHttpClient,
     updatesSink = updatesSink,
     indexName = config.as[String]("data-target.index.name"),
