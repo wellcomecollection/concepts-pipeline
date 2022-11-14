@@ -13,7 +13,7 @@ object ConceptExtractor extends Logging {
   def apply(jsonString: String): Seq[CatalogueConcept] = {
     val jsonObj = ujson.read(jsonString)
     val concepts = allConcepts(List(jsonObj), Nil).toList
-      .distinctBy(_.identifier)
+      .distinctBy({x => (x.identifier, x.ontologyType)})
     debug(s"extracted ${concepts.length} concepts from ${jsonObj.obj("id")}")
     concepts
   }
