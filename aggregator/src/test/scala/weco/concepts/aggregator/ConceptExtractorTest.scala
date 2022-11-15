@@ -33,7 +33,7 @@ class ConceptExtractorTest
       // extracted.  This is just to demonstrate that it can successfully
       // find the concepts in a real document from the catalogue api.
       Then("all the concepts in the work are returned")
-      concepts.length shouldBe 8
+      concepts.length shouldBe 10
     }
 
     Scenario(s"extract the data from a concept") {
@@ -190,57 +190,6 @@ class ConceptExtractorTest
       val concepts = ConceptExtractor(json)
       Then("both concepts are returned")
       concepts.length shouldBe 3
-    }
-
-    Scenario("extract a source Concept with multiple identifiers") {
-      // If a source concept has multiple identifiers, then this
-      // results in multiple concepts in the output.
-      Given("a document with one concept object")
-      And("the concept object has two identifiers")
-      val identifierType1 = "lc-subjects"
-      val identifier1 = "sh85120937"
-      val identifierType2 = "lc-names"
-      val identifier2 = "no2017146789"
-      val json =
-        s"""
-           |{
-           |  "id": "z6m7z2uz",
-           |  "identifiers": [
-           |    {
-           |      "identifierType": {
-           |        "id": "$identifierType1",
-           |        "label": "This field is ignored",
-           |        "type": "IdentifierType"
-           |      },
-           |      "value": "$identifier1",
-           |      "type": "Identifier"
-           |    },
-           |    {
-           |      "identifierType": {
-           |        "id": "$identifierType2",
-           |        "label": "This field is ignored",
-           |        "type": "IdentifierType"
-           |      },
-           |      "value": "$identifier2",
-           |      "type": "Identifier"
-           |    }
-           |  ],
-           |  "label": "William Shakespeare",
-           |  "type": "Person"
-           |}
-           |""".stripMargin
-      val concepts = ConceptExtractor(json)
-      Then("two Concepts are returned")
-      And("the first Concept contains the canonicalid and the first identifier")
-      concepts.head.canonicalId shouldBe "z6m7z2uz"
-      concepts.head.identifier.identifierType.id shouldBe identifierType1
-      concepts.head.identifier.value shouldBe identifier1
-      And(
-        "the second Concept contains the canonicalid and the second identifier"
-      )
-      concepts(1).canonicalId shouldBe "z6m7z2uz"
-      concepts(1).identifier.identifierType.id shouldBe identifierType2
-      concepts(1).identifier.value shouldBe identifier2
     }
   }
 

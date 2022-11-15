@@ -1,8 +1,8 @@
 package weco.concepts.aggregator
 
 object InvalidArg {
-  def apply[T](arg: T) =
-    new BadIdentifierTypeException(
+  def apply[T](arg: T): InvalidArg =
+    InvalidArg(
       s"""Aggregator called with invalid arg: $arg. Should be {"workId": "$$canonicalid"}"""
     )
 }

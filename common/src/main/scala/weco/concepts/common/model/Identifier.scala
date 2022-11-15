@@ -1,5 +1,6 @@
 package weco.concepts.common.model
 
+import grizzled.slf4j.Logging
 import weco.concepts.common.json.Indexable
 
 case class Identifier(
@@ -40,8 +41,14 @@ sealed trait IdentifierType {
 
 // These are expected to match those in
 // https://github.com/wellcomecollection/catalogue-pipeline/blob/main/common/internal_model/src/main/scala/weco/catalogue/internal_model/identifiers/IdentifierType.scala
-object IdentifierType {
-  def fromId(id: String): Option[IdentifierType] = typeMap.get(id)
+object IdentifierType extends Logging {
+  def fromId(id: String): Option[IdentifierType] = {
+    val identifierType = typeMap.get(id)
+    if (identifierType.isEmpty) {
+      warn(s"Unexpected identifier type ID: $id")
+    }
+    identifierType
+  }
 
   case object Fihrist extends IdentifierType {
     val id = "fihrist"
