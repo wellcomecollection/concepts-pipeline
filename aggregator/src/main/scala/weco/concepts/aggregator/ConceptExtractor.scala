@@ -30,7 +30,7 @@ object ConceptExtractor extends Logging {
       case _ =>
         val (nextJsons, concepts) = jsons.map {
           case obj: ujson.Obj if isConcept(obj) =>
-            (obj.obj.values, CatalogueConcepts(obj))
+            (obj.obj.values, CatalogueConcepts.conceptWithSource(obj))
           case arr: ujson.Arr => (arr.arr, Nil)
           case obj: ujson.Obj => (obj.obj.values, Nil)
           case _              => (Nil, Nil)
@@ -65,51 +65,43 @@ object CatalogueConcepts extends Logging {
     * into one or more CatalogueConcepts
     *
     * A Catalogue API Concept contains a list of identifiers from one or more
-    * authorities, whereas a CatalogueConcept contains just one. So a catalogue
-    * API concept may produce more than one CatalogueConcept.
+    * authorities and a CatalogueConcept contains just one, but we believe that
+    * we should never see a case where that list contains more than one element.
     */
-  def apply(conceptJson: ujson.Obj): Seq[CatalogueConcept] = {
-    // straight to get, it should have been verified before now
-    // that identifiers exists.
-    conceptJson.optSeq("identifiers").get.flatMap {
-      conceptWithSource(conceptJson, _)
-    }
-  }
-
-  private def conceptWithSource(
-    conceptJson: Obj,
-    sourceIdentifier: Value
-  ): Option[CatalogueConcept] = {
-    try {
-      val authority = sourceIdentifier.opt[Value]("identifierType").get
-      Some(
-        CatalogueConcept(
+  def conceptWithSource(
+    conceptJson: Obj
+  ): Option[CatalogueConcept] =
+    conceptJson.optSeq("identifiers").flatMap {
+      case Seq(sourceIdentifier) =>
+        val concept = for {
+          authority <- sourceIdentifier.opt[String]("identifierType", "id")
+          identifierType <- IdentifierType.fromId(authority)
+          identifierValue <- sourceIdentifier.opt[String]("value")
+          label <- conceptJson.opt[String]("label")
+          canonicalId <- conceptJson.opt[String]("id")
+          ontologyType <- conceptJson.opt[String]("type")
+        } yield CatalogueConcept(
           identifier = Identifier(
-            value = sourceIdentifier.opt[String]("value").get,
-            identifierType = identifierTypeFromAuthority(authority)
+            value = identifierValue,
+            identifierType = identifierType
           ),
-          label = conceptJson.opt[String]("label").get,
-          canonicalId = conceptJson.opt[String]("id").get,
-          ontologyType = conceptJson.opt[String]("type").get
+          label = label,
+          canonicalId = canonicalId,
+          ontologyType = ontologyType
         )
-      )
-    } catch {
-      case exception: Exception =>
+        if (concept.isEmpty) {
+          warn(s"Encountered a malformed concept: ${ujson.write(conceptJson)}")
+        }
+        concept
+      case Nil =>
+        warn("Encountered a concept with no source identifiers!")
+        None
+      case multipleIdentifiers =>
         warn(
-          s"Malformed Concept encountered: $exception ${conceptJson.render(indent = 2)}"
+          s"Encountered multiple source identifiers for a single canonicalId: ${multipleIdentifiers
+              .map(ujson.write(_))
+              .mkString(",\n")}"
         )
         None
     }
-  }
-
-  private def identifierTypeFromAuthority(
-    sourceType: ujson.Value
-  ): IdentifierType = {
-    val sourceTypeId = sourceType.opt[String]("id").get
-    IdentifierType
-      .fromId(sourceTypeId)
-      .getOrElse(
-        throw BadIdentifierTypeException(sourceTypeId)
-      )
-  }
 }
