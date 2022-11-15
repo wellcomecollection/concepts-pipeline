@@ -92,7 +92,7 @@ class ConceptsAggregator(
     Flow[CatalogueConcept].statefulMapConcat { () =>
       val seen: MutableSet[Int] = MutableSet.empty[Int];
       { concept: CatalogueConcept =>
-        val id = concept.identifier.hashCode()
+        val id = concept.canonicalId.hashCode
         if (seen.add(id)) Some(concept) else None
       }
     }
