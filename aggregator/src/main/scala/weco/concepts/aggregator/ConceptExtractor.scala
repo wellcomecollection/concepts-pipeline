@@ -94,7 +94,9 @@ object CatalogueConcepts extends Logging {
         }
         concept
       case Nil =>
-        warn(s"Encountered a concept with no source identifiers! ${ujson.write(conceptJson)}")
+        warn(
+          s"Encountered a concept with no source identifiers! ${ujson.write(conceptJson)}"
+        )
         None
       case multipleIdentifiers =>
         warn(
