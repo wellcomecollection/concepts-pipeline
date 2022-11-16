@@ -47,7 +47,7 @@
             {
               "identifierType": {
                 "id": "nlm-mesh",
-                "label": "Medical Subject Headings (MESH) identifier",
+                "label": "Medical Subject Headings (MeSH) identifier",
                 "type": "IdentifierType"
               },
               "value": "D013525",
@@ -62,7 +62,7 @@
         {
           "identifierType": {
             "id": "nlm-mesh",
-            "label": "Medical Subject Headings (MESH) identifier",
+            "label": "Medical Subject Headings (MeSH) identifier",
             "type": "IdentifierType"
           },
           "value": "D013525",
@@ -81,7 +81,7 @@
             {
               "identifierType": {
                 "id": "nlm-mesh",
-                "label": "Medical Subject Headings (MESH) identifier",
+                "label": "Medical Subject Headings (MeSH) identifier",
                 "type": "IdentifierType"
               },
               "value": "D000284",
@@ -96,7 +96,7 @@
         {
           "identifierType": {
             "id": "nlm-mesh",
-            "label": "Medical Subject Headings (MESH) identifier",
+            "label": "Medical Subject Headings (MeSH) identifier",
             "type": "IdentifierType"
           },
           "value": "D000284",
@@ -146,7 +146,7 @@
         {
           "identifierType": {
             "id": "nlm-mesh",
-            "label": "Medical Subject Headings (MESH) identifier",
+            "label": "Medical Subject Headings (MeSH) identifier",
             "type": "IdentifierType"
           },
           "value": "D019155Q000008",
@@ -296,6 +296,18 @@
   "contributors": [
     {
       "agent": {
+        "id": "unasrubt",
+        "identifiers": [
+          {
+            "identifierType": {
+              "id": "lc-names",
+              "label": "Library of Congress Name authority records",
+              "type": "IdentifierType"
+            },
+            "value": "no97064668",
+            "type": "Identifier"
+          }
+        ],
         "label": "Arnold, James",
         "type": "Person"
       },
