@@ -1,7 +1,7 @@
 package weco.concepts.aggregator
 import akka.actor.ActorSystem
 import akka.{Done, NotUsed}
-import akka.stream.scaladsl.{Broadcast, Flow, Keep, Sink, Source}
+import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
   BulkUpdateFlow,
@@ -37,20 +37,7 @@ class ConceptsAggregator(
       conceptSource(jsonSource)
         .via(deduplicateFlow)
         .via(bulkUpdateFlow)
-        .runWith(
-          Sink.combineMat(
-            publishIds,
-            Sink.fold[AggregationStats, BulkUpdateResult](
-              AggregationStats.empty
-            )(_ + _)
-          )(
-            Broadcast[BulkUpdateResult](_)
-          )(_ zip _)
-        )
-        .map { case (done, stats) =>
-          info(stats.summarise)
-          done
-        }
+        .runWith(publishIds)
     }
   }
 
@@ -101,21 +88,5 @@ class ConceptsAggregator(
     Flow[BulkUpdateResult]
       .mapConcat(_.updated)
       .toMat(updatesSink)(Keep.right)
-
-  private case class AggregationStats(updated: Long, noop: Long) {
-    lazy val total: Long = updated + noop
-
-    def +(nextResult: BulkUpdateResult): AggregationStats = AggregationStats(
-      updated = updated + nextResult.updated.size,
-      noop = noop + nextResult.noop.size
-    )
-
-    def summarise: String =
-      s"""Extracted $total distinct concepts ($updated of which had been updated)"""
-  }
-
-  private object AggregationStats {
-    def empty: AggregationStats = AggregationStats(0L, 0L)
-  }
 
 }
