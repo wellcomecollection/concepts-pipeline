@@ -33,7 +33,7 @@ class ConceptExtractorTest
       // extracted.  This is just to demonstrate that it can successfully
       // find the concepts in a real document from the catalogue api.
       Then("all the concepts in the work are returned")
-      concepts.length shouldBe 10
+      concepts.length shouldBe 12
     }
 
     Scenario(s"extract the data from a concept") {

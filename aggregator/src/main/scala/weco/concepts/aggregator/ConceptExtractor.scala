@@ -9,7 +9,7 @@ import scala.annotation.tailrec
 
 object ConceptExtractor extends Logging {
   val conceptTypes =
-    Seq("Concept", "Person", "Organisation", "Meeting", "Period", "Subject")
+    Seq("Concept", "Person", "Organisation", "Meeting", "Period", "Subject", "Place")
   def apply(jsonString: String): Seq[CatalogueConcept] = {
     val jsonObj = ujson.read(jsonString)
     val concepts = allConcepts(List(jsonObj), Nil).toList
