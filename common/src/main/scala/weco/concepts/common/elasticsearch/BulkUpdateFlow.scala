@@ -104,10 +104,14 @@ class BulkUpdateFlow[T: Indexable](
   private def accumulateTotals
     : Flow[BulkUpdateResult, BulkUpdateResult, NotUsed] =
     Flow[BulkUpdateResult].statefulMapConcat(() => {
-      var total = 0L
+      var noops = 0L
+      var updates = 0L
       (result: BulkUpdateResult) => {
-        total += result.total
-        info(s"Total documents updated in $indexName: $total")
+        noops += result.noop.size
+        updates += result.updated.size
+        info(
+          s"$updates documents updated in $indexName ($noops had no changes)"
+        )
         Seq(result)
       }
     })
