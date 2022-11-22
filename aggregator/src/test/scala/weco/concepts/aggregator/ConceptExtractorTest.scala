@@ -7,7 +7,10 @@ import org.scalatest.LoneElement.convertToCollectionLoneElementWrapper
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.prop.TableDrivenPropertyChecks
 import ujson.ParseException
-import weco.concepts.aggregator.testhelpers.{SourceCompoundConcept, SourceConcept}
+import weco.concepts.aggregator.testhelpers.{
+  SourceCompoundConcept,
+  SourceConcept
+}
 
 class ConceptExtractorTest
     extends AnyFeatureSpec
@@ -50,15 +53,13 @@ class ConceptExtractorTest
       val json =
         s"""{
            |"concepts":[
-            ${
-          SourceConcept(
+            ${SourceConcept(
             authority = identifierType,
             identifier = identifier,
             label = label,
             canonicalId = canonicalId,
             ontologyType = ontologyType
-          )
-        }
+          )}
            |]
            |}""".stripMargin
 
@@ -90,7 +91,7 @@ class ConceptExtractorTest
       // in an object in a list
       // in an object in an object
       val json =
-      s"""{
+        s"""{
          |"thing": ${SourceConcept()},
          |"things":[${SourceConcept()}, ${SourceConcept()}, {"wossname": ${SourceConcept()}}],
          |"thingy":{
@@ -132,7 +133,9 @@ class ConceptExtractorTest
       info(
         "in which a concept or list of concepts may be nested within a parent concept"
       )
-      info("in real examples, Subjects are a kind of Concept that operate this way")
+      info(
+        "in real examples, Subjects are a kind of Concept that operate this way"
+      )
       Given(
         "a document with two concept objects nested within another concept object"
       )
@@ -164,7 +167,9 @@ class ConceptExtractorTest
       concepts.length shouldBe 3
     }
 
-    Scenario("extract the correct ontologyType for a 'simple compound' concept") {
+    Scenario(
+      "extract the correct ontologyType for a 'simple compound' concept"
+    ) {
       // This is a side effect of the polysemous nature of "type" in the
       // catalogue data.  It is used in the catalogue pipeline to mark the
       // Scala type that the JSON object represents, so that the JSON parser
@@ -249,7 +254,6 @@ class ConceptExtractorTest
             canonicalId = "deadbeef",
             ontologyType = "Concept"
           )
-
         )
       ).toString
       println(json)
@@ -262,7 +266,9 @@ class ConceptExtractorTest
       )
       concepts.length shouldBe 4
       concepts.head should have(
-        Symbol("label")("Scotland, Description and travel, Early works to 1800."),
+        Symbol("label")(
+          "Scotland, Description and travel, Early works to 1800."
+        ),
         Symbol("canonicalId")("baadbeef"),
         Symbol("ontologyType")("Concept")
       )

@@ -2,13 +2,13 @@ package weco.concepts.aggregator.testhelpers
 
 object SourceCompoundConcept extends ValueGenerators {
   def apply(
-             authority: String = anAuthority,
-             identifier: String = anExternalId,
-             label: String = aLabel,
-             canonicalId: String = aCanonicalId,
-             ontologyType: String = aType,
-             concepts: List[SourceConcept]
-           ): SourceCompoundConcept = new SourceCompoundConcept(
+    authority: String = anAuthority,
+    identifier: String = anExternalId,
+    label: String = aLabel,
+    canonicalId: String = aCanonicalId,
+    ontologyType: String = aType,
+    concepts: List[SourceConcept]
+  ): SourceCompoundConcept = new SourceCompoundConcept(
     authority,
     identifier,
     label,
@@ -25,13 +25,13 @@ object SourceCompoundConcept extends ValueGenerators {
  * into the ConceptExtractor
  */
 case class SourceCompoundConcept(
-                          authority: String,
-                          identifier: String,
-                          label: String,
-                          canonicalId: String,
-                          ontologyType: String,
-                          concepts: List[SourceConcept]
-                        ) {
+  authority: String,
+  identifier: String,
+  label: String,
+  canonicalId: String,
+  ontologyType: String,
+  concepts: List[SourceConcept]
+) {
   override def toString: String =
     s"""
        |{
