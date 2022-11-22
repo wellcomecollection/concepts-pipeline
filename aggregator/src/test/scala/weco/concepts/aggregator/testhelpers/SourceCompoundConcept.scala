@@ -48,7 +48,7 @@ case class SourceCompoundConcept(
        |    }
        |  ],
        |  "label": "$label",
-       |  "type": "$ontologyType"
+       |  "type": "$ontologyType",
        |  "concepts": [${concepts.mkString(", ")}]
        |}
        |""".stripMargin

@@ -33,7 +33,7 @@ class ConceptExtractorTest
       // extracted.  This is just to demonstrate that it can successfully
       // find the concepts in a real document from the catalogue api.
       Then("all the concepts in the work are returned")
-      concepts.length shouldBe 10
+      concepts.length shouldBe 11
     }
 
     Scenario(s"extract the data from a concept") {
@@ -50,13 +50,15 @@ class ConceptExtractorTest
       val json =
         s"""{
            |"concepts":[
-            ${SourceConcept(
+            ${
+          SourceConcept(
             authority = identifierType,
             identifier = identifier,
             label = label,
             canonicalId = canonicalId,
             ontologyType = ontologyType
-          )}
+          )
+        }
            |]
            |}""".stripMargin
 
@@ -88,7 +90,7 @@ class ConceptExtractorTest
       // in an object in a list
       // in an object in an object
       val json =
-        s"""{
+      s"""{
          |"thing": ${SourceConcept()},
          |"things":[${SourceConcept()}, ${SourceConcept()}, {"wossname": ${SourceConcept()}}],
          |"thingy":{
@@ -161,6 +163,110 @@ class ConceptExtractorTest
       Then("all three concepts are returned")
       concepts.length shouldBe 3
     }
+
+    Scenario("extract the correct ontologyType for a 'simple compound' concept") {
+      // This is a side effect of the polysemous nature of "type" in the
+      // catalogue data.  It is used in the catalogue pipeline to mark the
+      // Scala type that the JSON object represents, so that the JSON parser
+      // can create objects of that type.
+      // Within concept lists (lists of AbstractConcepts), this corresponds to
+      // the ontologyType, but elsewhere (subjects) it does not.
+      // As a result, the ontologyType of a Subject is found elsewhere.
+      info(
+        "the type property of a compound concept is not its actual ontologyType"
+      )
+      info(
+        "the ontologyType of a compound can be found in its only constituent concept"
+      )
+      Given(
+        "a subject with one Person subConcept"
+      )
+      val json = SourceCompoundConcept(
+        authority = "lc-names",
+        identifier = "n84165387",
+        label = "Pujol, Joseph, 1857-1945",
+        canonicalId = "baadbeef",
+        ontologyType = "Subject",
+        concepts = List(
+          SourceConcept(
+            authority = "lc-names",
+            identifier = "n84165387",
+            label = "Pujol, Joseph, 1857-1945",
+            canonicalId = "baadbeef",
+            ontologyType = "Person"
+          )
+        )
+      ).toString
+      println(json)
+      val concepts = ConceptExtractor(json)
+      Then(
+        "only one concept is extracted"
+      )
+      And(
+        "the ontologyType of the resulting concept is Person"
+      )
+      concepts.loneElement.ontologyType shouldBe "Person"
+    }
+
+    Scenario("extract the correct ontologyType for a 'true compound' concept") {
+      info(
+        "the type property of a compound concept is not its actual ontologyType"
+      )
+      info(
+        "the ontologyType of a true compound cannot be derived from its subConcepts"
+      )
+      info(
+        "In LoC terms, a true compound is a madsrdf:ComplexSubject, which we consider a Concept"
+      )
+      Given(
+        "a subject with multiple subConcepts"
+      )
+      val json = SourceCompoundConcept(
+        authority = "lc-subjects",
+        identifier = "sh85118819",
+        label = "Scotland, Description and travel, Early works to 1800.",
+        canonicalId = "baadbeef",
+        ontologyType = "Subject",
+        concepts = List(
+          SourceConcept(
+            authority = "lc-names",
+            identifier = "n79123936",
+            label = "Scotland",
+            canonicalId = "cafebeef",
+            ontologyType = "Place"
+          ),
+          SourceConcept(
+            authority = "lc-subjects",
+            identifier = "sj2022050187",
+            label = "Description and travel",
+            canonicalId = "abadcafe",
+            ontologyType = "Concept"
+          ),
+          SourceConcept(
+            authority = "lc-subjects",
+            identifier = "sh99001366",
+            label = "Early works to 1800",
+            canonicalId = "deadbeef",
+            ontologyType = "Concept"
+          )
+
+        )
+      ).toString
+      println(json)
+      val concepts = ConceptExtractor(json)
+      Then(
+        "all concepts are extracted"
+      )
+      And(
+        "the ontologyType of the resulting concept is Concept"
+      )
+      concepts.length shouldBe 4
+      concepts.head should have(
+        Symbol("label")("Scotland, Description and travel, Early works to 1800."),
+        Symbol("canonicalId")("baadbeef"),
+        Symbol("ontologyType")("Concept")
+      )
+    }
   }
 
   Feature("Different types of Concept") {
@@ -171,6 +277,7 @@ class ConceptExtractorTest
       "Organisation",
       "Meeting",
       "Period",
+      "Place",
       "Subject"
     )
     forAll(ontologyTypes) { ontologyType =>
