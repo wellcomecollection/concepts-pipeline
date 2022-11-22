@@ -7,7 +7,7 @@ import org.scalatest.LoneElement.convertToCollectionLoneElementWrapper
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.prop.TableDrivenPropertyChecks
 import ujson.ParseException
-import weco.concepts.aggregator.testhelpers.SourceConcept
+import weco.concepts.aggregator.testhelpers.{SourceCompoundConcept, SourceConcept}
 
 class ConceptExtractorTest
     extends AnyFeatureSpec
@@ -130,65 +130,35 @@ class ConceptExtractorTest
       info(
         "in which a concept or list of concepts may be nested within a parent concept"
       )
-      info("in real examples, Subjects are a kind of Concept operate this way")
+      info("in real examples, Subjects are a kind of Concept that operate this way")
       Given(
-        "a document with a concept object nested within another concept object"
+        "a document with two concept objects nested within another concept object"
       )
-      val json =
-        s"""
-           |{
-           |  "id": "z6m7z2uz",
-           |  "identifiers": [
-           |    {
-           |      "identifierType": {
-           |        "id": "lc-subjects",
-           |        "label": "This field is ignored",
-           |        "type": "IdentifierType"
-           |      },
-           |      "value": "sh85046693",
-           |      "type": "Identifier"
-           |    }
-           |  ],
-           |  "label": "Eye-sockets--Diseases",
-           |  "type": "Subject",
-           |  "concepts":[
-           |  {
-           |  "id": "cafef00d",
-           |  "identifiers": [
-           |    {
-           |      "identifierType": {
-           |        "id": "lc-subjects",
-           |        "label": "This field is ignored",
-           |        "type": "IdentifierType"
-           |      },
-           |      "value": "sh85046691",
-           |      "type": "Identifier"
-           |    }
-           |  ],
-           |  "label": "Eye-sockets",
-           |  "type": "Concept"
-           |  },
-           |  {
-           |  "id": "cafebeef",
-           |  "identifiers": [
-           |    {
-           |      "identifierType": {
-           |        "id": "lc-subjects",
-           |        "label": "This field is ignored",
-           |        "type": "IdentifierType"
-           |      },
-           |      "value": "sh99002330",
-           |      "type": "Identifier"
-           |    }
-           |  ],
-           |  "label": "Diseases",
-           |  "type": "Concept"
-           |  }
-           | ]
-           |}
-           |""".stripMargin
+      val json = SourceCompoundConcept(
+        authority = "lc-subjects",
+        identifier = "sh85046693",
+        label = "Eye-sockets--Diseases",
+        canonicalId = "z6m7z2uz",
+        ontologyType = "Subject",
+        concepts = List(
+          SourceConcept(
+            authority = "lc-subjects",
+            identifier = "sh85046691",
+            label = "Eye-sockets",
+            canonicalId = "cafef00d",
+            ontologyType = "Concept"
+          ),
+          SourceConcept(
+            authority = "lc-subjects",
+            identifier = "sh99002330",
+            label = "Diseases",
+            canonicalId = "cafebeef",
+            ontologyType = "Concept"
+          )
+        )
+      ).toString
       val concepts = ConceptExtractor(json)
-      Then("both concepts are returned")
+      Then("all three concepts are returned")
       concepts.length shouldBe 3
     }
   }
