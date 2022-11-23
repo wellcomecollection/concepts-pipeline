@@ -14,6 +14,14 @@ resource "aws_ecr_repository" "concepts_aggregator" {
   }
 }
 
+resource "aws_ecr_repository" "concepts_aggregator_bulk" {
+  name = "weco/concepts_aggregator_bulk"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 resource "aws_ecr_repository" "concepts_recorder" {
   name = "weco/concepts_recorder"
 
