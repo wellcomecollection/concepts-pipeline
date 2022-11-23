@@ -79,6 +79,7 @@ object CatalogueConcepts extends Logging {
   def conceptWithSource(
     conceptJson: Obj
   ): Option[CatalogueConcept] =
+    // Having examined the data, this _should_ be a list of exactly one.
     conceptJson.optSeq("identifiers").flatMap {
       case Seq(sourceIdentifier) =>
         val concept = for {
@@ -87,7 +88,6 @@ object CatalogueConcepts extends Logging {
           identifierValue <- sourceIdentifier.opt[String]("value")
           label <- conceptJson.opt[String]("label")
           canonicalId <- conceptJson.opt[String]("id")
-          ontologyType <- conceptJson.opt[String]("type")
         } yield CatalogueConcept(
           identifier = Identifier(
             value = identifierValue,
@@ -95,7 +95,7 @@ object CatalogueConcepts extends Logging {
           ),
           label = label,
           canonicalId = canonicalId,
-          ontologyType = ontologyType
+          ontologyType = findOntologyType(conceptJson)
         )
         if (concept.isEmpty) {
           warn(s"Encountered a malformed concept: ${ujson.write(conceptJson)}")
@@ -113,5 +113,11 @@ object CatalogueConcepts extends Logging {
               .mkString(",\n")}"
         )
         None
+    }
+  def findOntologyType(conceptJson: Obj): String =
+    conceptJson.optSeq("concepts") match {
+      case None | Some(Nil)       => conceptJson.opt[String]("type").get
+      case Some(List(subConcept)) => subConcept.opt[String]("type").get
+      case _                      => "Concept"
     }
 }
