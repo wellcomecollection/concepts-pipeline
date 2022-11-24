@@ -25,6 +25,12 @@ locals {
   # See: https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html
   # "Lambda might wait for up to 20 seconds before invoking your function."
   queue_visibility_timeout = local.lambda_timeout + local.event_batching_window_timeout + 20
+
+  # Timeout and memory settings for bulk mode.
+  # This is for manually running the ingest of the
+  lambda_bulk_timeout     = 600
+  lambda_bulk_memory_size = 2048
+
 }
 
 module "aggregator_lambda" {
@@ -45,6 +51,31 @@ module "aggregator_lambda" {
   environment_variables = {
     index_name    = local.elastic_indices.catalogue-concepts
     updates_topic = module.updates_topic.arn
+  }
+}
+
+module "aggregator_bulk_lambda" {
+  # This is a detached, high-performance/long-timeout version of the aggregator.
+  # This is intended to be triggered manually for pulling in all the works from
+  # the Works API Snapshot
+  source = "../modules/pipeline_step_lambda"
+
+  service_name   = "aggregator_bulk"
+  ecr_repository = var.aggregator_bulk_repository
+  namespace      = var.namespace
+  description    = "Aggregate concepts used in Works when they are ingested by the works snapshot"
+  timeout        = local.lambda_bulk_timeout
+  memory_size    = local.lambda_bulk_memory_size
+
+  elasticsearch_host_secret = {
+    name = "elasticsearch/concepts-${var.namespace}/public_host"
+    arn  = module.host_secrets.arns[1]
+  }
+
+  elasticsearch_user = module.client_service_users["aggregator"]
+
+  environment_variables = {
+    index_name = local.elastic_indices.catalogue-concepts
   }
 }
 

@@ -15,6 +15,11 @@ module "concepts_pipeline" {
     url  = aws_ecr_repository.concepts_aggregator.repository_url
   }
 
+  aggregator_bulk_repository = {
+    name = aws_ecr_repository.concepts_aggregator_bulk.name
+    url  = aws_ecr_repository.concepts_aggregator_bulk.repository_url
+  }
+
   ingestor_repository = {
     name = aws_ecr_repository.concepts_ingestor.name
     url  = aws_ecr_repository.concepts_ingestor.repository_url
@@ -23,5 +28,10 @@ module "concepts_pipeline" {
   recorder_repository = {
     name = aws_ecr_repository.concepts_recorder.name
     url  = aws_ecr_repository.concepts_recorder.repository_url
+  }
+
+  recorder_bulk_repository = {
+    name = aws_ecr_repository.concepts_recorder_bulk.name
+    url  = aws_ecr_repository.concepts_recorder_bulk.repository_url
   }
 }

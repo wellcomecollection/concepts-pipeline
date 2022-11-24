@@ -24,6 +24,13 @@ variable "aggregator_repository" {
   })
 }
 
+variable "aggregator_bulk_repository" {
+  type = object({
+    name = string
+    url  = string
+  })
+}
+
 variable "ingestor_repository" {
   type = object({
     name = string
@@ -32,6 +39,13 @@ variable "ingestor_repository" {
 }
 
 variable "recorder_repository" {
+  type = object({
+    name = string
+    url  = string
+  })
+}
+
+variable "recorder_bulk_repository" {
   type = object({
     name = string
     url  = string
