@@ -82,9 +82,7 @@ steps:
       queue: "scala"
 
   - label: "publish: aggregator-bulk"
-    branches:
-      - "main"
-      - "bulk-aggregate"
+    branches: "main"
     plugins:
       - wellcomecollection/aws-assume-role#v0.2.2:
           role: "arn:aws:iam::756629837203:role/catalogue-ci"
@@ -124,14 +122,12 @@ steps:
       - sh .buildkite/scripts/deploy.sh ${LIVE_PIPELINE} "concepts_aggregator" ${BUILDKITE_COMMIT}
 
   - label: "deploy aggregator-bulk to live pipeline"
-    branches:
-      - "main"
-      - "bulk-aggregate"
+    branches: "main"
     plugins:
       - wellcomecollection/aws-assume-role#v0.2.2:
           role: "arn:aws:iam::756629837203:role/catalogue-ci"
     commands:
-      - sh .buildkite/scripts/deploy.sh ${LIVE_PIPELINE} "concepts_aggregator-bulk" ${BUILDKITE_COMMIT}
+      - sh .buildkite/scripts/deploy.sh ${LIVE_PIPELINE} "concepts_aggregator_bulk" ${BUILDKITE_COMMIT}
 
 
   - label: "deploy ingestor to live pipeline"
