@@ -28,8 +28,8 @@ locals {
 
   # Timeout and memory settings for bulk mode.
   # This is for manually running the ingest of the
-  lambda_bulk_timeout        = 600
-  lambda_bulk_memory_size    = 2048
+  lambda_bulk_timeout     = 600
+  lambda_bulk_memory_size = 2048
 
 }
 
@@ -75,7 +75,7 @@ module "aggregator_bulk_lambda" {
   elasticsearch_user = module.client_service_users["aggregator"]
 
   environment_variables = {
-    index_name    = local.elastic_indices.catalogue-concepts
+    index_name = local.elastic_indices.catalogue-concepts
   }
 }
 
