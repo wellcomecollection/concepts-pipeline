@@ -16,8 +16,7 @@ object ConceptExtractor extends Logging {
       "Meeting",
       "Period",
       "Subject",
-      "Place",
-      "Agent"
+      "Place"
     )
   def apply(jsonString: String): Seq[CatalogueConcept] = {
     val jsonObj = ujson.read(jsonString)
