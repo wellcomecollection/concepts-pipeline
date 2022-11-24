@@ -30,3 +30,11 @@ resource "aws_ecr_repository" "concepts_recorder" {
   }
 }
 
+
+resource "aws_ecr_repository" "concepts_recorder_bulk" {
+  name = "weco/concepts_recorder_bulk"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}

@@ -29,4 +29,9 @@ module "concepts_pipeline" {
     name = aws_ecr_repository.concepts_recorder.name
     url  = aws_ecr_repository.concepts_recorder.repository_url
   }
+
+  recorder_bulk_repository = {
+    name = aws_ecr_repository.concepts_recorder_bulk.name
+    url  = aws_ecr_repository.concepts_recorder_bulk.repository_url
+  }
 }

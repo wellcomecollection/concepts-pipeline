@@ -17,6 +17,25 @@ module "recorder_lambda" {
   }
 }
 
+module "recorder_bulk_lambda" {
+  source = "../modules/pipeline_step_lambda"
+
+  ecr_repository = var.recorder_bulk_repository
+  elasticsearch_host_secret = {
+    name = "elasticsearch/concepts-${var.namespace}/public_host"
+    arn  = module.host_secrets.arns[1]
+  }
+  elasticsearch_user = module.client_service_users["recorder"]
+  namespace          = var.namespace
+  service_name       = "recorder_bulk"
+
+  environment_variables = {
+    catalogue_concepts_index     = local.elastic_indices.catalogue-concepts
+    authoritative_concepts_index = local.elastic_indices.authoritative-concepts
+    concepts_store_index         = local.elastic_indices.concepts-store
+  }
+}
+
 module "recorder_input_queue" {
   source = "../modules/lambda_input_queue"
 

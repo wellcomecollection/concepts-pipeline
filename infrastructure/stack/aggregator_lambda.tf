@@ -76,7 +76,6 @@ module "aggregator_bulk_lambda" {
 
   environment_variables = {
     index_name    = local.elastic_indices.catalogue-concepts
-    updates_topic = module.updates_topic.arn
   }
 }
 

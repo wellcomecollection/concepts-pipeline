@@ -44,3 +44,10 @@ variable "recorder_repository" {
     url  = string
   })
 }
+
+variable "recorder_bulk_repository" {
+  type = object({
+    name = string
+    url  = string
+  })
+}
