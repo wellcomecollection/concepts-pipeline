@@ -10,67 +10,15 @@ data "aws_ecr_image" "lambda_image" {
   image_tag       = local.ecr_image_tag
 }
 
+module "pipeline_step" {
+  source = "git@github.com:wellcomecollection/terraform-aws-lambda.git?ref=v1.1.1"
 
-data "aws_iam_policy_document" "concepts_lambda_permissions" {
-  statement {
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ]
-    effect    = "Allow"
-    resources = ["*"]
-    sid       = "CreateCloudWatchLogs"
-  }
-  statement {
-    actions = [
-      "secretsmanager:GetSecretValue"
-    ]
-    effect = "Allow"
-    resources = [
-      var.elasticsearch_host_secret.arn,
-      var.elasticsearch_user.password_secret_arn
-    ]
-  }
-}
-
-
-resource "aws_iam_role" "lambda_role" {
-  name               = "${var.namespace}-${local.service_full_name}_role"
-  assume_role_policy = <<EOF
-{
-   "Version": "2012-10-17",
-   "Statement": [
-       {
-           "Action": "sts:AssumeRole",
-           "Principal": {
-               "Service": "lambda.amazonaws.com"
-           },
-           "Effect": "Allow"
-       }
-   ]
-}
- EOF
-}
-
-
-resource "aws_iam_policy" "concepts_lambda_policy" {
-  name   = "${var.namespace}-${local.service_full_name}-lambda-policy"
-  policy = data.aws_iam_policy_document.concepts_lambda_permissions.json
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_role_attachment" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.concepts_lambda_policy.arn
-}
-
-resource "aws_lambda_function" "pipeline_step" {
-  function_name = "${var.namespace}-${local.service_full_name}"
-  package_type  = "Image"
-  image_uri     = "${var.ecr_repository.url}@${data.aws_ecr_image.lambda_image.id}"
-  timeout       = var.timeout
-  memory_size   = var.memory_size
-  description   = var.description
+  name         = "${var.namespace}-${local.service_full_name}"
+  package_type = "Image"
+  image_uri    = "${var.ecr_repository.url}@${data.aws_ecr_image.lambda_image.id}"
+  timeout      = var.timeout
+  memory_size  = var.memory_size
+  description  = var.description
   # No Concurrency:
   # Pipeline steps invoked on a schedule or manually are expected to be run very infrequently,
   # so will not overlap.
@@ -88,15 +36,35 @@ resource "aws_lambda_function" "pipeline_step" {
   # over 26 seconds to process all 20.
   reserved_concurrent_executions = 1
 
-  environment {
+  environment = {
     variables = merge({
       "${upper(var.service_name)}_APP_CONTEXT" = "remote"
       es_host                                  = var.elasticsearch_host_secret.name
       es_password                              = var.elasticsearch_user.password_secret_name
     }, var.environment_variables)
   }
-  role = aws_iam_role.lambda_role.arn
-  lifecycle {
-    ignore_changes = [image_uri]
+}
+
+data "aws_iam_policy_document" "secrets_access" {
+  statement {
+    actions = [
+      "secretsmanager:GetSecretValue"
+    ]
+    effect = "Allow"
+    resources = [
+      var.elasticsearch_host_secret.arn,
+      var.elasticsearch_user.password_secret_arn
+    ]
   }
+}
+
+
+resource "aws_iam_policy" "secrets_access" {
+  name   = "${var.namespace}-${local.service_full_name}-secrets-access"
+  policy = data.aws_iam_policy_document.secrets_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_role_attachment" {
+  role       = module.pipeline_step.lambda_role.name
+  policy_arn = aws_iam_policy.secrets_access.arn
 }
