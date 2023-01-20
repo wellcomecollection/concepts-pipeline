@@ -51,6 +51,8 @@ module "aggregator_lambda" {
   environment_variables = {
     index_name    = local.elastic_indices.catalogue-concepts
     updates_topic = module.updates_topic.arn
+    workurl_template = "https://api.wellcomecollection.org/catalogue/v2/works/%s?include=identifiers,subjects,contributors,genres"
+
   }
 }
 
