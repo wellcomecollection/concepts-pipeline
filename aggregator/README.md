@@ -44,20 +44,22 @@ You can then run it locally. First start elasticsearch:
 
 Then start the Lambda emulator
 ```shell
-docker compose run -d aggregator
+docker compose run -d --service-ports aggregator
 ```
 Now, you can send requests to the container to mimic a Lambda invocation:
 
 Extract the concepts from one work
 
 ```shell
- curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"workId":"gwdn56yp"}'
+sh scripts/localpost-aggregator.sh gwdn56yp
 ```
 
-Or, to fetch the latest API Snapshot and extract from there:
-
+The bulk update runs in a different Lambda.  This makes it easier for the two modes to have
+different memory and timeout settings.
 ```shell
- curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"workId":"all"}'
+docker compose build aggregator-bulk
+docker compose run -d --service-ports aggregator-bulk
+curl -XPOST "http://localhost:9002/2015-03-31/functions/function/invocations" -d '{"workId":"all"}'
 ```
 
 ### Where is the data?
