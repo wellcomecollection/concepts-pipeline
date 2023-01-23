@@ -1,4 +1,10 @@
-WORK_ID=$1
+#####################################################################
+# Given a work id, run that work id through the local aggregator
+# that is already running in docker compose
+#####################################################################
+
+WORK_ID=${1:?"Missing Work id"}
+
 read -r -d '' SQS_MESSAGE << EOM
 {
   "Records": [
