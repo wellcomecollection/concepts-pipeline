@@ -17,6 +17,15 @@ class WorkIdSource(workUrlTemplate: String)(implicit actorSystem: ActorSystem)
 
   def apply(workIds: Iterator[String]): Source[String, NotUsed] = {
     info(s"reading from catalogue API")
+    if (!workUrlTemplate.contains("api.wellcomecollection.org")) {
+      // If you see this warning and you do not expect it (e.g. in a production system),
+      // check the workurl_tempate environment variable.
+      // This environment variable should normally be unset in production,
+      // allowing the default template from the config files to be used.
+      warn(
+        s"Reading from non-standard catalogue API - template: $workUrlTemplate"
+      )
+    }
     Source
       .fromIterator(() => workIds)
       .via(jsonFromWorkId)
