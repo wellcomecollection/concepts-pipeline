@@ -11,7 +11,7 @@ data "aws_ecr_image" "lambda_image" {
 }
 
 module "pipeline_step" {
-  source = "git@github.com:wellcomecollection/terraform-aws-lambda.git?ref=v1.1.1"
+  source = "github.com/wellcomecollection/terraform-aws-lambda.git?ref=v1.1.1"
 
   name         = "${var.namespace}-${local.service_full_name}"
   package_type = "Image"

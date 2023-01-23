@@ -35,6 +35,7 @@ services:
       - "9000:8080"
     environment:
       - "APP_CONTEXT=docker-compose"
+      - "workurl_template=https://api-stage.wellcomecollection.org/catalogue/v2/works/%s?include=identifiers,subjects,contributors,genres"
   aggregator-bulk:
     build:
       context: .
