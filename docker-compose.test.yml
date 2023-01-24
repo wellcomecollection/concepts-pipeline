@@ -1,13 +1,25 @@
 version: "3.4"
 services:
+  common:
+    build:
+      target: sbt
+    volumes:
+      - ./reports:/app/common/target/test-reports
+
   ingestor:
     build:
       target: sbt
+    volumes:
+      - ./reports:/app/ingestor/target/test-reports
 
   aggregator:
     build:
       target: sbt
+    volumes:
+      - ./reports:/app/aggregator/target/test-reports
 
   recorder:
     build:
       target: sbt
+    volumes:
+      - ./reports:/app/recorder/target/test-reports

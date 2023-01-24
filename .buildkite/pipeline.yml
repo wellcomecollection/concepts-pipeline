@@ -35,6 +35,9 @@ steps:
             - docker-compose.test.yml
           run: aggregator
           command: ["test"]
+      - test-collector#v1.0.0:
+          files: "aggregator_reports/*.xml"
+          format: "junit"
     agents:
       queue: "scala"
 
