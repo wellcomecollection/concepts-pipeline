@@ -3,6 +3,7 @@ package weco.concepts.common.json
 trait Indexable[T] {
   def id(t: T): String
   def toDoc(t: T): ujson.Value
+  def toUpdateParams(t: T): ujson.Value = ujson.Obj()
   def fromDoc(doc: ujson.Value): Option[T]
 }
 
@@ -23,5 +24,7 @@ object Indexable {
   implicit class IndexableOps[T: Indexable](t: T) {
     def id: String = Indexable[T].id(t)
     def toDoc: ujson.Value = Indexable[T].toDoc(t)
+    def toUpdateParams: ujson.Value =
+      Indexable[T].toUpdateParams(t)
   }
 }

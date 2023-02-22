@@ -24,7 +24,6 @@ case class CatalogueConcept(
 
 object CatalogueConcept {
   import weco.concepts.common.json.JsonOps._
-
   implicit val indexableCatalogueConcept: Indexable[CatalogueConcept] =
     new Indexable[CatalogueConcept] {
       def id(t: CatalogueConcept): String = t.identifier.toString
@@ -47,5 +46,11 @@ object CatalogueConcept {
         canonicalId = canonicalId,
         ontologyType = ontologyType
       )
+
+      override def toUpdateParams(t: CatalogueConcept): ujson.Value = ujson.Obj(
+        "canonicalId" -> t.canonicalId,
+        "ontologyType" -> t.ontologyType
+      )
+
     }
 }
