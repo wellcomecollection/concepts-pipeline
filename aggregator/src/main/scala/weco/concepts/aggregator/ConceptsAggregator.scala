@@ -4,10 +4,11 @@ import akka.{Done, NotUsed}
 import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
-  BulkUpdateFlow,
   BulkUpdateResult,
   ElasticHttpClient,
-  Indices
+  Indices,
+  ScriptedBulkUpdateFlow,
+  Scripts
 }
 import weco.concepts.common.model.CatalogueConcept
 
@@ -25,19 +26,34 @@ class ConceptsAggregator(
   actorSystem: ActorSystem
 ) extends Logging {
   implicit val executionContext: ExecutionContext = actorSystem.dispatcher
-  private val bulkUpdateFlow = new BulkUpdateFlow[CatalogueConcept](
+  private val updateScriptName = "append-fields"
+  private val bulkUpdateFlow = new ScriptedBulkUpdateFlow[CatalogueConcept](
     elasticHttpClient = elasticHttpClient,
     maxBulkRecords = maxRecordsPerBulkRequest,
+    indexName = indexName,
+    updateScriptName
+  ).flow
+  private val notInIndexFlow = new NotInIndexFlow(
+    elasticHttpClient = elasticHttpClient,
     indexName = indexName
   ).flow
   private val indices = new Indices(elasticHttpClient)
-
+  private val scripts = new Scripts(elasticHttpClient)
   def run(jsonSource: Source[String, NotUsed]): Future[Done] = {
-    indices.create(indexName).flatMap { _ =>
-      conceptSource(jsonSource)
-        .via(deduplicateFlow)
-        .via(bulkUpdateFlow)
-        .runWith(publishIds)
+    scripts.create(updateScriptName, "update").flatMap { _ =>
+      indices.create(indexName).flatMap { _ =>
+        conceptSource(jsonSource)
+          .via(deduplicateFlow)
+          // At bulk scale, scripted updates are prohibitively slow.
+          // It is much quicker to first check if the canonicalId is present
+          // before attempting to send it to ES.
+          // Even when indexing into a pristine database, the amount of repetition
+          // of Concepts means that checking first can lead to a considerable
+          // speed improvement.
+          .via(notInIndexFlow)
+          .via(bulkUpdateFlow)
+          .runWith(publishIds)
+      }
     }
   }
 

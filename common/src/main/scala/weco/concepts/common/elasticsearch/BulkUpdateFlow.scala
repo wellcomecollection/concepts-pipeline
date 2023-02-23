@@ -65,6 +65,9 @@ class BulkUpdateFlow[T: Indexable](
   private def elasticsearchBulkFlow: Flow[Seq[String], HttpResponse, NotUsed] =
     Flow[Seq[String]]
       .map { couplets =>
+        info(
+          s"sending bulk update to Elasticsearch, ${couplets.length} records"
+        )
         val requestBody = couplets.mkString(start = "", sep = "\n", end = "\n")
         HttpRequest(
           method = HttpMethods.POST,
