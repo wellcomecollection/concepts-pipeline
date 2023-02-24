@@ -7,30 +7,22 @@ import grizzled.slf4j.Logging
 
 import scala.concurrent.Future
 
-class Indices(val elasticHttpClient: ElasticHttpClient)(implicit
+class Scripts(val elasticHttpClient: ElasticHttpClient)(implicit
   val mat: Materializer,
   loader: ResourceLoader = ResourceFileLoader
 ) extends Creatable
     with Logging {
 
-  def create(name: String): Future[Done] =
+  def create(name: String, context: String): Future[Done] =
     store(
-      uri = s"/$name",
+      uri = s"/_scripts/$name/$context",
       config = loader.loadJsonResource(name)
     )
-
   override protected def interpretErrorResponse(
     uri: String,
     errorResponse: HttpResponse,
     errorBody: String
-  ): Done =
-    errorBody match {
-      case body if body.contains("resource_already_exists_exception") =>
-        debug(s"Index $$name already exists, no need to create")
-        Done
-      case errorBody =>
-        throw new RuntimeException(
-          s"Error when creating index $uri: ${errorResponse.status} : $errorBody"
-        )
-    }
+  ): Done = throw new RuntimeException(
+    s"Error when creating script $uri: ${errorResponse.status} : $errorBody"
+  )
 }
