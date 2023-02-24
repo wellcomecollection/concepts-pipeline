@@ -40,6 +40,10 @@ class ConceptsAggregator(
   private val indices = new Indices(elasticHttpClient)
   private val scripts = new Scripts(elasticHttpClient)
   def run(jsonSource: Source[String, NotUsed]): Future[Done] = {
+    // Store the script in the update context.
+    // For some reason, if you store it without context, it will
+    // recompile on each use, and then fail because you are running too many
+    // script compilations during a bulk update.d
     scripts.create(updateScriptName, "update").flatMap { _ =>
       indices.create(indexName).flatMap { _ =>
         conceptSource(jsonSource)

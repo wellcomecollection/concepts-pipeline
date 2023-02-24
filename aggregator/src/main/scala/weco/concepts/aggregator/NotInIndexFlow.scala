@@ -21,9 +21,20 @@ import weco.concepts.common.model.CatalogueConcept
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-/** At bulk scale, even noop upserts in Elasticsearch can be a little lethargic,
-  * and scripted updates are prohibitively slow. This flow filters catalogue
-  * concepts on whether they already exist in the index.
+/** This flow filters catalogue concepts on whether a Concept's canonicalId
+  * already exists in the index, allowing the bulk update to only push unseen
+  * ids to Elasticsearch.
+  *
+  * At bulk scale, scripted updates are prohibitively slow, because there is no
+  * way for Elasticsearch to short-circuit the update to a NOOP. This flow
+  * provides that NOOP shortcut.
+  *
+  * This has no significant effect on the speed of indexing the API snapshot
+  * into a pristine database with a simple doc-based bulk upsert, but brings the
+  * time taken to run the scripted version down to match the simple method.
+  *
+  * As an example, running the bulk import locally using docker compose took 1
+  * hour without this and 6 minutes with.
   */
 class NotInIndexFlow(
   elasticHttpClient: ElasticHttpClient,
@@ -41,9 +52,19 @@ class NotInIndexFlow(
   private def queryBody(concepts: Seq[CatalogueConcept]): String = ujson.write(
     ujson.Obj(
       "size" -> maxTerms,
+      // We are only interested in canonicalId, so that it can be match against
+      // canonicalIds in the input group of Concepts. Just return that from
+      // stored fields.
+      // As well as performance, this has the added advantage that canonicalId will always be
+      // a list, regardless of how many canonicalIds a record has (as opposed to _source.canonicalId
+      // which will either be a string or a list of strings)
+      "source" -> false,
       "fields" -> Seq("canonicalId"),
       "query" -> ujson.Obj(
         "bool" -> ujson.Obj(
+          // Use filter context.  As well as avoiding scoring, this allows ES to use its magic bitset caching
+          // Most concepts are expected to appear more than once in the Works corpus
+          // so if we are lucky with cache evictions, this can make a bulk update a bit quicker.
           "filter" -> Seq(
             ujson.Obj(
               "terms" -> ujson.Obj(
