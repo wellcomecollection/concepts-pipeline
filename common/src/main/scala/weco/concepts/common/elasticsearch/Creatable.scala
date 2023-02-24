@@ -12,7 +12,6 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.Materializer
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.io.{Source => IOSource}
 
 /** Common behaviour for resources that are creatable in Elasticsearch, such as
   * indices, templates and scripts.
@@ -54,16 +53,5 @@ trait Creatable {
             .to[String]
             .map(interpretErrorResponse(uri, errorResponse, _))
       }
-
-}
-
-trait ResourceLoader {
-  def loadJsonResource(name: String): String
-}
-
-object ResourceFileLoader extends ResourceLoader {
-
-  def loadJsonResource(name: String): String =
-    IOSource.fromResource(s"$name.json").getLines().mkString(" ")
 
 }

@@ -5,7 +5,9 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import org.scalatest.funspec.AsyncFunSpec
 import org.scalatest.matchers.should.Matchers
+import weco.concepts.common.ResourceLoader
 import weco.concepts.common.fixtures.TestElasticHttpClient
+
 import scala.util.Success
 
 class IndicesTest extends AsyncFunSpec with Matchers {

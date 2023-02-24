@@ -4,12 +4,13 @@ import akka.Done
 import akka.http.scaladsl.model._
 import akka.stream.Materializer
 import grizzled.slf4j.Logging
+import weco.concepts.common.ResourceLoader
 
 import scala.concurrent.Future
 
 class Indices(val elasticHttpClient: ElasticHttpClient)(implicit
   val mat: Materializer,
-  loader: ResourceLoader = ResourceFileLoader
+  loader: ResourceLoader = ResourceLoader
 ) extends Creatable
     with Logging {
 
