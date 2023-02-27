@@ -94,8 +94,7 @@ class NotInIndexFlowTest
   Feature("Filtering Concepts already in the index") {
     info(
       """
-     | NotInIndexFlow consumes Concepts and only emits those that have not 
-     | already been indexed.
+     | NotInIndexFlow consumes Concepts and only emits those that have not already been indexed.
      | It does this by checking for the Concept's canonicalId
       """.stripMargin
     )
