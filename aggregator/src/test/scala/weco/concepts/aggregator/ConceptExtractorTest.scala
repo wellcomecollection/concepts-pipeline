@@ -285,8 +285,7 @@ class ConceptExtractorTest
       "Period",
       "Place",
       "Subject",
-      "Agent",
-      "Genre"
+      "Agent"
     )
     forAll(ontologyTypes) { ontologyType =>
       Scenario(s"extract a concept of type $ontologyType ") {
