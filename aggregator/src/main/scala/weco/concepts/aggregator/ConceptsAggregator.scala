@@ -51,10 +51,15 @@ class ConceptsAggregator(
           // At bulk scale, scripted updates are prohibitively slow.
           // It is much quicker to first check if the canonicalId is present
           // before attempting to send it to ES.
-          // Even when indexing into a pristine database, the amount of repetition
-          // of Concepts means that checking first can lead to a considerable
-          // speed improvement.
+          //
+          // This has no effect when indexing into a pristine database.
+          // The use of deduplicateFlow, above, means that no duplicate ids
+          // will be found by notInIndexFlow.
           .via(notInIndexFlow)
+          // The script used by this bulkUpdate is idempotent, so the use of
+          // notIndexFlow is only an optimisation.  At individual scale
+          // it may be unnecessary, and will be marginally slower when
+          // indexing new Concepts only.
           .via(bulkUpdateFlow)
           .runWith(publishIds)
       }

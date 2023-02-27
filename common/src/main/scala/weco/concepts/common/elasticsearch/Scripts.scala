@@ -14,7 +14,10 @@ class Scripts(val elasticHttpClient: ElasticHttpClient)(implicit
 ) extends Creatable
     with Logging {
 
-  def create(name: String, context: String): Future[Done] =
+  def create(
+    name: String,
+    context: String
+  ): Future[Done] =
     store(
       uri = s"/_scripts/$name/$context",
       config = loader.loadJsonResource(name)

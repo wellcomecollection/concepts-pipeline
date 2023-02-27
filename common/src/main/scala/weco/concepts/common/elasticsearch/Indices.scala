@@ -17,7 +17,7 @@ class Indices(val elasticHttpClient: ElasticHttpClient)(implicit
   def create(name: String): Future[Done] =
     store(
       uri = s"/$name",
-      config = loader.loadJsonResource(name)
+      config = loader.loadJsonResource("index")
     )
 
   override protected def interpretErrorResponse(

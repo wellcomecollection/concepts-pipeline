@@ -58,7 +58,7 @@ class NotInIndexFlow(
       // As well as performance, this has the added advantage that canonicalId will always be
       // a list, regardless of how many canonicalIds a record has (as opposed to _source.canonicalId
       // which will either be a string or a list of strings)
-      "source" -> false,
+      "_source" -> false,
       "fields" -> Seq("canonicalId"),
       "query" -> ujson.Obj(
         "bool" -> ujson.Obj(
@@ -108,7 +108,6 @@ class NotInIndexFlow(
             .to[String]
             .map { responseBody: String =>
               filterExistingConcepts(concepts, responseBody)
-
             }
         case (_, concepts) =>
           Future(concepts)
@@ -140,9 +139,9 @@ class NotInIndexFlow(
       case Some(seq) =>
         val foundIds: Set[String] = seq.toSet
         val missingConcepts =
-          concepts.filter(concept => foundIds.contains(concept.canonicalId))
+          concepts.filter(concept => !foundIds.contains(concept.canonicalId))
         info(
-          s"from ${concepts.length} ids, found ${concepts.length - missingConcepts.length} are already in the index"
+          s"from ${concepts.length} ids, found ${concepts.length - missingConcepts.length} already in the index"
         )
         missingConcepts
     }
