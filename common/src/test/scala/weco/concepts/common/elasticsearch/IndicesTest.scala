@@ -16,7 +16,7 @@ class IndicesTest extends AsyncFunSpec with Matchers {
 
   implicit val loader: ResourceLoader = new TestResourceLoader(
     mapping = Map(
-      indexName -> ""
+      "index" -> ""
     )
   )
 
