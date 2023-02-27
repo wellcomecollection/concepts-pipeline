@@ -1,6 +1,18 @@
 {
   "script": {
     "lang": "painless",
-    "source": "ctx.op = 'noop'; for(entry in params.entrySet()) { def k = entry.getKey(); def v = entry.getValue(); def field = ctx._source[k]; if(!field.contains(v)){ def l = field instanceof String ? [field]: field; l.add(v); ctx._source[k] = l; ctx.op = 'index' } }"
+    "source": "
+      ctx.op = 'noop';
+      for(entry in params.entrySet()) {
+        def k = entry.getKey();
+        def v = entry.getValue();
+        def field = ctx._source[k];
+        if(!field.contains(v)){
+          def l = field instanceof String ? [field]: field;
+          l.add(v);
+          ctx._source[k] = l;
+          ctx.op = 'index'
+        }
+      }"
   }
 }
