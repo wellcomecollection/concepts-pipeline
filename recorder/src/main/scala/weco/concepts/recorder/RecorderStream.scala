@@ -26,15 +26,21 @@ class RecorderStream(
   maxRecordsPerBulkRequest: Int = 1000
 )(implicit mat: Materializer)
     extends Logging {
+
   private lazy val mget = new MultiGetFlow(
     elasticHttpClient = elasticHttpClient,
     maxBatchSize = maxRecordsPerBulkRequest
   )
-  private lazy val bulkUpdateFlow = new BulkUpdateFlow[Concept](
-    elasticHttpClient = elasticHttpClient,
-    indexName = targetIndexName,
-    maxBulkRecords = maxRecordsPerBulkRequest
-  ).flow
+
+  private lazy val bulkUpdateFlow = Flow[Seq[Concept]]
+    .mapConcat(identity)
+    .via(
+      new BulkUpdateFlow[Concept](
+        elasticHttpClient = elasticHttpClient,
+        indexName = targetIndexName,
+        maxBulkRecords = maxRecordsPerBulkRequest
+      ).flow
+    )
 
   private implicit val ec: ExecutionContext = mat.executionContext
   def recordAllCatalogueConcepts: Source[BulkUpdateResult, NotUsed] =

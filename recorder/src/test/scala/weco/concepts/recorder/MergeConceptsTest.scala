@@ -34,7 +34,7 @@ class MergeConceptsTest extends AnyFunSpec with Matchers {
       ontologyType = "Concept"
     )
     val result =
-      MergeConcepts(Some(authoritativeConcept), Some(catalogueConcept))
+      MergeConcepts(Some(authoritativeConcept), Some(catalogueConcept)).head
 
     result.identifiers shouldBe Seq(authoritativeConcept.identifier)
     result.label shouldBe authoritativeConcept.label
@@ -66,7 +66,7 @@ class MergeConceptsTest extends AnyFunSpec with Matchers {
       ontologyType = "Person"
     )
     val result =
-      MergeConcepts(Some(authoritativeConcept), Some(catalogueConcept))
+      MergeConcepts(Some(authoritativeConcept), Some(catalogueConcept)).head
 
     result.identifiers shouldBe Seq(authoritativeConcept.identifier)
     result.label shouldBe authoritativeConcept.label
@@ -87,7 +87,7 @@ class MergeConceptsTest extends AnyFunSpec with Matchers {
       canonicalId = "123abcde",
       ontologyType = "Concept"
     )
-    val result = MergeConcepts(None, Some(catalogueConcept))
+    val result = MergeConcepts(None, Some(catalogueConcept)).head
 
     result.canonicalId shouldBe catalogueConcept.canonicalId
     result.identifiers shouldBe Seq(catalogueConcept.identifier)
@@ -106,7 +106,7 @@ class MergeConceptsTest extends AnyFunSpec with Matchers {
       canonicalId = "123abcde",
       ontologyType = "Person"
     )
-    val result = MergeConcepts(None, Some(catalogueConcept))
+    val result = MergeConcepts(None, Some(catalogueConcept)).head
 
     result.canonicalId shouldBe catalogueConcept.canonicalId
     result.identifiers shouldBe Seq(catalogueConcept.identifier)

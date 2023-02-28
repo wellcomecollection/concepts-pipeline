@@ -11,15 +11,15 @@ object MergeConcepts extends Logging {
   def apply(
     authoritative: Option[AuthoritativeConcept],
     catalogue: Option[CatalogueConcept]
-  ): Concept = (authoritative, catalogue) match {
+  ): Seq[Concept] = (authoritative, catalogue) match {
     case (Some(authoritative), Some(catalogue)) =>
       info(
         s"Merging ${catalogue.canonicalId} and ${authoritative.identifier.toString}"
       )
-      merge(authoritative, catalogue)
+      Seq(merge(authoritative, catalogue))
     case (None, Some(catalogue)) =>
       info(s"Forwarding ${catalogue.identifier.toString}")
-      fromCatalogueOnly(catalogue)
+      Seq(fromCatalogueOnly(catalogue))
     case (Some(authoritative), None) =>
       throw new IllegalArgumentException(
         s"This error should never occur: we've been asked to merge a concept (${authoritative.identifier}) which isn't used in the catalogue"
