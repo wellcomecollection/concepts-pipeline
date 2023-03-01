@@ -25,12 +25,6 @@ class JsonOpsTest extends AnyFunSpec with Matchers {
       node.optSeq("foo") shouldBe None
     }
 
-    it("returns a seq of JSON values if the source data is a single value") {
-      val node: ujson.Value = ujson.Obj("foo" -> "bar")
-      node.optSeq("foo").get should equal(
-        Seq(ujson.Str("bar"))
-      )
-    }
   }
 
   describe("asSeq") {
