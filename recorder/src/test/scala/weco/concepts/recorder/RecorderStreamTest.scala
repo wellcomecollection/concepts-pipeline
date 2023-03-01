@@ -98,7 +98,7 @@ class RecorderStreamTest
         BulkUpdateResult(
           took = 1234L,
           errored = Map.empty,
-          updated = catalogueConcepts.map(_.canonicalId),
+          updated = catalogueConcepts.flatMap(_.canonicalId),
           noop = Nil
         )
       )

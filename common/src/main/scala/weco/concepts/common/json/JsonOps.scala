@@ -1,5 +1,7 @@
 package weco.concepts.common.json
 
+import ujson.Value
+
 import scala.util.Try
 
 trait JsonOption[T] {
@@ -44,6 +46,32 @@ object JsonOps {
 
     def optSeq(selector: String): Option[Seq[ujson.Value]] =
       opt[Seq[ujson.Value]](selector)
+
+    /** Return the data from the selector as a Seq, regardless of whether the
+      * source JSON data is an array.
+      *
+      *   - A JSON array is be returned as a Seq,
+      *   - A missing value or explicit null becomes an empty Seq
+      *   - A single value is wrapped in a Seq
+      *
+      * This allows a caller to consistently treat optional/single/multiple
+      * values as an array.
+      *
+      * This relates to the behaviour of Elasticsearch mappings, where the
+      * distinction between a value and a list of values does not really exist.
+      */
+    def asSeq(selector: String): Seq[ujson.Value] = {
+      val selected: Option[Value] = opt[ujson.Value](selector)
+      selected match {
+        case None                        => Nil
+        case Some(found) if found.isNull => Nil
+        case Some(found) =>
+          found.arrOpt match {
+            case Some(arr) => arr.toSeq
+            case None      => Seq(found)
+          }
+      }
+    }
 
     def withoutNulls: ujson.Value = node match {
       case ujson.Obj(items) =>
