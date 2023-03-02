@@ -69,7 +69,7 @@ class ConceptExtractorTest
       val concept = ConceptExtractor(json).loneElement
 
       And(s"the concept's ontologyType is $ontologyType")
-      concept.ontologyType shouldBe Seq(ontologyType)
+      concept.ontologyType shouldBe ontologyType
 
       And(s"the concept's identifierType is $identifierType")
       concept.identifier.identifierType.id shouldBe identifierType
@@ -81,7 +81,7 @@ class ConceptExtractorTest
       concept.label shouldBe label
 
       And(s"the concept's canonicalIdentifier is $canonicalId")
-      concept.canonicalId.loneElement shouldBe canonicalId
+      concept.canonicalId shouldBe canonicalId
     }
 
     Scenario("extract multiple different concepts throughout the document") {
@@ -212,7 +212,7 @@ class ConceptExtractorTest
       And(
         "the ontologyType of the resulting concept is Person"
       )
-      concepts.loneElement.ontologyType.loneElement shouldBe "Person"
+      concepts.loneElement.ontologyType shouldBe "Person"
     }
 
     Scenario("extract the correct ontologyType for a 'true compound' concept") {
@@ -271,8 +271,8 @@ class ConceptExtractorTest
         Symbol("label")(
           "Scotland, Description and travel, Early works to 1800."
         ),
-        Symbol("canonicalId")(Seq("baadbeef")),
-        Symbol("ontologyType")(Seq("Concept"))
+        Symbol("canonicalId")("baadbeef"),
+        Symbol("ontologyType")("Concept")
       )
     }
   }
@@ -305,8 +305,8 @@ class ConceptExtractorTest
         Then("that concept is extracted")
         ConceptExtractor(json).loneElement should have(
           Symbol("label")(sourceConcept.label),
-          Symbol("canonicalId")(Seq(sourceConcept.canonicalId)),
-          Symbol("ontologyType")(Seq(ontologyType))
+          Symbol("canonicalId")(sourceConcept.canonicalId),
+          Symbol("ontologyType")(ontologyType)
         )
       }
     }
@@ -340,8 +340,8 @@ class ConceptExtractorTest
         Then("that concept is extracted")
         val concept = ConceptExtractor(json).loneElement
         concept should have(
-          Symbol("label")(sourceConcept.label),
-          Symbol("canonicalId")(sourceConcept.canonicalId)
+          label(sourceConcept.label),
+          canonicalId(sourceConcept.canonicalId)
         )
         concept.identifier.identifierType.id shouldBe identifierType
       }
@@ -472,7 +472,7 @@ class ConceptExtractorTest
         val concepts = ConceptExtractor(jsonString)
         Then("the good concept is included")
         And("the malformed concept is excluded")
-        concepts.loneElement.canonicalId.loneElement shouldBe "92345678"
+        concepts.loneElement.canonicalId shouldBe "92345678"
       }
     }
   }

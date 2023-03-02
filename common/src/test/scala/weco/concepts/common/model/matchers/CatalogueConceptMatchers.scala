@@ -1,29 +1,51 @@
 package weco.concepts.common.model.matchers
 
-import weco.concepts.common.model.CatalogueConcept
-import org.scalatest.Assertions.fail
+import weco.concepts.common.model.{CatalogueConcept, Identifier}
+import org.scalatest.matchers.{HavePropertyMatchResult, HavePropertyMatcher}
 
 trait CatalogueConceptMatchers {
+  def identifier(
+    expectedValue: Identifier
+  ): HavePropertyMatcher[CatalogueConcept, Identifier] =
+    (concept: CatalogueConcept) =>
+      HavePropertyMatchResult(
+        concept.identifier == expectedValue,
+        "identifier",
+        expectedValue,
+        concept.identifier
+      )
 
-  implicit class CatalogueConceptTestOps(concept: CatalogueConcept) {
+  def label(
+    expectedValue: String
+  ): HavePropertyMatcher[CatalogueConcept, String] =
+    (concept: CatalogueConcept) =>
+      HavePropertyMatchResult(
+        concept.label == expectedValue,
+        "label",
+        expectedValue,
+        concept.label
+      )
 
-    def onlyCanonicalId: String =
-      concept.canonicalId match {
-        case Seq(singleId) => singleId
-        case _ =>
-          fail(
-            s"Concept expected to have exactly one canonicalId, found: ${concept.canonicalId}"
-          )
-      }
+  def canonicalId(
+    expectedValue: String
+  ): HavePropertyMatcher[CatalogueConcept, String] =
+    (concept: CatalogueConcept) =>
+      HavePropertyMatchResult(
+        concept.canonicalId == expectedValue,
+        "canonicalId",
+        expectedValue,
+        concept.canonicalId
+      )
 
-    def onlyOntologyType: String =
-      concept.ontologyType match {
-        case Seq(singleType) => singleType
-        case _ =>
-          fail(
-            s"Concept expected to have exactly one ontologyType, found: ${concept.ontologyType}"
-          )
-      }
-  }
+  def ontologyType(
+    expectedValue: String
+  ): HavePropertyMatcher[CatalogueConcept, String] =
+    (concept: CatalogueConcept) =>
+      HavePropertyMatchResult(
+        concept.ontologyType == expectedValue,
+        "ontologyType",
+        expectedValue,
+        concept.ontologyType
+      )
 
 }
