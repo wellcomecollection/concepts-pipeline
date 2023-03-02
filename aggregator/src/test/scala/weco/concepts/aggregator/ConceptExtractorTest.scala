@@ -11,12 +11,14 @@ import weco.concepts.aggregator.testhelpers.{
   SourceCompoundConcept,
   SourceConcept
 }
+import weco.concepts.common.model.matchers.CatalogueConceptMatchers
 
 class ConceptExtractorTest
     extends AnyFeatureSpec
     with Matchers
     with GivenWhenThen
-    with TableDrivenPropertyChecks {
+    with TableDrivenPropertyChecks
+    with CatalogueConceptMatchers {
   Feature("Extracting Concepts from a document") {
     info("The concept extractor extracts concepts from a single json document")
     info("The resulting content from this process consists of the following")
@@ -338,8 +340,8 @@ class ConceptExtractorTest
         Then("that concept is extracted")
         val concept = ConceptExtractor(json).loneElement
         concept should have(
-          Symbol("label")(sourceConcept.label),
-          Symbol("canonicalId")(sourceConcept.canonicalId)
+          label(sourceConcept.label),
+          canonicalId(sourceConcept.canonicalId)
         )
         concept.identifier.identifierType.id shouldBe identifierType
       }
