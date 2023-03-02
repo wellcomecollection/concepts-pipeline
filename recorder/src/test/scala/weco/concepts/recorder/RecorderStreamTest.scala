@@ -141,7 +141,7 @@ class RecorderStreamTest
     val allResultsFuture = stream.recordAllCatalogueConcepts
       .runWith(Sink.seq)
     whenReady(allResultsFuture) { allResults =>
-      allResults.flatMap(_.updated) shouldBe catalogueConcepts.map(
+      allResults.flatMap(_.updated) shouldBe catalogueConcepts.flatMap(
         _.canonicalId
       )
     }

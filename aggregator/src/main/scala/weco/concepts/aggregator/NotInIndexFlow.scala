@@ -139,7 +139,7 @@ class NotInIndexFlow(
       case Some(seq) =>
         val foundIds: Set[String] = seq.toSet
         val missingConcepts =
-          concepts.filter(concept => !foundIds.contains(concept.canonicalId))
+          concepts.filter(concept => !foundIds.contains(concept.canonicalId.head))
         info(
           s"from ${concepts.length} ids, found ${concepts.length - missingConcepts.length} already in the index"
         )
