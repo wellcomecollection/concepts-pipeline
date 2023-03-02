@@ -33,8 +33,8 @@ import scala.util.{Failure, Success}
   * into a pristine database with a simple doc-based bulk upsert, but brings the
   * time taken to run the scripted version down to match the simple method.
   *
-  * As an example, running the bulk import locally using docker compose took 1
-  * hour without this and 6 minutes with.
+  * As an example, running the bulk import (scripted) locally using docker
+  * compose took 1 hour without this and 6 minutes with.
   */
 class NotInIndexFlow(
   elasticHttpClient: ElasticHttpClient,
@@ -139,9 +139,10 @@ class NotInIndexFlow(
       case Some(seq) =>
         val foundIds: Set[String] = seq.toSet
         val missingConcepts =
-          concepts.filter(concept =>
-            !foundIds.contains(concept.canonicalId.head)
-          )
+          concepts.filter(_.canonicalId.diff(seq).nonEmpty)
+//          concepts.filter(concept =>
+//            !foundIds.contains(concept.canonicalId)
+//          )
         info(
           s"from ${concepts.length} ids, found ${concepts.length - missingConcepts.length} already in the index"
         )
