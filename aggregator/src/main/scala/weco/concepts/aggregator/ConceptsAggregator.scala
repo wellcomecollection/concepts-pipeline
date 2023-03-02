@@ -35,7 +35,6 @@ class ConceptsAggregator(
     elasticHttpClient = elasticHttpClient,
     indexName = indexName
   ).flow
-  println(notInIndexFlow)
   private val indices = new Indices(elasticHttpClient)
 
   def run(jsonSource: Source[String, NotUsed]): Future[Done] = {
@@ -49,7 +48,7 @@ class ConceptsAggregator(
         // This has no effect when indexing into a pristine database.
         // The use of deduplicateFlow, above, means that no duplicate ids
         // will be found by notInIndexFlow.
-//        .via(notInIndexFlow)
+        .via(notInIndexFlow)
         .via(bulkUpdateFlow)
         .runWith(publishIds)
     }
