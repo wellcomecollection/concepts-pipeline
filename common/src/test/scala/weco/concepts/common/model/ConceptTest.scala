@@ -23,7 +23,8 @@ class ConceptTest extends AnyFunSpec with Matchers {
         "World Wide Web (Information retrieval system)"
       ),
       canonicalId = "123abcde",
-      ontologyType = "Concept"
+      ontologyType = "Concept",
+      sameAs = Nil
     )
     val expectedJson =
       """{
@@ -64,7 +65,8 @@ class ConceptTest extends AnyFunSpec with Matchers {
         |        "type": "Identifier"
         |      }
         |    ],
-        |    "type": "Concept"
+        |    "type": "Concept",
+        |    "sameAs": []
         |  }
         |}""".stripMargin
 

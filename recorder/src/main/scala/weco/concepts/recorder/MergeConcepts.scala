@@ -44,7 +44,8 @@ object MergeConcepts extends Logging {
         identifiers = Seq(authoritative.identifier),
         label = authoritative.label,
         alternativeLabels = authoritative.alternativeLabels,
-        ontologyType = mostSpecificType(catalogue.ontologyType)
+        ontologyType = mostSpecificType(catalogue.ontologyType),
+        sameAs = catalogue.canonicalId.filter(_ != conceptId)
       )
     )
   }
@@ -58,7 +59,8 @@ object MergeConcepts extends Logging {
         identifiers = Seq(catalogueConcept.identifier),
         label = catalogueConcept.label,
         alternativeLabels = Nil,
-        ontologyType = mostSpecificType(catalogueConcept.ontologyType)
+        ontologyType = mostSpecificType(catalogueConcept.ontologyType),
+        sameAs = catalogueConcept.canonicalId.filter(_ != conceptId)
       )
     )
 
