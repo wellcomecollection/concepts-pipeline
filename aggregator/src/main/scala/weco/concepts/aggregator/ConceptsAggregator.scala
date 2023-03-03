@@ -33,10 +33,12 @@ class ConceptsAggregator(
     indexName = indexName,
     updateScriptName
   ).flow
+
   private val notInIndexFlow = new NotInIndexFlow(
     elasticHttpClient = elasticHttpClient,
     indexName = indexName
   ).flow
+
   private val indices = new Indices(elasticHttpClient)
   private val scripts = new Scripts(elasticHttpClient)
   def run(jsonSource: Source[String, NotUsed]): Future[Done] = {

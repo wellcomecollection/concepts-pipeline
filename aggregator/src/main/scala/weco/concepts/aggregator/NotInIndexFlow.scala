@@ -137,12 +137,8 @@ class NotInIndexFlow(
         concepts
       // Otherwise, filter out any concepts from the initial batch whose canonicalId is already in the database.
       case Some(seq) =>
-        val foundIds: Set[String] = seq.toSet
         val missingConcepts =
           concepts.filter(_.canonicalId.diff(seq).nonEmpty)
-//          concepts.filter(concept =>
-//            !foundIds.contains(concept.canonicalId)
-//          )
         info(
           s"from ${concepts.length} ids, found ${concepts.length - missingConcepts.length} already in the index"
         )
