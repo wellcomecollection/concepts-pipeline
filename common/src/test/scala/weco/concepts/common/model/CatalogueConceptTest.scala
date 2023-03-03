@@ -75,8 +75,8 @@ class CatalogueConceptTest extends AnyFunSpec with Matchers {
       it("provides the canonicalId and ontologyType as update parameters") {
         testConcept.toUpdateParams should equal(
           ujson.Obj(
-            "canonicalId" -> "baadbeef",
-            "ontologyType" -> "Person"
+            "canonicalId" -> Seq("baadbeef"),
+            "ontologyType" -> Seq("Person")
           )
         )
       }

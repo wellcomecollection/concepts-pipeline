@@ -5,12 +5,10 @@
       ctx.op = 'noop';
       for(entry in params.entrySet()) {
         def k = entry.getKey();
-        def v = entry.getValue();
-        def field = ctx._source[k];
-        if(!field.contains(v)){
-          def l = field instanceof String ? [field]: field;
-          l.add(v);
-          ctx._source[k] = l;
+        def oldField = ctx._source[k];
+        def idSet = new HashSet(oldField instanceof List ? oldField : [oldField]);
+        if (idSet.addAll(entry.getValue())){
+          ctx._source[k] = idSet.toArray();
           ctx.op = 'index'
         }
       }"

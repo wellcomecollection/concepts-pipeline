@@ -52,8 +52,8 @@ object CatalogueConcept {
       )
 
       override def toUpdateParams(t: CatalogueConcept): ujson.Value = ujson.Obj(
-        "canonicalId" -> t.canonicalId.head,
-        "ontologyType" -> t.ontologyType.head
+        "canonicalId" -> t.canonicalId,
+        "ontologyType" -> t.ontologyType
       )
     }
 

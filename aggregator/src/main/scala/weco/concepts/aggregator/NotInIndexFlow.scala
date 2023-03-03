@@ -68,7 +68,7 @@ class NotInIndexFlow(
           "filter" -> Seq(
             ujson.Obj(
               "terms" -> ujson.Obj(
-                "canonicalId" -> concepts.map(_.canonicalId)
+                "canonicalId" -> concepts.flatMap(_.canonicalId)
               )
             )
           )
@@ -109,7 +109,9 @@ class NotInIndexFlow(
             .map { responseBody: String =>
               filterExistingConcepts(concepts, responseBody)
             }
-        case (_, concepts) =>
+        case (response, concepts) =>
+          error(s"unexpected non-OK response: $response")
+          response.discardEntityBytes()
           Future(concepts)
       }
   }
@@ -137,8 +139,9 @@ class NotInIndexFlow(
         concepts
       // Otherwise, filter out any concepts from the initial batch whose canonicalId is already in the database.
       case Some(seq) =>
+        val seqset = seq.toSet
         val missingConcepts =
-          concepts.filter(_.canonicalId.diff(seq).nonEmpty)
+          concepts.filter(_.canonicalId.exists(!seqset.contains(_)))
         info(
           s"from ${concepts.length} ids, found ${concepts.length - missingConcepts.length} already in the index"
         )
