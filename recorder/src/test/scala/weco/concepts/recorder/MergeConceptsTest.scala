@@ -4,6 +4,8 @@ import org.scalatest.Inspectors
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.prop.TableDrivenPropertyChecks
+import org.scalatest.LoneElement.convertToCollectionLoneElementWrapper
+
 import weco.concepts.common.model.{
   AuthoritativeConcept,
   CatalogueConcept,
@@ -162,6 +164,8 @@ class MergeConceptsTest
       results.length shouldBe 2
       results.head.canonicalId shouldBe "123abcde"
       results(1).canonicalId shouldBe "deny75m5"
+      results.head.sameAs.loneElement shouldBe "deny75m5"
+      results(1).sameAs.loneElement shouldBe "123abcde"
 
       forAll(results) { result: Concept =>
         result.identifiers shouldBe Seq(catalogueConcept.identifier)

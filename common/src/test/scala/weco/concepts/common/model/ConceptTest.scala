@@ -24,7 +24,7 @@ class ConceptTest extends AnyFunSpec with Matchers {
       ),
       canonicalId = "123abcde",
       ontologyType = "Concept",
-      sameAs = Nil
+      sameAs = Seq("4567fghi")
     )
     val expectedJson =
       """{
@@ -66,7 +66,7 @@ class ConceptTest extends AnyFunSpec with Matchers {
         |      }
         |    ],
         |    "type": "Concept",
-        |    "sameAs": []
+        |    "sameAs": ["4567fghi"]
         |  }
         |}""".stripMargin
 
