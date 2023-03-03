@@ -69,7 +69,7 @@ class ConceptExtractorTest
       val concept = ConceptExtractor(json).loneElement
 
       And(s"the concept's ontologyType is $ontologyType")
-      concept.ontologyType shouldBe ontologyType
+      concept.ontologyType.loneElement shouldBe ontologyType
 
       And(s"the concept's identifierType is $identifierType")
       concept.identifier.identifierType.id shouldBe identifierType
@@ -81,7 +81,7 @@ class ConceptExtractorTest
       concept.label shouldBe label
 
       And(s"the concept's canonicalIdentifier is $canonicalId")
-      concept.canonicalId shouldBe canonicalId
+      concept.canonicalId.loneElement shouldBe canonicalId
     }
 
     Scenario("extract multiple different concepts throughout the document") {
@@ -212,7 +212,7 @@ class ConceptExtractorTest
       And(
         "the ontologyType of the resulting concept is Person"
       )
-      concepts.loneElement.ontologyType shouldBe "Person"
+      concepts.loneElement.ontologyType.loneElement shouldBe "Person"
     }
 
     Scenario("extract the correct ontologyType for a 'true compound' concept") {
@@ -472,7 +472,7 @@ class ConceptExtractorTest
         val concepts = ConceptExtractor(jsonString)
         Then("the good concept is included")
         And("the malformed concept is excluded")
-        concepts.loneElement.canonicalId shouldBe "92345678"
+        concepts.loneElement.canonicalId.loneElement shouldBe "92345678"
       }
     }
   }
