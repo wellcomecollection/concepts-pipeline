@@ -33,8 +33,10 @@ class NotInIndexFlowTest
 
   private def givenSomeConcepts(n: Int): Seq[CatalogueConcept] =
     (101 to (100 + n)).map(i => givenAConcept(Seq(i.toString)))
+
   private def givenAMultiIdConcept(fromInt: Int, toInt: Int): CatalogueConcept =
     givenAConcept((fromInt to toInt).map(_.toString))
+
   private def givenAConcept(idSuffixes: Seq[String]): CatalogueConcept =
     CatalogueConcept(
       identifier = Identifier(
