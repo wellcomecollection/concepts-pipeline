@@ -111,7 +111,6 @@ class NotInIndexFlow(
             }
         case (response, concepts) =>
           error(s"unexpected non-OK response: $response")
-          response.discardEntityBytes()
           Future(concepts)
       }
   }

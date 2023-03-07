@@ -8,7 +8,7 @@ class ScriptedBulkUpdateFlow[T: Indexable](
   maxBulkRecords: Int,
   indexName: String,
   scriptName: String,
-  filterDocuments: T => Boolean = (_: T) => true
+  filterDocuments: T => Boolean = Function.const(true)(_: T)
 ) extends BulkUpdateFlow[T](
       elasticHttpClient,
       maxBulkRecords,
