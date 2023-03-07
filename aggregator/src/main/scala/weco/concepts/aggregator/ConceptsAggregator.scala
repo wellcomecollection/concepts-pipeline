@@ -30,12 +30,25 @@ class ConceptsAggregator(
     maxBulkRecords = maxRecordsPerBulkRequest,
     indexName = indexName
   ).flow
+
+  private val notInIndexFlow = new NotInIndexFlow(
+    elasticHttpClient = elasticHttpClient,
+    indexName = indexName
+  ).flow
   private val indices = new Indices(elasticHttpClient)
 
   def run(jsonSource: Source[String, NotUsed]): Future[Done] = {
     indices.create(indexName).flatMap { _ =>
       conceptSource(jsonSource)
         .via(deduplicateFlow)
+        // At bulk scale, scripted updates are prohibitively slow.
+        // It is much quicker to first check if the canonicalId is present
+        // before attempting to send it to ES.
+        //
+        // This has no effect when indexing into a pristine database.
+        // The use of deduplicateFlow, above, means that no duplicate ids
+        // will be found by notInIndexFlow.
+        .via(notInIndexFlow)
         .via(bulkUpdateFlow)
         .runWith(publishIds)
     }
