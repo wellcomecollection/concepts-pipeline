@@ -69,14 +69,14 @@ class NotInIndexFlowTest
   private def givenAnIndex(responseHits: Seq[String]): TestElasticHttpClient =
     givenAnIndex(
       s"""
-                    {
-                      "hits": {
-                        "hits": [
-                        ${responseHits.mkString(",\n")}
-                        ]  
-                        }
-                    }
-                    """
+      {
+        "hits": {
+          "hits": [
+            ${responseHits.mkString(",\n")}
+          ]  
+        }
+      }
+      """
     )
 
   def runFlow(
