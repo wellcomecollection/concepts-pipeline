@@ -15,8 +15,8 @@ import weco.concepts.common.json.Indexable
 case class CatalogueConcept(
   identifier: Identifier,
   label: String,
-  canonicalId: String,
-  ontologyType: String
+  canonicalId: Seq[String],
+  ontologyType: Seq[String]
 ) {
   override def toString: String =
     s"\n$canonicalId\t${identifier.toString.padTo(70, ' ')}$label"
@@ -24,7 +24,6 @@ case class CatalogueConcept(
 
 object CatalogueConcept {
   import weco.concepts.common.json.JsonOps._
-
   implicit val indexableCatalogueConcept: Indexable[CatalogueConcept] =
     new Indexable[CatalogueConcept] {
       def id(t: CatalogueConcept): String = t.identifier.toString
@@ -32,20 +31,38 @@ object CatalogueConcept {
         "authority" -> t.identifier.identifierType.id,
         "identifier" -> t.identifier.value,
         "label" -> t.label,
-        "canonicalId" -> t.canonicalId,
-        "ontologyType" -> t.ontologyType
+        "canonicalId" -> (t.canonicalId match {
+          case Seq(singleId) => singleId
+          case moreIds       => moreIds
+        }),
+        "ontologyType" -> (t.ontologyType match {
+          case Seq(singleId) => singleId
+          case moreIds       => moreIds
+        })
       )
 
       def fromDoc(doc: ujson.Value): Option[CatalogueConcept] = for {
-        canonicalId <- doc.opt[String]("canonicalId")
         identifier <- Indexable[Identifier].fromDoc(doc)
         label <- doc.opt[String]("label")
-        ontologyType <- doc.opt[String]("ontologyType")
       } yield CatalogueConcept(
         identifier = identifier,
         label = label,
-        canonicalId = canonicalId,
-        ontologyType = ontologyType
+        canonicalId = doc.asSeq("canonicalId").map(_.str),
+        ontologyType = doc.asSeq("ontologyType").map(_.str)
+      )
+
+      override def toUpdateParams(t: CatalogueConcept): ujson.Value = ujson.Obj(
+        "canonicalId" -> t.canonicalId,
+        "ontologyType" -> t.ontologyType
       )
     }
+
+  def apply(
+    identifier: Identifier,
+    label: String,
+    canonicalId: String,
+    ontologyType: String
+  ): CatalogueConcept =
+    CatalogueConcept(identifier, label, Seq(canonicalId), Seq(ontologyType))
+
 }

@@ -31,10 +31,10 @@ trait CatalogueConceptMatchers {
   ): HavePropertyMatcher[CatalogueConcept, String] =
     (concept: CatalogueConcept) =>
       HavePropertyMatchResult(
-        concept.canonicalId == expectedValue,
+        concept.canonicalId == Seq(expectedValue),
         "canonicalId",
         expectedValue,
-        concept.canonicalId
+        concept.canonicalId.toString()
       )
 
   def ontologyType(
@@ -42,10 +42,10 @@ trait CatalogueConceptMatchers {
   ): HavePropertyMatcher[CatalogueConcept, String] =
     (concept: CatalogueConcept) =>
       HavePropertyMatchResult(
-        concept.ontologyType == expectedValue,
+        concept.ontologyType == Seq(expectedValue),
         "ontologyType",
         expectedValue,
-        concept.ontologyType
+        concept.ontologyType.toString()
       )
 
 }

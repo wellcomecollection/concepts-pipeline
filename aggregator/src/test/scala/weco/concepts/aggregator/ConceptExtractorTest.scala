@@ -69,7 +69,7 @@ class ConceptExtractorTest
       val concept = ConceptExtractor(json).loneElement
 
       And(s"the concept's ontologyType is $ontologyType")
-      concept.ontologyType shouldBe ontologyType
+      concept.ontologyType.loneElement shouldBe ontologyType
 
       And(s"the concept's identifierType is $identifierType")
       concept.identifier.identifierType.id shouldBe identifierType
@@ -81,7 +81,7 @@ class ConceptExtractorTest
       concept.label shouldBe label
 
       And(s"the concept's canonicalIdentifier is $canonicalId")
-      concept.canonicalId shouldBe canonicalId
+      concept.canonicalId.loneElement shouldBe canonicalId
     }
 
     Scenario("extract multiple different concepts throughout the document") {
@@ -212,7 +212,7 @@ class ConceptExtractorTest
       And(
         "the ontologyType of the resulting concept is Person"
       )
-      concepts.loneElement.ontologyType shouldBe "Person"
+      concepts.loneElement.ontologyType.loneElement shouldBe "Person"
     }
 
     Scenario("extract the correct ontologyType for a 'true compound' concept") {
@@ -268,11 +268,11 @@ class ConceptExtractorTest
       )
       concepts.length shouldBe 4
       concepts.head should have(
-        Symbol("label")(
+        label(
           "Scotland, Description and travel, Early works to 1800."
         ),
-        Symbol("canonicalId")("baadbeef"),
-        Symbol("ontologyType")("Concept")
+        canonicalId("baadbeef"),
+        ontologyType("Concept")
       )
     }
   }
@@ -290,11 +290,11 @@ class ConceptExtractorTest
       "Agent",
       "Genre"
     )
-    forAll(ontologyTypes) { ontologyType =>
-      Scenario(s"extract a concept of type $ontologyType ") {
-        Given(s"a document containing a concept of type $ontologyType")
+    forAll(ontologyTypes) { t =>
+      Scenario(s"extract a concept of type $t ") {
+        Given(s"a document containing a concept of type $t")
         val sourceConcept = SourceConcept(
-          ontologyType = ontologyType
+          ontologyType = t
         )
         val json =
           s"""{
@@ -305,9 +305,9 @@ class ConceptExtractorTest
 
         Then("that concept is extracted")
         ConceptExtractor(json).loneElement should have(
-          Symbol("label")(sourceConcept.label),
-          Symbol("canonicalId")(sourceConcept.canonicalId),
-          Symbol("ontologyType")(ontologyType)
+          label(sourceConcept.label),
+          canonicalId(sourceConcept.canonicalId),
+          ontologyType(t)
         )
       }
     }
@@ -473,7 +473,7 @@ class ConceptExtractorTest
         val concepts = ConceptExtractor(jsonString)
         Then("the good concept is included")
         And("the malformed concept is excluded")
-        concepts.loneElement.canonicalId shouldBe "92345678"
+        concepts.loneElement.canonicalId.loneElement shouldBe "92345678"
       }
     }
   }

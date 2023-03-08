@@ -98,7 +98,7 @@ class RecorderStreamTest
         BulkUpdateResult(
           took = 1234L,
           errored = Map.empty,
-          updated = catalogueConcepts.map(_.canonicalId),
+          updated = catalogueConcepts.flatMap(_.canonicalId),
           noop = Nil
         )
       )
@@ -141,7 +141,7 @@ class RecorderStreamTest
     val allResultsFuture = stream.recordAllCatalogueConcepts
       .runWith(Sink.seq)
     whenReady(allResultsFuture) { allResults =>
-      allResults.flatMap(_.updated) shouldBe catalogueConcepts.map(
+      allResults.flatMap(_.updated) shouldBe catalogueConcepts.flatMap(
         _.canonicalId
       )
     }

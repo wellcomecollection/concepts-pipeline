@@ -8,7 +8,8 @@ case class Concept(
   identifiers: Seq[Identifier],
   label: String,
   alternativeLabels: Seq[String],
-  ontologyType: String
+  ontologyType: String,
+  sameAs: Seq[String]
 )
 
 object Concept {
@@ -44,7 +45,8 @@ object Concept {
         ),
         "label" -> t.label,
         "alternativeLabels" -> t.alternativeLabels,
-        "type" -> t.ontologyType
+        "type" -> t.ontologyType,
+        "sameAs" -> t.sameAs
       )
     )
 
