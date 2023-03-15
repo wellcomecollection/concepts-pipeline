@@ -10,7 +10,8 @@ import grizzled.slf4j.Logging
 import weco.concepts.aggregator.sources.WorkIdSource
 import weco.concepts.common.elasticsearch.{
   ElasticAkkaHttpClient,
-  ElasticHttpClient
+  ElasticHttpClient,
+  Scripts
 }
 import weco.concepts.common.secrets.{ClusterConfWithSecrets, SecretsResolver}
 
@@ -63,6 +64,8 @@ trait AggregatorMain extends Logging {
     elasticHttpClient = elasticHttpClient,
     updatesSink = updatesSink,
     indexName = config.as[String]("data-target.index.name"),
-    maxRecordsPerBulkRequest = config.as[Int]("data-target.bulk.max-records")
+    maxRecordsPerBulkRequest = config.as[Int]("data-target.bulk.max-records"),
+    shouldUpdateAppenderScript =
+      config.as[Boolean]("data-target.appenderScript.updateAtRuntime")
   )
 }
