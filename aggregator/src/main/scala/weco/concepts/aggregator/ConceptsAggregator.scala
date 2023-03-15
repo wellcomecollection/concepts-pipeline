@@ -43,10 +43,10 @@ class ConceptsAggregator(
   private val indices = new Indices(elasticHttpClient)
   private val scripts = new Scripts(elasticHttpClient)
 
-  def uploadAppenderScript: Future[Done] = {
+  def uploadAppenderScript: Future[Done] =
     if (shouldUpdateAppenderScript) scripts.create(updateScriptName, "update")
     else Future(Done)
-  }
+
   def run(jsonSource: Source[String, NotUsed]): Future[Done] = {
     // Store the script in the update context.
     // For some reason, if you store it without context, it will
