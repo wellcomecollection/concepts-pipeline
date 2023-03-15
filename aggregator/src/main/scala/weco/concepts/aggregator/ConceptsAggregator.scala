@@ -42,29 +42,23 @@ class ConceptsAggregator(
   private val indices = new Indices(elasticHttpClient)
   private val scripts = new Scripts(elasticHttpClient)
   def run(jsonSource: Source[String, NotUsed]): Future[Done] = {
-    // Store the script in the update context.
-    // For some reason, if you store it without context, it will
-    // recompile on each use, and then fail because you are running too many
-    // script compilations during a bulk update.d
-    scripts.create(updateScriptName, "update").flatMap { _ =>
-      indices.create(indexName).flatMap { _ =>
-        conceptSource(jsonSource)
-          .via(deduplicateFlow)
-          // At bulk scale, scripted updates are prohibitively slow.
-          // It is much quicker to first check if the canonicalId is present
-          // before attempting to send it to ES.
-          //
-          // This has no effect when indexing into a pristine database.
-          // The use of deduplicateFlow, above, means that no duplicate ids
-          // will be found by notInIndexFlow.
-          .via(notInIndexFlow)
-          // The script used by this bulkUpdate is idempotent, so the use of
-          // notIndexFlow is only an optimisation.  At individual scale
-          // it may be unnecessary, and will be marginally slower when
-          // indexing new Concepts only.
-          .via(bulkUpdateFlow)
-          .runWith(publishIds)
-      }
+    indices.create(indexName).flatMap { _ =>
+      conceptSource(jsonSource)
+        .via(deduplicateFlow)
+        // At bulk scale, scripted updates are prohibitively slow.
+        // It is much quicker to first check if the canonicalId is present
+        // before attempting to send it to ES.
+        //
+        // This has no effect when indexing into a pristine database.
+        // The use of deduplicateFlow, above, means that no duplicate ids
+        // will be found by notInIndexFlow.
+        .via(notInIndexFlow)
+        // The script used by this bulkUpdate is idempotent, so the use of
+        // notIndexFlow is only an optimisation.  At individual scale
+        // it may be unnecessary, and will be marginally slower when
+        // indexing new Concepts only.
+        .via(bulkUpdateFlow)
+        .runWith(publishIds)
     }
   }
 

@@ -41,6 +41,7 @@ resource "elasticstack_elasticsearch_security_role" "write_indices" {
   }
 }
 
+
 module "client_service_users" {
   source   = "../modules/elastic_user"
   for_each = local.service_roles
