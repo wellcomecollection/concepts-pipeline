@@ -19,5 +19,5 @@ resource "elasticstack_elasticsearch_script" "append_fields" {
   // For some reason, if you store it without context, it will
   // recompile on each use, and then fail because you are running too many
   // script compilations during a bulk update.d
-  context   = "update"
+  context = "update"
 }
