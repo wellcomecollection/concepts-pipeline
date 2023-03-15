@@ -1,5 +1,5 @@
- ctx.op = 'noop';
-  for(entry in params.entrySet()) {
+ctx.op = 'noop';
+for(entry in params.entrySet()) {
     def k = entry.getKey();
     def oldField = ctx._source[k];
     def idSet = new HashSet(oldField instanceof List ? oldField : [oldField]);
@@ -7,4 +7,4 @@
       ctx._source[k] = idSet.toArray();
       ctx.op = 'index'
     }
-  }
+}
