@@ -10,8 +10,7 @@ import grizzled.slf4j.Logging
 import weco.concepts.aggregator.sources.WorkIdSource
 import weco.concepts.common.elasticsearch.{
   ElasticAkkaHttpClient,
-  ElasticHttpClient,
-  Scripts
+  ElasticHttpClient
 }
 import weco.concepts.common.secrets.{ClusterConfWithSecrets, SecretsResolver}
 
