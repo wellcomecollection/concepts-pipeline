@@ -5,7 +5,7 @@ module "concepts_pipeline" {
 
   # This is the namespace of the works catalogue pipeline
   # that this concept pipeline should subscribe to for changes.
-  catalogue_namespace = "2023-02-21"
+  catalogue_namespace = "2023-03-09"
 
   network_config     = local.network_config
   logging_cluster_id = local.logging_cluster_id
