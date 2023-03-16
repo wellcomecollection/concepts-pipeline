@@ -63,6 +63,8 @@ trait AggregatorMain extends Logging {
     elasticHttpClient = elasticHttpClient,
     updatesSink = updatesSink,
     indexName = config.as[String]("data-target.index.name"),
-    maxRecordsPerBulkRequest = config.as[Int]("data-target.bulk.max-records")
+    maxRecordsPerBulkRequest = config.as[Int]("data-target.bulk.max-records"),
+    shouldUpdateAppenderScript =
+      config.as[Boolean]("data-target.appenderScript.updateAtRuntime")
   )
 }

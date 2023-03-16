@@ -62,6 +62,12 @@ docker compose run -d --service-ports aggregator-bulk
 curl -XPOST "http://localhost:9002/2015-03-31/functions/function/invocations" -d '{"workId":"all"}'
 ```
 
+In Real Life, this can be invoked using:
+```shell
+aws lambda invoke --function-name 2022-08-31-concepts_aggregator_bulk --payload eyJ3b3JrSWQiOiJhbGwifQo= out
+```
+(The payload is the same as for a local run, base64 encoded)
+
 ### Where is the data?
 Each of these commands will populate the local Elasticsearch, so you can examine
 the results there:

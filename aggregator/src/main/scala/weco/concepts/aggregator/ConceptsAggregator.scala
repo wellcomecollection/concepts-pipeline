@@ -21,7 +21,8 @@ class ConceptsAggregator(
   elasticHttpClient: ElasticHttpClient,
   updatesSink: Sink[String, Future[Done]],
   indexName: String,
-  maxRecordsPerBulkRequest: Int
+  maxRecordsPerBulkRequest: Int,
+  shouldUpdateAppenderScript: Boolean
 )(implicit
   actorSystem: ActorSystem
 ) extends Logging {
@@ -41,12 +42,17 @@ class ConceptsAggregator(
 
   private val indices = new Indices(elasticHttpClient)
   private val scripts = new Scripts(elasticHttpClient)
+
+  def uploadAppenderScript: Future[Done] =
+    if (shouldUpdateAppenderScript) scripts.create(updateScriptName, "update")
+    else Future(Done)
+
   def run(jsonSource: Source[String, NotUsed]): Future[Done] = {
     // Store the script in the update context.
     // For some reason, if you store it without context, it will
     // recompile on each use, and then fail because you are running too many
-    // script compilations during a bulk update.d
-    scripts.create(updateScriptName, "update").flatMap { _ =>
+    // script compilations during a bulk update.
+    uploadAppenderScript.flatMap { _ =>
       indices.create(indexName).flatMap { _ =>
         conceptSource(jsonSource)
           .via(deduplicateFlow)
