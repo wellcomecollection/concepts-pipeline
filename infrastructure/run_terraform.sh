@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
+set -o errexit
+set -o nounset
+
 ROOT=$(git rev-parse --show-toplevel)
-if ! sh "$ROOT/infrastructure/is_up_to_date.sh";
-then
-  exit 1
-fi
+sh "$ROOT/infrastructure/is_up_to_date.sh"
 
 AWS_CLI_PROFILE="concepts-pipeline-terraform"
 CATALOGUE_DEVELOPER_ARN="arn:aws:iam::756629837203:role/catalogue-developer"
