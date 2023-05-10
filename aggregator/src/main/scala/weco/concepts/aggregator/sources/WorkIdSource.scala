@@ -50,6 +50,25 @@ class WorkIdSource(workUrlTemplate: String)(implicit actorSystem: ActorSystem)
           // whole-catalogue runs of the aggregator over the snapshots.
           info(s"Updated work was removed from API: $goneWorkId")
           None
+        case (
+              Success(HttpResponse(StatusCodes.Found, headers, _, _)),
+              redirectedWorkId
+            ) =>
+          // Redirected works normally point to a different substantive work.
+          // That will be where the relevant changes can be found.
+          // If there are relevant changes, then the target of the redirection will also
+          // have changed and will be in the queue to be processed.
+          // Therefore, there is no point in following the redirection, as the target
+          // is either about to be, or recently has been processed in its own right.
+          val redirectedTo: String =
+            headers.find(_.name() == "Location") match {
+              case Some(location) => location.value
+              case None           => "nowhere"
+            }
+          info(
+            s"Work is redirected, not fetching: $redirectedWorkId, redirected to: $redirectedTo"
+          )
+          None
         case (Success(errorResponse), failedWorkId) =>
           warn(
             s"Could not fetch $failedWorkId: request returned ${errorResponse.status.value}"
