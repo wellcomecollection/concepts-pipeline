@@ -1,25 +1,26 @@
 package weco.concepts.aggregator.sources
 
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 import akka.stream.scaladsl.{Flow, Source}
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import grizzled.slf4j.Logging
 
 /** Fetch works with given workIds from the Catalogue API
   */
-class WorkIdSource(workUrlTemplate: String)(implicit actorSystem: ActorSystem)
+class WorkIdSource(
+  workUrlTemplate: String,
+  httpFlow: Flow[(HttpRequest, String), (Try[HttpResponse], String), NotUsed]
+)(implicit actorSystem: ActorSystem)
     extends Logging {
-  private lazy val pool = Http().superPool[String]()
 
   def apply(workIds: Iterator[String]): Source[String, NotUsed] = {
     info(s"reading from catalogue API")
     if (!workUrlTemplate.contains("api.wellcomecollection.org")) {
       // If you see this warning and you do not expect it (e.g. in a production system),
-      // check the workurl_tempate environment variable.
+      // check the workurl_template environment variable.
       // This environment variable should normally be unset in production,
       // allowing the default template from the config files to be used.
       warn(
@@ -27,7 +28,7 @@ class WorkIdSource(workUrlTemplate: String)(implicit actorSystem: ActorSystem)
       )
     }
     Source
-      .fromIterator(() => workIds)
+      .fromIterator(() => workIds.distinct)
       .via(jsonFromWorkId)
   }
 
@@ -39,7 +40,7 @@ class WorkIdSource(workUrlTemplate: String)(implicit actorSystem: ActorSystem)
           uri = Uri(workUrlTemplate.format(workId))
         ) -> workId
       }
-      .via(pool)
+      .via(httpFlow)
       .map {
         case (Success(HttpResponse(StatusCodes.OK, _, entity, _)), _) =>
           Some(entity)
