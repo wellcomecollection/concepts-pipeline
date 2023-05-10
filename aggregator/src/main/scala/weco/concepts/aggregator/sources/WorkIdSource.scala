@@ -66,7 +66,7 @@ class WorkIdSource(workUrlTemplate: String)(implicit actorSystem: ActorSystem)
               case None           => "nowhere"
             }
           info(
-            s"Work is redirected, not fetching: $redirectedWorkId, redirected to: ${redirectedTo}"
+            s"Work is redirected, not fetching: $redirectedWorkId, redirected to: $redirectedTo"
           )
           None
         case (Success(errorResponse), failedWorkId) =>
