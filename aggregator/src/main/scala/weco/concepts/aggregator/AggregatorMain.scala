@@ -5,6 +5,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import akka.actor.ActorSystem
+import akka.http.scaladsl.Http
 import akka.stream.scaladsl.Sink
 import grizzled.slf4j.Logging
 import weco.concepts.aggregator.sources.WorkIdSource
@@ -41,7 +42,8 @@ trait AggregatorMain extends Logging {
     config.as[Int]("data-source.maxframe.kib")
 
   protected lazy val workIdSource: WorkIdSource = new WorkIdSource(
-    config.as[String]("data-source.workURL.template")
+    workUrlTemplate = config.as[String]("data-source.workURL.template"),
+    httpFlow = Http().superPool[String]()
   )
   protected lazy val snapshotUrl: String =
     config.as[String]("data-source.works.snapshot")
