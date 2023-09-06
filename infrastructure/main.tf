@@ -5,7 +5,7 @@ module "concepts_pipeline" {
 
   # This is the namespace of the works catalogue pipeline
   # that this concept pipeline should subscribe to for changes.
-  catalogue_namespace = "2023-06-09" // This is automatically bumped by the catalogue-api repo
+  catalogue_namespace = "2023-06-10" // This is automatically bumped by the catalogue-api repo
 
   network_config     = local.network_config
   logging_cluster_id = local.logging_cluster_id
