@@ -1,5 +1,5 @@
 env:
-  LIVE_PIPELINE: 2022-08-31
+  LIVE_PIPELINE: "2022-08-31"
 steps:
   - label: "autoformat"
     command: .buildkite/scripts/autoformat.sh
