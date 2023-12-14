@@ -52,7 +52,7 @@ steps:
   - wait
 
   - label: "publish: ingestor"
-    branches: "fix-pushes"
+    branches: "main"
     plugins:
       - wellcomecollection/aws-assume-role#v0.2.2:
           role: "arn:aws:iam::756629837203:role/catalogue-ci"
@@ -75,6 +75,7 @@ steps:
       - ecr#v2.5.0:
           login: true
       - docker-compose#v4.16.0:
+          cli-version: 2
           push:
             - aggregator:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_aggregator:ref.${BUILDKITE_COMMIT}
             - aggregator:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_aggregator:${LIVE_PIPELINE}
@@ -90,6 +91,7 @@ steps:
       - ecr#v2.5.0:
           login: true
       - docker-compose#v4.16.0:
+          cli-version: 2
           push:
             - aggregator-bulk:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_aggregator_bulk:ref.${BUILDKITE_COMMIT}
             - aggregator-bulk:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_aggregator_bulk:${LIVE_PIPELINE}
@@ -105,6 +107,7 @@ steps:
       - ecr#v2.5.0:
           login: true
       - docker-compose#v4.16.0:
+          cli-version: 2
           push:
             - recorder:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_recorder:ref.${BUILDKITE_COMMIT}
             - recorder:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_recorder:${LIVE_PIPELINE}
@@ -120,6 +123,7 @@ steps:
       - ecr#v2.5.0:
           login: true
       - docker-compose#v4.16.0:
+          cli-version: 2
           push:
             - recorder_bulk:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_recorder_bulk:ref.${BUILDKITE_COMMIT}
             - recorder_bulk:756629837203.dkr.ecr.eu-west-1.amazonaws.com/weco/concepts_recorder_bulk:${LIVE_PIPELINE}
