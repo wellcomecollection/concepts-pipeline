@@ -13,7 +13,7 @@ object ExternalDependencies {
     val logback = "1.4.14"
     val scalatest = "3.2.12"
     val typesafeConfig = "1.4.2"
-    val uPickle = "2.0.0"
+    val uPickle = "3.2.0"
   }
 
   val scalatest = Seq(
