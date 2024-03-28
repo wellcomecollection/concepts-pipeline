@@ -12,7 +12,7 @@ object ExternalDependencies {
     val gson = "2.9.1"
     val logback = "1.4.14"
     val scalatest = "3.2.12"
-    val typesafeConfig = "1.4.2"
+    val typesafeConfig = "1.4.3"
     val uPickle = "3.2.0"
   }
 
