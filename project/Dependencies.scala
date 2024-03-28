@@ -7,7 +7,7 @@ object ExternalDependencies {
       "10.2.9" // This is a separate library to the rest of the akka-* world
     val awsLambda = "1.2.3"
     val awsLambdaEvents = "3.11.4"
-    val awsSdk = "2.17.271"
+    val awsSdk = "2.17.295"
     val ficus = "1.5.2"
     val grizzledSlf4j = "1.3.4"
     val gson = "2.9.0"
