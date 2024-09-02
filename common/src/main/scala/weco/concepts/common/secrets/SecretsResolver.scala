@@ -13,7 +13,9 @@ object SecretsResolver extends Logging {
   def apply(key: String): Seq[String] => Map[String, String] = {
     key match {
       case "AWSEnvironment" =>
-        new GetAWSSecretValues(AuthenticatedClient.CredentialsProvider.Environment).apply
+        new GetAWSSecretValues(
+          AuthenticatedClient.CredentialsProvider.Environment
+        ).apply
       case "AWSDefault" =>
         new GetAWSSecretValues(
           AuthenticatedClient.CredentialsProvider.Default
