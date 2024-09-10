@@ -1,11 +1,6 @@
 env:
   LIVE_PIPELINE: "2022-08-31"
 steps:
-  - label: "autoformat"
-    command: .buildkite/scripts/autoformat.sh
-    agents:
-      queue: "nano"
-
   - label: "test: common"
     plugins:
       - docker-compose#v4.16.0:
