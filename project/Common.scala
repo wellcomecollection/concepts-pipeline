@@ -9,9 +9,6 @@ object Common {
   val settings: Seq[Def.Setting[_]] = Seq(
     scalaVersion := projectScalaVersion,
     organization := "weco",
-    resolvers ++= Seq(
-      "Wellcome releases" at "s3://releases.mvn-repo.wellcomecollection.org/"
-    ),
     scalacOptions ++= Seq(
       "-deprecation",
       "-unchecked",
