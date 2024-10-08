@@ -84,12 +84,3 @@ lazy val recorder = setupProject(
     (ThisBuild / assemblyMergeStrategy).value
   )
 )
-
-// AWS Credentials to read from S3
-s3CredentialsProvider := { _ =>
-  val builder = new STSAssumeRoleSessionCredentialsProvider.Builder(
-    "arn:aws:iam::760097843905:role/platform-ci",
-    UUID.randomUUID().toString
-  )
-  builder.build()
-}
