@@ -1,7 +1,7 @@
 package weco.concepts.aggregator
 
-import akka.NotUsed
-import akka.http.scaladsl.model.{
+import org.apache.pekko.NotUsed
+import org.apache.pekko.http.scaladsl.model.{
   ContentTypes,
   HttpEntity,
   HttpMethods,
@@ -9,9 +9,9 @@ import akka.http.scaladsl.model.{
   HttpResponse,
   StatusCodes
 }
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.Materializer
-import akka.stream.scaladsl.Flow
+import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
 import ujson.Value
 import weco.concepts.common.elasticsearch.ElasticHttpClient

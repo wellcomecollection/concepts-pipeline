@@ -1,6 +1,6 @@
 package weco.concepts.recorder
 
-import akka.stream.scaladsl.{Sink, Source}
+import org.apache.pekko.stream.scaladsl.{Sink, Source}
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import grizzled.slf4j.Logging
 import com.amazonaws.services.lambda.runtime.events.SQSEvent

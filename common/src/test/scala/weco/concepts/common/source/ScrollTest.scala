@@ -1,9 +1,9 @@
 package weco.concepts.common.source
 
-import akka.actor.ActorSystem
-import akka.stream.scaladsl.Source
-import akka.stream.testkit.scaladsl.TestSink
-import akka.util.ByteString
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.stream.testkit.scaladsl.TestSink
+import org.apache.pekko.util.ByteString
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 
@@ -26,7 +26,7 @@ class ScrollTest extends AnyFunSpec with Matchers {
 
     Source
       .single(gzip(lines.mkString("\n")))
-      .via(Scroll(32))
+      .via(Scroll.fromCompressed(32))
       .runWith(TestSink[String]())
       .request(lines.length)
       .expectNextN(lines)
@@ -54,7 +54,7 @@ class ScrollTest extends AnyFunSpec with Matchers {
 
     Source
       .single(gzip(lines.mkString("\n")))
-      .via(Scroll(30))
+      .via(Scroll.fromCompressed(30))
       .runWith(TestSink[String]())
       .request(lines.length)
       .expectError()

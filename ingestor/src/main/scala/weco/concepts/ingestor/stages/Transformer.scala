@@ -1,7 +1,7 @@
 package weco.concepts.ingestor.stages
 
-import akka.NotUsed
-import akka.stream.scaladsl._
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl._
 import grizzled.slf4j.Logging
 import weco.concepts.common.json.JsonOps._
 import weco.concepts.common.model._

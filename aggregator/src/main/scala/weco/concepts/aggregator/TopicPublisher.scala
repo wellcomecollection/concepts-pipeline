@@ -1,7 +1,7 @@
 package weco.concepts.aggregator
 
-import akka.Done
-import akka.stream.scaladsl.{Flow, Keep, Sink}
+import org.apache.pekko.Done
+import org.apache.pekko.stream.scaladsl.{Flow, Keep, Sink}
 import grizzled.slf4j.Logging
 import software.amazon.awssdk.services.sns.SnsAsyncClient
 import software.amazon.awssdk.services.sns.model.{
@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.sns.model.{
 
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
-import scala.compat.java8.FutureConverters._
+import scala.jdk.FutureConverters._
 
 class TopicPublisher(snsClient: SnsAsyncClient, topicArn: String)
     extends Logging {
@@ -26,7 +26,7 @@ class TopicPublisher(snsClient: SnsAsyncClient, topicArn: String)
       .mapAsyncUnordered(concurrency) { messages =>
         snsClient
           .publishBatch(batchRequest(messages))
-          .toScala
+          .asScala
       }
       .map {
         case result if !result.failed().isEmpty =>

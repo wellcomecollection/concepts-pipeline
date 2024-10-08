@@ -1,6 +1,6 @@
 package weco.concepts.aggregator
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model.{
   ContentTypes,
   HttpEntity,
   HttpMethods,
@@ -8,8 +8,8 @@ import akka.http.scaladsl.model.{
   HttpResponse,
   StatusCodes
 }
-import akka.stream.scaladsl.Source
-import akka.stream.testkit.scaladsl.TestSink
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.stream.testkit.scaladsl.TestSink
 import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.featurespec.AnyFeatureSpec

@@ -1,9 +1,9 @@
 package weco.concepts.common.source
 
-import akka.NotUsed
-import akka.http.scaladsl.model._
-import akka.stream.scaladsl._
-import akka.util.ByteString
+import org.apache.pekko.NotUsed
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.stream.scaladsl._
+import org.apache.pekko.util.ByteString
 import grizzled.slf4j.Logging
 
 import scala.util.{Failure, Success, Try}

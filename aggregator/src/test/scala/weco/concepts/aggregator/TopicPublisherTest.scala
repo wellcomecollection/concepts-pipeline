@@ -1,7 +1,7 @@
 package weco.concepts.aggregator
 
-import akka.actor.ActorSystem
-import akka.stream.scaladsl.Source
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.scaladsl.Source
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import software.amazon.awssdk.services.sns.SnsAsyncClient
@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.sns.model.{
 import java.util.concurrent.CompletableFuture
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
-import scala.compat.java8.FutureConverters._
+import scala.jdk.FutureConverters._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
@@ -90,7 +90,7 @@ class TopicPublisherTest extends AnyFunSpec with Matchers {
             )
             .build()
         )
-        .toJava
+        .asJava
         .toCompletableFuture
     }
   }

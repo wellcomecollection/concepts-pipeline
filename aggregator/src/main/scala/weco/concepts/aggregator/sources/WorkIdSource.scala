@@ -1,11 +1,11 @@
 package weco.concepts.aggregator.sources
 
 import scala.util.{Failure, Success, Try}
-import akka.stream.scaladsl.{Flow, Source}
-import akka.NotUsed
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.unmarshalling.Unmarshal
+import org.apache.pekko.stream.scaladsl.{Flow, Source}
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import grizzled.slf4j.Logging
 
 /** Fetch works with given workIds from the Catalogue API

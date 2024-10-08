@@ -1,6 +1,6 @@
 package weco.concepts.recorder
 
-import akka.stream.scaladsl.Sink
+import org.apache.pekko.stream.scaladsl.Sink
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.BulkUpdateResult

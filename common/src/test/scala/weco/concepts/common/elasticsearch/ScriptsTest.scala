@@ -1,8 +1,8 @@
 package weco.concepts.common.elasticsearch
 
-import akka.Done
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model._
+import org.apache.pekko.Done
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model._
 import org.scalatest.funspec.AsyncFunSpec
 import org.scalatest.matchers.should.Matchers
 import weco.concepts.common.ResourceLoader

@@ -1,6 +1,6 @@
 package weco.concepts.ingestor
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.typesafe.config.{Config, ConfigFactory}
 import grizzled.slf4j.Logging
 import net.ceedubs.ficus.Ficus._

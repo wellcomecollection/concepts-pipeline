@@ -1,7 +1,7 @@
 package weco.concepts.aggregator
 
-import akka.Done
-import akka.stream.scaladsl.Sink
+import org.apache.pekko.Done
+import org.apache.pekko.stream.scaladsl.Sink
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import net.ceedubs.ficus.Ficus._
 import grizzled.slf4j.Logging

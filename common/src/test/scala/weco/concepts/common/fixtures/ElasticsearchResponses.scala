@@ -1,8 +1,8 @@
 package weco.concepts.common.fixtures
 
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.Materializer
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
+import org.apache.pekko.stream.Materializer
 import weco.concepts.common.json.Indexable
 import weco.concepts.common.json.Indexable._
 import weco.concepts.common.json.JsonOps._

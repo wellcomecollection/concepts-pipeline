@@ -2,9 +2,8 @@ import sbt._
 
 object ExternalDependencies {
   val versions = new {
-    val akka = "2.7.0"
-    val akkaHttp =
-      "10.2.9" // This is a separate library to the rest of the akka-* world
+    val pekko = "1.1.1"
+    val pekkoHttp = "1.1.0"
     val awsLambda = "1.2.1"
     val awsLambdaEvents = "3.11.0"
     val awsSdk = "2.17.271"
@@ -33,20 +32,20 @@ object ExternalDependencies {
     "com.iheart" %% "ficus" % versions.ficus
   )
 
-  val akka = new {
-    val actorTyped = "com.typesafe.akka" %% s"akka-actor-typed" % versions.akka
-    val http = "com.typesafe.akka" %% "akka-http" % versions.akkaHttp
-    val stream = "com.typesafe.akka" %% s"akka-stream" % versions.akka
+  val pekko = new {
+    val actorTyped = "org.apache.pekko" %% s"pekko-actor-typed" % versions.pekko
+    val http = "org.apache.pekko" %% "pekko-http" % versions.pekkoHttp
+    val stream = "org.apache.pekko" %% s"pekko-stream" % versions.pekko
     val streamTestkit =
-      "com.typesafe.akka" %% s"akka-stream-testkit" % versions.akka % Test
+      "org.apache.pekko" %% s"pekko-stream-testkit" % versions.pekko % Test
   }
 
   val uPickle = Seq(
     "com.lihaoyi" %% "upickle" % versions.uPickle
   )
 
-  val akkaDeps =
-    Seq(akka.actorTyped, akka.stream, akka.http, akka.streamTestkit)
+  val pekkoDeps =
+    Seq(pekko.actorTyped, pekko.stream, pekko.http, pekko.streamTestkit)
 
   val awsLambda = Seq(
     "com.amazonaws" % "aws-lambda-java-core" % versions.awsLambda,
@@ -71,16 +70,16 @@ object ExternalDependencies {
 object ServiceDependencies {
   import ExternalDependencies._
   val common: Seq[ModuleID] =
-    scalatest ++ logging ++ uPickle ++ akkaDeps ++ awsSecrets
+    scalatest ++ logging ++ uPickle ++ pekkoDeps ++ awsSecrets
 
   val ingestor: Seq[ModuleID] =
     scalatest ++
       logging ++
       config ++
-      akkaDeps ++ awsLambda
+      pekkoDeps ++ awsLambda
 
   val aggregator: Seq[ModuleID] = {
-    scalatest ++ logging ++ config ++ akkaDeps ++ awsLambda ++ awsLambdaEvents ++ awsSns
+    scalatest ++ logging ++ config ++ pekkoDeps ++ awsLambda ++ awsLambdaEvents ++ awsSns
   }
 
   val recorder: Seq[ModuleID] = {
