@@ -1,8 +1,8 @@
 package weco.concepts.aggregator
 
-import akka.{Done, NotUsed}
+import org.apache.pekko.{Done, NotUsed}
 import grizzled.slf4j.Logging
-import akka.stream.scaladsl.{Sink, Source}
+import org.apache.pekko.stream.scaladsl.{Sink, Source}
 import weco.concepts.aggregator.sources._
 
 import scala.concurrent.Future
@@ -27,7 +27,9 @@ object Main extends AggregatorMain with Logging with App {
 
   aggregator
     .run(source)
-    .recover(err => error(err.getMessage))
+    .recover { case err: Throwable =>
+      error(err.getMessage); Done
+    }
     .onComplete { result =>
       result match {
         case Success(_) =>

@@ -1,8 +1,8 @@
 package weco.concepts.common.elasticsearch
 
-import akka.Done
-import akka.http.scaladsl.model._
-import akka.stream.Materializer
+import org.apache.pekko.Done
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.stream.Materializer
 import grizzled.slf4j.Logging
 import weco.concepts.common.ResourceLoader
 

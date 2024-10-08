@@ -1,9 +1,9 @@
 package weco.concepts.aggregator.sources
 
-import akka.NotUsed
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.stream.scaladsl.Source
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.stream.scaladsl.Source
 import grizzled.slf4j.Logging
 import weco.concepts.common.source.{Fetcher, Scroll}
 

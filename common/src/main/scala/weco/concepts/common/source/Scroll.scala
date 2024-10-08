@@ -1,8 +1,8 @@
 package weco.concepts.common.source
 
-import akka.NotUsed
-import akka.stream.scaladsl.{Compression, Flow, Framing}
-import akka.util.ByteString
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl.{Compression, Flow, Framing}
+import org.apache.pekko.util.ByteString
 
 object Scroll {
   def fromUncompressed(
@@ -23,8 +23,4 @@ object Scroll {
     Compression
       .gunzip()
       .via(fromUncompressed(maximumFrameLength))
-
-  def apply(maximumFrameLength: Int): Flow[ByteString, String, NotUsed] =
-    fromCompressed(maximumFrameLength)
-
 }

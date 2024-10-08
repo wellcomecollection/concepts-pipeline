@@ -1,7 +1,7 @@
 package weco.concepts.aggregator.sources
 
-import akka.NotUsed
-import akka.stream.scaladsl.{Source, StreamConverters}
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl.{Source, StreamConverters}
 import grizzled.slf4j.Logging
 import weco.concepts.common.source.Scroll
 

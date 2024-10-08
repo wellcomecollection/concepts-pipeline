@@ -1,17 +1,17 @@
 package weco.concepts.aggregator
 
-import akka.Done
+import org.apache.pekko.Done
 import com.typesafe.config.{Config, ConfigFactory}
 import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.stream.scaladsl.Sink
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.stream.scaladsl.Sink
 import grizzled.slf4j.Logging
 import weco.concepts.aggregator.sources.WorkIdSource
 import weco.concepts.common.elasticsearch.{
-  ElasticAkkaHttpClient,
-  ElasticHttpClient
+  ElasticHttpClient,
+  ElasticPekkoHttpClient
 }
 import weco.concepts.common.secrets.{ClusterConfWithSecrets, SecretsResolver}
 
@@ -53,9 +53,9 @@ trait AggregatorMain extends Logging {
 
   private val clusterConfig = new ClusterConfWithSecrets(
     SecretsResolver(config.as[String]("secrets-resolver"))
-  )(config.as[ElasticAkkaHttpClient.ClusterConfig]("data-target.cluster"))
+  )(config.as[ElasticPekkoHttpClient.ClusterConfig]("data-target.cluster"))
 
-  private val elasticHttpClient: ElasticHttpClient = ElasticAkkaHttpClient(
+  private val elasticHttpClient: ElasticHttpClient = ElasticPekkoHttpClient(
     clusterConfig
   )
 

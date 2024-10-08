@@ -4,7 +4,7 @@ import sbt._
 object Common {
   // Giving this a try for new code (we use 2.12 elsewhere)
   // If it causes headaches then we can downgrade
-  val projectScalaVersion = "2.13.8"
+  val projectScalaVersion = "2.13.15"
 
   val settings: Seq[Def.Setting[_]] = Seq(
     scalaVersion := projectScalaVersion,

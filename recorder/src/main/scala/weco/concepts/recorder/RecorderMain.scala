@@ -1,13 +1,13 @@
 package weco.concepts.recorder
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.typesafe.config.{Config, ConfigFactory}
 import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
-  ElasticAkkaHttpClient,
   ElasticHttpClient,
+  ElasticPekkoHttpClient,
   Indices
 }
 import weco.concepts.common.secrets.{ClusterConfWithSecrets, SecretsResolver}
@@ -25,9 +25,9 @@ trait RecorderMain extends Logging {
 
   private val clusterConfig = new ClusterConfWithSecrets(
     SecretsResolver(config.as[String]("secrets-resolver"))
-  )(config.as[ElasticAkkaHttpClient.ClusterConfig]("data.cluster"))
+  )(config.as[ElasticPekkoHttpClient.ClusterConfig]("data.cluster"))
 
-  private val elasticHttpClient: ElasticHttpClient = ElasticAkkaHttpClient(
+  private val elasticHttpClient: ElasticHttpClient = ElasticPekkoHttpClient(
     clusterConfig
   )
   val indices: Indices = new Indices(elasticHttpClient)

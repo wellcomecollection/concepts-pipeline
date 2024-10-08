@@ -1,9 +1,9 @@
 package weco.concepts.ingestor
 
-import akka.{Done, NotUsed}
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.stream.scaladsl._
+import org.apache.pekko.{Done, NotUsed}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.stream.scaladsl._
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
   BulkUpdateFlow,
@@ -61,7 +61,7 @@ class IngestStream(
       // At time of writing,
       // The largest JSON in LC-Subjects is ca 77KiB
       // So 128KiB should give sufficient overhead to catch any expansion
-      .via(Scroll(128 * 1024))
+      .via(Scroll.fromCompressed(128 * 1024))
       .via(Transformer.apply[T])
 }
 

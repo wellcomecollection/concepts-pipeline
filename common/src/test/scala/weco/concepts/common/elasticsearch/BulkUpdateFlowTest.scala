@@ -1,8 +1,8 @@
 package weco.concepts.common.elasticsearch
 
-import akka.actor.ActorSystem
-import akka.stream.scaladsl.Source
-import akka.stream.testkit.scaladsl.TestSink
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.stream.testkit.scaladsl.TestSink
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import ujson.Value

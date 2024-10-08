@@ -1,14 +1,14 @@
 package weco.concepts.common.elasticsearch
 
-import akka.NotUsed
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.http.scaladsl.model.headers.BasicHttpCredentials
-import akka.http.scaladsl.settings.ConnectionPoolSettings
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.Materializer
-import akka.stream.scaladsl.{Flow, Sink, Source}
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse}
+import org.apache.pekko.http.scaladsl.model.headers.BasicHttpCredentials
+import org.apache.pekko.http.scaladsl.settings.ConnectionPoolSettings
+import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{Flow, Sink, Source}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
@@ -29,7 +29,7 @@ trait ElasticHttpClient {
       .runWith(Sink.head)
 }
 
-class ElasticAkkaHttpClient(
+class ElasticPekkoHttpClient(
   scheme: String,
   host: String,
   port: Int,
@@ -58,7 +58,7 @@ class ElasticAkkaHttpClient(
   }
 }
 
-object ElasticAkkaHttpClient {
+object ElasticPekkoHttpClient {
   case class ClusterConfig(
     scheme: String,
     host: String,
@@ -69,7 +69,7 @@ object ElasticAkkaHttpClient {
   )
 
   def apply(clusterConfig: ClusterConfig)(implicit actorSystem: ActorSystem) =
-    new ElasticAkkaHttpClient(
+    new ElasticPekkoHttpClient(
       scheme = clusterConfig.scheme,
       host = clusterConfig.host,
       port = clusterConfig.port,

@@ -1,12 +1,12 @@
 package weco.concepts.recorder
 
-import akka.NotUsed
-import akka.http.scaladsl.model._
-import akka.stream.scaladsl.Flow
+import org.apache.pekko.NotUsed
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
-  ElasticAkkaHttpClient,
-  ElasticHttpClient
+  ElasticHttpClient,
+  ElasticPekkoHttpClient
 }
 import weco.concepts.common.json.Indexable
 import weco.concepts.common.json.JsonOps._
@@ -41,7 +41,7 @@ class MultiGetFlow(
           error("Unexpected error performing multi-get")
           throw exception
       }
-      .via(ElasticAkkaHttpClient.deserializeJson)
+      .via(ElasticPekkoHttpClient.deserializeJson)
       .mapConcat(
         _.opt[Seq[ujson.Value]]("docs")
           .map(_.map {

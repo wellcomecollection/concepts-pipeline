@@ -1,8 +1,8 @@
 package weco.concepts.common.fixtures
 
-import akka.NotUsed
-import akka.stream.scaladsl.Flow
-import akka.http.scaladsl.model._
+import org.apache.pekko.NotUsed
+import org.apache.pekko.stream.scaladsl.Flow
+import org.apache.pekko.http.scaladsl.model._
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.ElasticHttpClient
 

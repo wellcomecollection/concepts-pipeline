@@ -1,8 +1,8 @@
 package weco.concepts.common.elasticsearch
 
-import akka.NotUsed
-import akka.http.scaladsl.model._
-import akka.stream.scaladsl.Flow
+import org.apache.pekko.NotUsed
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
 import weco.concepts.common.json.Indexable
 import weco.concepts.common.json.Indexable._
@@ -10,7 +10,7 @@ import weco.concepts.common.json.Indexable._
 import scala.util.{Failure, Success}
 
 /*
- * An Akka Flow that takes a stream of objects and inserts them into ElasticSearch
+ * A Pekko Flow that takes a stream of objects and inserts them into ElasticSearch
  * Using the bulk API.
  *
  * The stream emits a map of actions taken (created, updated, noop), to counts of records that
@@ -55,7 +55,7 @@ class BulkUpdateFlow[T: Indexable](
       .via(Flow.fromFunction(format))
       .grouped(maxBulkRecords)
       .via(elasticsearchBulkFlow)
-      .via(ElasticAkkaHttpClient.deserializeJson)
+      .via(ElasticPekkoHttpClient.deserializeJson)
       .via(checkResultsFlow)
       .via(accumulateTotals)
 

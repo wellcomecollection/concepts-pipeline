@@ -1,7 +1,7 @@
 package weco.concepts.aggregator
-import akka.actor.ActorSystem
-import akka.{Done, NotUsed}
-import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.{Done, NotUsed}
+import org.apache.pekko.stream.scaladsl.{Flow, Keep, Sink, Source}
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
   BulkUpdateResult,

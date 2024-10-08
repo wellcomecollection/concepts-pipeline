@@ -3,7 +3,7 @@ package weco.concepts.common.secrets
 import org.scalatest.GivenWhenThen
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
-import weco.concepts.common.elasticsearch.ElasticAkkaHttpClient.ClusterConfig
+import weco.concepts.common.elasticsearch.ElasticPekkoHttpClient.ClusterConfig
 
 class ClusterConfWithSecretsTest
     extends AnyFeatureSpec

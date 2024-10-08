@@ -1,7 +1,7 @@
 package weco.concepts.common.secrets
 
 import grizzled.slf4j.Logging
-import weco.concepts.common.elasticsearch.ElasticAkkaHttpClient.ClusterConfig
+import weco.concepts.common.elasticsearch.ElasticPekkoHttpClient.ClusterConfig
 
 /*
  * A Resolver for ClusterConfig secrets.

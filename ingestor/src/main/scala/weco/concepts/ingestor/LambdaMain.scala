@@ -2,6 +2,7 @@ package weco.concepts.ingestor
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import grizzled.slf4j.Logging
+import org.apache.pekko.Done
 
 import java.util.{Map => JavaMap}
 import scala.concurrent.Await
@@ -21,14 +22,16 @@ object LambdaMain
       s"running ingestor lambda, Lambda request: ${context.getAwsRequestId}"
     )
     val f = ingestStream.run
-      .recover(err => error(err.getMessage))
+      .recover { case err: Throwable =>
+        error(err.getMessage); Done
+      }
       .map(_ => ())
 
     // Wait here so that lambda can run correctly.
     // Without waiting here, handleRequest finishes immediately.
     // Locally, (in a lambda container), that results in
     // the Lambda Runtime Interface Emulator telling us it took no time at all
-    // and then Akka starts doing all the work.
+    // and then Pekko starts doing all the work.
     // I don't know what will happen in real life, but I suspect
     // that Lambda will shutdown the container and nothing will get done.
     Await.result(f, 10.minutes)

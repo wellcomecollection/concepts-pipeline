@@ -1,15 +1,15 @@
 package weco.concepts.common.elasticsearch
 
-import akka.Done
-import akka.http.scaladsl.model.{
+import org.apache.pekko.Done
+import org.apache.pekko.http.scaladsl.model.{
   ContentTypes,
   HttpEntity,
   HttpMethods,
   HttpRequest,
   HttpResponse
 }
-import akka.http.scaladsl.unmarshalling.Unmarshal
-import akka.stream.Materializer
+import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
+import org.apache.pekko.stream.Materializer
 
 import scala.concurrent.{ExecutionContext, Future}
 

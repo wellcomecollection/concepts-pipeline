@@ -1,10 +1,10 @@
 package weco.concepts.common.source
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model._
-import akka.stream.scaladsl.{Flow, Source}
-import akka.stream.testkit.scaladsl._
-import akka.util.ByteString
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.stream.scaladsl.{Flow, Source}
+import org.apache.pekko.stream.testkit.scaladsl._
+import org.apache.pekko.util.ByteString
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 
