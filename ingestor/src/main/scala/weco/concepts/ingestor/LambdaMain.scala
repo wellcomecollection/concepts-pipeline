@@ -23,7 +23,7 @@ object LambdaMain
     )
     val f = ingestStream.run
       .recover { case err: Throwable =>
-          error(err.getMessage); Done
+        error(err.getMessage); Done
       }
       .map(_ => ())
 
