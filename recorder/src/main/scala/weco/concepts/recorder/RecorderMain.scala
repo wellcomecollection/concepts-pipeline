@@ -6,8 +6,8 @@ import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
-  ElasticPekkoHttpClient,
   ElasticHttpClient,
+  ElasticPekkoHttpClient,
   Indices
 }
 import weco.concepts.common.secrets.{ClusterConfWithSecrets, SecretsResolver}

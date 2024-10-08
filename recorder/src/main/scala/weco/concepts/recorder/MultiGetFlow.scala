@@ -5,8 +5,8 @@ import org.apache.pekko.http.scaladsl.model._
 import org.apache.pekko.stream.scaladsl.Flow
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
-  ElasticPekkoHttpClient,
-  ElasticHttpClient
+  ElasticHttpClient,
+  ElasticPekkoHttpClient
 }
 import weco.concepts.common.json.Indexable
 import weco.concepts.common.json.JsonOps._
