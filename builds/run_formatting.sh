@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCALAFMT_VERSION=3.5.8
+SCALAFMT_VERSION=3.5.9
 TERRAFORM_VERSION=1.2.5
 ROOT=$(git rev-parse --show-toplevel)
 PATH=$HOME/.local/bin:$PATH
