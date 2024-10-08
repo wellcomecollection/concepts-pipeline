@@ -10,7 +10,7 @@ import weco.concepts.common.json.Indexable._
 import scala.util.{Failure, Success}
 
 /*
- * An Akka Flow that takes a stream of objects and inserts them into ElasticSearch
+ * A Pekko Flow that takes a stream of objects and inserts them into ElasticSearch
  * Using the bulk API.
  *
  * The stream emits a map of actions taken (created, updated, noop), to counts of records that
@@ -55,7 +55,7 @@ class BulkUpdateFlow[T: Indexable](
       .via(Flow.fromFunction(format))
       .grouped(maxBulkRecords)
       .via(elasticsearchBulkFlow)
-      .via(ElasticAkkaHttpClient.deserializeJson)
+      .via(ElasticPekkoHttpClient.deserializeJson)
       .via(checkResultsFlow)
       .via(accumulateTotals)
 

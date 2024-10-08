@@ -6,7 +6,7 @@ import net.ceedubs.ficus.Ficus._
 import net.ceedubs.ficus.readers.ArbitraryTypeReader._
 import grizzled.slf4j.Logging
 import weco.concepts.common.elasticsearch.{
-  ElasticAkkaHttpClient,
+  ElasticPekkoHttpClient,
   ElasticHttpClient,
   Indices
 }
@@ -25,9 +25,9 @@ trait RecorderMain extends Logging {
 
   private val clusterConfig = new ClusterConfWithSecrets(
     SecretsResolver(config.as[String]("secrets-resolver"))
-  )(config.as[ElasticAkkaHttpClient.ClusterConfig]("data.cluster"))
+  )(config.as[ElasticPekkoHttpClient.ClusterConfig]("data.cluster"))
 
-  private val elasticHttpClient: ElasticHttpClient = ElasticAkkaHttpClient(
+  private val elasticHttpClient: ElasticHttpClient = ElasticPekkoHttpClient(
     clusterConfig
   )
   val indices: Indices = new Indices(elasticHttpClient)

@@ -29,7 +29,7 @@ trait ElasticHttpClient {
       .runWith(Sink.head)
 }
 
-class ElasticAkkaHttpClient(
+class ElasticPekkoHttpClient(
   scheme: String,
   host: String,
   port: Int,
@@ -58,7 +58,7 @@ class ElasticAkkaHttpClient(
   }
 }
 
-object ElasticAkkaHttpClient {
+object ElasticPekkoHttpClient {
   case class ClusterConfig(
     scheme: String,
     host: String,
@@ -69,7 +69,7 @@ object ElasticAkkaHttpClient {
   )
 
   def apply(clusterConfig: ClusterConfig)(implicit actorSystem: ActorSystem) =
-    new ElasticAkkaHttpClient(
+    new ElasticPekkoHttpClient(
       scheme = clusterConfig.scheme,
       host = clusterConfig.host,
       port = clusterConfig.port,

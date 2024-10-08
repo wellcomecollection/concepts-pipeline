@@ -10,7 +10,7 @@ import org.apache.pekko.stream.scaladsl.Sink
 import grizzled.slf4j.Logging
 import weco.concepts.aggregator.sources.WorkIdSource
 import weco.concepts.common.elasticsearch.{
-  ElasticAkkaHttpClient,
+  ElasticPekkoHttpClient,
   ElasticHttpClient
 }
 import weco.concepts.common.secrets.{ClusterConfWithSecrets, SecretsResolver}
@@ -53,9 +53,9 @@ trait AggregatorMain extends Logging {
 
   private val clusterConfig = new ClusterConfWithSecrets(
     SecretsResolver(config.as[String]("secrets-resolver"))
-  )(config.as[ElasticAkkaHttpClient.ClusterConfig]("data-target.cluster"))
+  )(config.as[ElasticPekkoHttpClient.ClusterConfig]("data-target.cluster"))
 
-  private val elasticHttpClient: ElasticHttpClient = ElasticAkkaHttpClient(
+  private val elasticHttpClient: ElasticHttpClient = ElasticPekkoHttpClient(
     clusterConfig
   )
 
