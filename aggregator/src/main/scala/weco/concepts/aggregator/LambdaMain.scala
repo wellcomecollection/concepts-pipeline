@@ -42,7 +42,9 @@ object LambdaMain
     }
     val f = aggregator
       .run(source)
-      .recover(err => error(err.getMessage))
+      .recover { case err: Throwable =>
+        error(err.getMessage); Done
+      }
       .map(_ => ())
 
     // Wait here so that lambda can run correctly.

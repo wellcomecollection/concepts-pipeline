@@ -2,6 +2,7 @@ package weco.concepts.ingestor
 
 import com.amazonaws.services.lambda.runtime.{Context, RequestHandler}
 import grizzled.slf4j.Logging
+import org.apache.pekko.Done
 
 import java.util.{Map => JavaMap}
 import scala.concurrent.Await
@@ -21,7 +22,9 @@ object LambdaMain
       s"running ingestor lambda, Lambda request: ${context.getAwsRequestId}"
     )
     val f = ingestStream.run
-      .recover(err => error(err.getMessage))
+      .recover { case err: Throwable =>
+          error(err.getMessage); Done
+      }
       .map(_ => ())
 
     // Wait here so that lambda can run correctly.

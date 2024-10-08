@@ -27,7 +27,9 @@ object Main extends AggregatorMain with Logging with App {
 
   aggregator
     .run(source)
-    .recover(err => error(err.getMessage))
+    .recover { case err: Throwable =>
+      error(err.getMessage); Done
+    }
     .onComplete { result =>
       result match {
         case Success(_) =>

@@ -55,7 +55,9 @@ object SQSMain
 
     val f = aggregator
       .run(workIdSource(workIds.iterator))
-      .recover(err => error(err.getMessage))
+      .recover { case err: Throwable =>
+        error(err.getMessage); Done
+      }
       .map(_ => ())
 
     // Wait here so that lambda can run correctly.
