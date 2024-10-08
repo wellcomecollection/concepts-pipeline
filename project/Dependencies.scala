@@ -5,7 +5,7 @@ object ExternalDependencies {
     val pekko = "1.1.1"
     val pekkoHttp = "1.1.0"
     val awsLambda = "1.2.3"
-    val awsLambdaEvents = "3.11.0"
+    val awsLambdaEvents = "3.11.6"
     val awsSdk = "2.17.271"
     val ficus = "1.5.2"
     val grizzledSlf4j = "1.3.4"
