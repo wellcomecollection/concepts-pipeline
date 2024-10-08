@@ -11,7 +11,7 @@ object ExternalDependencies {
     val grizzledSlf4j = "1.3.4"
     val gson = "2.9.1"
     val logback = "1.4.14"
-    val scalatest = "3.2.12"
+    val scalatest = "3.2.19"
     val typesafeConfig = "1.4.3"
     val uPickle = "4.0.2"
   }
