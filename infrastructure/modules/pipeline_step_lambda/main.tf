@@ -1,6 +1,6 @@
 
 locals {
-  ecr_image_tag     = "latest"
+  ecr_image_tag     = var.namespace
   service_full_name = "concepts_${var.service_name}"
 }
 
