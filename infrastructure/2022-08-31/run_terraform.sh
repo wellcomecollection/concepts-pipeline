@@ -2,8 +2,20 @@
 set -o errexit
 set -o nounset
 
+# Get the path to the current directory, which we can use to find the
+# 'scripts' folder and the date of the current pipeline.
+#
+# https://stackoverflow.com/q/59895/1558022
+THIS_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 ROOT=$(git rev-parse --show-toplevel)
-sh "$ROOT/infrastructure/is_up_to_date.sh"
+. $ROOT/scripts/is_up_to_date.sh
+
+# Create the config file that tells Terraform which pipeline we're running
+# in and where to store the remote state.
+export PIPELINE_DATE="$(basename "$THIS_DIR")"
+. $ROOT/scripts/create_terraform_config_file.sh
+
 
 AWS_CLI_PROFILE="concepts-pipeline-terraform"
 CATALOGUE_DEVELOPER_ARN="arn:aws:iam::756629837203:role/catalogue-developer"
