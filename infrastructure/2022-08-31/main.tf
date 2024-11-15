@@ -12,7 +12,6 @@ module "concepts_pipeline" {
 
   aggregator_repository      = data.terraform_remote_state.concepts_shared.outputs.ecr_repository_concepts_aggregator
   aggregator_bulk_repository = data.terraform_remote_state.concepts_shared.outputs.ecr_repository_concepts_aggregator_bulk
-  ingestor_repository        = data.terraform_remote_state.concepts_shared.outputs.ecr_repository_concepts_ingestor
   recorder_repository        = data.terraform_remote_state.concepts_shared.outputs.ecr_repository_concepts_recorder
   recorder_bulk_repository   = data.terraform_remote_state.concepts_shared.outputs.ecr_repository_concepts_recorder_bulk
 }

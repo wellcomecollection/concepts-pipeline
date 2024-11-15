@@ -1,9 +1,5 @@
 locals {
   service_roles = {
-    ingestor = [
-      "${local.elastic_indices.authoritative-concepts}_read",
-      "${local.elastic_indices.authoritative-concepts}_write"
-    ]
     aggregator = [
       "${local.elastic_indices.catalogue-concepts}_read",
       "${local.elastic_indices.catalogue-concepts}_write"

@@ -65,12 +65,16 @@ object ExternalDependencies {
     "software.amazon.awssdk" % "sns" % versions.awsSdk,
     "software.amazon.awssdk" % "sts" % versions.awsSdk
   )
+
+  val awsSso = Seq(
+    "software.amazon.awssdk" % "sso" % versions.awsSdk
+  )
 }
 
 object ServiceDependencies {
   import ExternalDependencies._
   val common: Seq[ModuleID] =
-    scalatest ++ logging ++ uPickle ++ pekkoDeps ++ awsSecrets
+    scalatest ++ logging ++ uPickle ++ pekkoDeps ++ awsSecrets ++ awsSso
 
   val ingestor: Seq[ModuleID] =
     scalatest ++

@@ -1,10 +1,3 @@
-output "ecr_repository_concepts_ingestor" {
-  value = {
-    name = aws_ecr_repository.concepts_ingestor.name
-    url  = aws_ecr_repository.concepts_ingestor.repository_url
-  }
-}
-
 output "ecr_repository_concepts_aggregator" {
   value = {
     name = aws_ecr_repository.concepts_aggregator.name
