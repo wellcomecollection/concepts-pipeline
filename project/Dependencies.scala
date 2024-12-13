@@ -9,11 +9,11 @@ object ExternalDependencies {
     val awsSdk = "2.17.271"
     val ficus = "1.5.2"
     val grizzledSlf4j = "1.3.4"
-    val gson = "2.9.0"
-    val logback = "1.4.12"
-    val scalatest = "3.2.12"
-    val typesafeConfig = "1.4.2"
-    val uPickle = "2.0.0"
+    val gson = "2.9.1"
+    val logback = "1.4.14"
+    val scalatest = "3.2.19"
+    val typesafeConfig = "1.4.3"
+    val uPickle = "4.0.2"
   }
 
   val scalatest = Seq(
