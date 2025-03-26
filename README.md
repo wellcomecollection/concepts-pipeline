@@ -1,5 +1,10 @@
 # concepts-pipeline
 
+> [!NOTE]
+>  **This repository is now deprecated.** Building on the work of this repository, these services have been replaced by the [catalogue-graph](https://github.com/wellcomecollection/catalogue-pipeline/tree/main/catalogue_graph).
+
+---
+
 _Some sort of ETL pipeline for concepts in the Wellcome Collection catalogue_
 
 Running data through this pipeline results in an index to serve the concepts API with concept data, harvested from an external authority (Initially Library of Congress, then MeSH, and Wikidata, with the possibility of adding other sources as we see fit).
